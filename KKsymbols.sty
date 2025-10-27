@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{KKsymbols}[2025/10/28, Version 1.0.4]
+\ProvidesPackage{KKsymbols}[2025/10/28, Version 1.1.0]
 \RequirePackage{luatexja-adjust}
 \RequirePackage{expl3}
 \RequirePackage{calc}
@@ -9,10 +9,10 @@
 \newcommand{\dccare}[1]{%
   \ifnum\ltjgetparameter{direction}=3
     % 縦書き
-    \vphantom{田}\raisebox{\dimexpr.09\dimexpr\f@size pt\relax}{\scalebox{1}[.8]{#1}}%
+    \vphantom{田}\raisebox{\dimexpr.09\dimexpr\f@size pt\relax}{\scalebox{1}[.9]{#1}}%
   \else
     % 横書き
-    \vphantom{田}\raisebox{\dimexpr.155\dimexpr\f@size pt\relax}{\scalebox{1}[.8]{#1}}%
+    \vphantom{田}\raisebox{\dimexpr.155\dimexpr\f@size pt\relax}{\scalebox{1}[.9]{#1}}%
   \fi
 }
 \newcommand{\ndccare}[1]{\vphantom{田}#1}
@@ -53,9 +53,17 @@
 
 \newcommand{\VerticalAdjustMaru}{%
   \ifnum\ltjgetparameter{direction}=3
-    -0.06ex % 縦組
+    -0.035ex % 縦組
   \else
     0.19ex  % 横組
+  \fi
+}
+
+\newcommand{\VerticalAdjustNMaru}{%
+  \ifnum\ltjgetparameter{direction}=3
+    -0.035ex % 縦組
+  \else
+    0.23ex  % 横組
   \fi
 }
 
@@ -145,8 +153,6 @@
   \settowidth{\maru@textwidth}{#1}%
   \settoheight{\maru@textheight}{#1}%
   \setlength{\maru@boxwidth}{\f@size pt}%
-  \multiply\maru@boxwidth by 105 % 123から105へ
-  \divide\maru@boxwidth by 100 %
   \ltjghostbeforejachar%
   \vphantom{羅}\raisebox{\VerticalAdjustMaru}{%
     \hbox to \maru@boxwidth{%
@@ -154,12 +160,12 @@
       \tikz[baseline=(char.base)]{%
         \node[
           shape=circle,
-          line width=0.1ex,  
-          minimum size=.9\maru@boxwidth, % .92から.9へ
+          line width=0.08ex,  
+          minimum size=.9\maru@boxwidth, 
           draw,
-          inner sep=\dimexpr -0.22\dimexpr\f@size pt % .25から.22へ   
+          inner sep=\dimexpr -0.22\dimexpr\f@size pt 
         ] (char){%
-          \raisebox{0.033ex}{\scalebox{0.75}{\vphantom{羅}\makebox[.83\maru@boxwidth][c]{\maybescale{\maru@textwidth}{.83\maru@boxwidth}{\maybescaleV{\maru@textheight}{\maru@boxwidth}{#1}}}}}% 0.8倍から0.75倍へ・.9\maru@boxwidth から 85\maru@boxwidthへ
+          \raisebox{0.033ex}{\scalebox{0.75}{\vphantom{羅}\makebox[.83\maru@boxwidth][c]{\maybescale{\maru@textwidth}{.8\maru@boxwidth}{\maybescaleV{\maru@textheight}{1.03\maru@boxwidth}{#1}}}}}% 
         };
       }%
       \hss
@@ -175,8 +181,6 @@
   \settowidth{\kuromaru@textwidth}{#1}%
   \settoheight{\kuromaru@textheight}{#1}%
   \setlength{\kuromaru@boxwidth}{\f@size pt}%
-  \multiply\kuromaru@boxwidth by  105 %
-  \divide\kuromaru@boxwidth by 100 %
   \ltjghostbeforejachar%
   \vphantom{羅}\raisebox{\VerticalAdjustMaru}{%
     \hbox to \kuromaru@boxwidth{%
@@ -184,12 +188,12 @@
       \tikz[baseline=(char.base)]{%
         \node[
           shape=circle,
-          line width=0.1ex,  
+          line width=0.08ex,  
           minimum size=.9\kuromaru@boxwidth,  
           draw, fill=black,
           inner sep=\dimexpr -0.22\dimexpr\f@size pt    
         ] (char){%
-          \raisebox{0.033ex}{\textcolor{white}{\scalebox{0.75}{\vphantom{羅}\makebox[.85\kuromaru@boxwidth][c]{\maybescale{\kuromaru@textwidth}{.85\kuromaru@boxwidth}{\maybescaleV{\kuromaru@textheight}{\kuromaru@boxwidth}{#1}}}}}}%
+          \raisebox{0.033ex}{\textcolor{white}{\scalebox{0.75}{\vphantom{羅}\makebox[.85\kuromaru@boxwidth][c]{\maybescale{\kuromaru@textwidth}{.82\kuromaru@boxwidth}{\maybescaleV{\kuromaru@textheight}{1.03\kuromaru@boxwidth}{#1}}}}}}%
         };
       }%
       \hss
@@ -205,21 +209,19 @@
   \settowidth{\nmaru@textwidth}{#1}%
   \settoheight{\nmaru@textheight}{#1}%
   \setlength{\nmaru@boxwidth}{\f@size pt}%
-  \multiply\nmaru@boxwidth by 105 %
-  \divide\nmaru@boxwidth by 100 %
   \ltjghostbeforejachar%
-  \vphantom{羅}\raisebox{\VerticalAdjustMaru}{%
+  \vphantom{羅}\raisebox{\VerticalAdjustNMaru}{%
     \hbox to 1.02\nmaru@boxwidth{%
       \hss
       \tikz[baseline=(char.base),scale=.93]{%
         \node[
           shape=circle,
-          line width=0.1ex,  
+          line width=0.06ex,  
           minimum size=.9\nmaru@boxwidth,  
           draw, double, double distance=0.08ex,
           inner sep=\dimexpr -0.22\dimexpr\f@size pt    
         ] (char){%
-          \raisebox{0.033ex}{\scalebox{0.7}{\vphantom{羅}\makebox[.85\nmaru@boxwidth][c]{\maybescale{\nmaru@textwidth}{.85\nmaru@boxwidth}{\maybescaleV{\nmaru@textheight}{\nmaru@boxwidth}{#1}}}}}%
+          \raisebox{0.033ex}{\scalebox{0.7}{\vphantom{羅}\makebox[.85\nmaru@boxwidth][c]{\maybescale{\nmaru@textwidth}{.81\nmaru@boxwidth}{\maybescaleV{\nmaru@textheight}{1.03\nmaru@boxwidth}{#1}}}}}%
         };
       }%
       \hss
@@ -252,14 +254,12 @@
   \settowidth{\seihou@textwidth}{#1}%
   \settoheight{\seihou@textheight}{#1}%
   \setlength{\seihou@boxwidth}{\f@size pt}%
-  \multiply\seihou@boxwidth by 123 %
-  \divide\seihou@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
   \mbox{%
   \hbox to \seihou@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[draw, line width=0.1ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\seihou@boxwidth}\makebox[.82\seihou@boxwidth][c]{\maybescale{\seihou@textwidth}{.82\seihou@boxwidth}{\maybescaleVV{\seihou@textheight}{\seihou@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\seihou@boxwidth}}}}};
+      \node[draw, line width=0.08ex, minimum size=\dimexpr 0.88\dimexpr\f@size pt, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\seihou@boxwidth}\makebox[.82\seihou@boxwidth][c]{\maybescale{\seihou@textwidth}{.82\seihou@boxwidth}{\maybescaleVV{\seihou@textheight}{1.23\seihou@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\seihou@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -270,14 +270,12 @@
   \settowidth{\kuroseihou@textwidth}{#1}%
   \settoheight{\kuroseihou@textheight}{#1}%
   \setlength{\kuroseihou@boxwidth}{\f@size pt}%
-  \multiply\kuroseihou@boxwidth by 123 %
-  \divide\kuroseihou@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
   \mbox{%
   \hbox to \kuroseihou@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[draw, fill=black, line width=0.1ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\kuroseihou@boxwidth}\textcolor{white}{\makebox[.82\kuroseihou@boxwidth][c]{\maybescale{\kuroseihou@textwidth}{.82\kuroseihou@boxwidth}{\maybescaleVV{\kuroseihou@textheight}{\kuroseihou@boxwidth}{#1}}}}\hspace*{\dimexpr 0.1\kuroseihou@boxwidth}}}}};
+      \node[draw, fill=black, line width=0.08ex, minimum size=\dimexpr 0.88\dimexpr\f@size pt, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\kuroseihou@boxwidth}\textcolor{white}{\makebox[.82\kuroseihou@boxwidth][c]{\maybescale{\kuroseihou@textwidth}{.82\kuroseihou@boxwidth}{\maybescaleVV{\kuroseihou@textheight}{1.23\kuroseihou@boxwidth}{#1}}}}\hspace*{\dimexpr 0.1\kuroseihou@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -288,14 +286,12 @@
   \settowidth{\seimaru@textwidth}{#1}%
   \settoheight{\seimaru@textheight}{#1}%
   \setlength{\seimaru@boxwidth}{\f@size pt}%
-  \multiply\seimaru@boxwidth by 123 %
-  \divide\seimaru@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
   \mbox{%
   \hbox to \seimaru@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[draw, rounded corners=0.435ex, line width=0.1ex, minimum size=.8\seimaru@boxwidth, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\seimaru@boxwidth}\makebox[.8\seimaru@boxwidth][c]{\maybescale{\seimaru@textwidth}{.82\seimaru@boxwidth}{\maybescaleVV{\seimaru@textheight}{\seimaru@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\seimaru@boxwidth}}}}};
+      \node[draw, rounded corners=0.435ex, line width=0.08ex, minimum size=.88\seimaru@boxwidth, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\seimaru@boxwidth}\makebox[.8\seimaru@boxwidth][c]{\maybescale{\seimaru@textwidth}{.82\seimaru@boxwidth}{\maybescaleVV{\seimaru@textheight}{1.23\seimaru@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\seimaru@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -306,14 +302,12 @@
   \settowidth{\kuroseimaru@textwidth}{#1}%
   \settoheight{\kuroseimaru@textheight}{#1}%
   \setlength{\kuroseimaru@boxwidth}{\f@size pt}%
-  \multiply\kuroseimaru@boxwidth by 123 %
-  \divide\kuroseimaru@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
   \mbox{%
   \hbox to \kuroseimaru@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[draw, fill=black, rounded corners=0.435ex, line width=0.1ex, minimum size=.8\kuroseimaru@boxwidth, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\kuroseimaru@boxwidth}\textcolor{white}{\makebox[.8\kuroseimaru@boxwidth][c]{\maybescale{\kuroseimaru@textwidth}{.82\kuroseimaru@boxwidth}{\maybescaleVV{\kuroseimaru@textheight}{\kuroseimaru@boxwidth}{#1}}}}\hspace*{\dimexpr 0.1\kuroseimaru@boxwidth}}}}};
+      \node[draw, fill=black, rounded corners=0.435ex, line width=0.08ex, minimum size=.88\kuroseimaru@boxwidth, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\kuroseimaru@boxwidth}\textcolor{white}{\makebox[.8\kuroseimaru@boxwidth][c]{\maybescale{\kuroseimaru@textwidth}{.82\kuroseimaru@boxwidth}{\maybescaleVV{\kuroseimaru@textheight}{1.23\kuroseimaru@boxwidth}{#1}}}}\hspace*{\dimexpr 0.1\kuroseimaru@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -332,14 +326,12 @@
   \settowidth{\hishi@textwidth}{#1}%
   \settoheight{\hishi@textheight}{#1}%
   \setlength{\hishi@boxwidth}{\f@size pt}%
-  \multiply\hishi@boxwidth by 123 %
-  \divide\hishi@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
   \mbox{%
-  \hbox to 1.05\hishi@boxwidth{%
+  \hbox to \hishi@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[draw, shape=diamond, line width=0.1ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\hishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.7}{\hspace*{\dimexpr 0.1\hishi@boxwidth}\makebox[.67\hishi@boxwidth][c]{\maybescale{\hishi@textwidth}{.67\hishi@boxwidth}{\maybescaleVVV{\hishi@textheight}{\hishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\hishi@boxwidth}}}}};
+      \node[draw, shape=diamond, line width=0.08ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\hishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.53}{\hspace*{\dimexpr 0.1\hishi@boxwidth}\makebox[.67\hishi@boxwidth][c]{\maybescale{\hishi@textwidth}{.67\hishi@boxwidth}{\maybescaleVVV{\hishi@textheight}{1.7\hishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\hishi@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -350,14 +342,12 @@
   \settowidth{\kurohishi@textwidth}{#1}%
   \settoheight{\kurohishi@textheight}{#1}%
   \setlength{\kurohishi@boxwidth}{\f@size pt}%
-  \multiply\kurohishi@boxwidth by 123 %
-  \divide\kurohishi@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
   \mbox{%
-  \hbox to 1.05\kurohishi@boxwidth{%
+  \hbox to \kurohishi@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[draw, shape=diamond, fill=black, line width=0.1ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\kurohishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.7}{\hspace*{\dimexpr 0.1\kurohishi@boxwidth}\textcolor{white}{\makebox[.7\kurohishi@boxwidth][c]{\maybescale{\kurohishi@textwidth}{.7\kurohishi@boxwidth}{\maybescaleVVV{\kurohishi@textheight}{\kurohishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\kurohishi@boxwidth}}}}}};
+      \node[draw, shape=diamond, fill=black, line width=0.08ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\kurohishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.53}{\hspace*{\dimexpr 0.1\kurohishi@boxwidth}\textcolor{white}{\makebox[.67\kurohishi@boxwidth][c]{\maybescale{\kurohishi@textwidth}{.67\kurohishi@boxwidth}{\maybescaleVVV{\kurohishi@textheight}{1.7\kurohishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\kurohishi@boxwidth}}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -368,14 +358,12 @@
   \settowidth{\maruhishi@textwidth}{#1}%
   \settoheight{\maruhishi@textheight}{#1}%
   \setlength{\maruhishi@boxwidth}{\f@size pt}%
-  \multiply\maruhishi@boxwidth by 123 %
-  \divide\maruhishi@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
   \mbox{%
-  \hbox to 1.05\maruhishi@boxwidth{%
+  \hbox to \maruhishi@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[draw, rounded corners=0.3ex, shape=diamond, line width=0.1ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\maruhishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.7}{\hspace*{\dimexpr 0.1\maruhishi@boxwidth}\makebox[.7\maruhishi@boxwidth][c]{\maybescale{\maruhishi@textwidth}{.7\maruhishi@boxwidth}{\maybescaleVVV{\maruhishi@textheight}{\maruhishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\maruhishi@boxwidth}}}}};
+      \node[draw, rounded corners=0.3ex, shape=diamond, line width=0.08ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\maruhishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.53}{\hspace*{\dimexpr 0.1\maruhishi@boxwidth}\makebox[.67\maruhishi@boxwidth][c]{\maybescale{\maruhishi@textwidth}{.67\maruhishi@boxwidth}{\maybescaleVVV{\maruhishi@textheight}{1.7\maruhishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\maruhishi@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -386,14 +374,12 @@
   \settowidth{\kuromaruhishi@textwidth}{#1}%
    \settoheight{\kuromaruhishi@textheight}{#1}%
   \setlength{\kuromaruhishi@boxwidth}{\f@size pt}%
-  \multiply\kuromaruhishi@boxwidth by 123 %
-  \divide\kuromaruhishi@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
   \mbox{%
-  \hbox to 1.05\kuromaruhishi@boxwidth{%
+  \hbox to \kuromaruhishi@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[draw, fill=black, rounded corners=0.3ex, shape=diamond, line width=0.1ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\kuromaruhishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.7}{\hspace*{\dimexpr 0.1\kuromaruhishi@boxwidth}\textcolor{white}{\makebox[.7\kuromaruhishi@boxwidth][c]{\maybescale{\kuromaruhishi@textwidth}{.7\kuromaruhishi@boxwidth}{\maybescaleVVV{\kuromaruhishi@textheight}{\kuromaruhishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\kuromaruhishi@boxwidth}}}}}};
+      \node[draw, fill=black, rounded corners=0.3ex, shape=diamond, line width=0.08ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\kuromaruhishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.57}{\hspace*{\dimexpr 0.1\kuromaruhishi@boxwidth}\textcolor{white}{\makebox[.67\kuromaruhishi@boxwidth][c]{\maybescale{\kuromaruhishi@textwidth}{.67\kuromaruhishi@boxwidth}{\maybescaleVVV{\kuromaruhishi@textheight}{1.7\kuromaruhishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\kuromaruhishi@boxwidth}}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -412,14 +398,12 @@
   \settowidth{\kakko@textwidth}{#1}%
   \settoheight{\kakko@textheight}{#1}%
   \setlength{\kakko@boxwidth}{\f@size pt}%
-  \multiply\kakko@boxwidth by 123 %
-  \divide\kakko@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
   \mbox{%
   \hbox to \kakko@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kakko@boxwidth}\makebox[.5\kakko@boxwidth][c]{\scalebox{.8}[1]{（}\maybescale{\kakko@textwidth}{.5\kakko@boxwidth}{\maybescaleVVVV{\kakko@textheight}{\kakko@boxwidth}{#1}}\scalebox{.8}[1]{）}}\hspace*{\dimexpr 0.02\kakko@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kakko@boxwidth}\makebox[.5\kakko@boxwidth][c]{\scalebox{.8}[1]{（}\maybescale{\kakko@textwidth}{.5\kakko@boxwidth}{\maybescaleVVVV{\kakko@textheight}{1.23\kakko@boxwidth}{#1}}\scalebox{.8}[1]{）}}\hspace*{\dimexpr 0.02\kakko@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -430,14 +414,12 @@
   \settowidth{\sumikakko@textwidth}{#1}%
   \settoheight{\sumikakko@textheight}{#1}%
   \setlength{\sumikakko@boxwidth}{\f@size pt}%
-  \multiply\sumikakko@boxwidth by 123 %
-  \divide\sumikakko@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
   \mbox{%
   \hbox to \sumikakko@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\sumikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\sumikakko@boxwidth}\makebox[.5\sumikakko@boxwidth][c]{\scalebox{.6}[1]{【}\maybescale{\sumikakko@textwidth}{.5\sumikakko@boxwidth}{\maybescaleVVVV{\sumikakko@textheight}{\sumikakko@boxwidth}{#1}}\scalebox{.6}[1]{】}}\hspace*{\dimexpr 0.02\sumikakko@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\sumikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\sumikakko@boxwidth}\makebox[.5\sumikakko@boxwidth][c]{\scalebox{.6}[1]{【}\maybescale{\sumikakko@textwidth}{.5\sumikakko@boxwidth}{\maybescaleVVVV{\sumikakko@textheight}{1.23\sumikakko@boxwidth}{#1}}\scalebox{.6}[1]{】}}\hspace*{\dimexpr 0.02\sumikakko@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -448,14 +430,12 @@
   \settowidth{\kakukakko@textwidth}{#1}%
   \settoheight{\kakukakko@textheight}{#1}%
   \setlength{\kakukakko@boxwidth}{\f@size pt}%
-  \multiply\kakukakko@boxwidth by 123 %
-  \divide\kakukakko@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
   \mbox{%
   \hbox to \kakukakko@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kakukakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kakukakko@boxwidth}\makebox[.5\kakukakko@boxwidth][c]{\scalebox{.6}[1]{［}\maybescale{\kakukakko@textwidth}{.5\kakukakko@boxwidth}{\maybescaleVVVV{\kakukakko@textheight}{\kakukakko@boxwidth}{#1}}\scalebox{.6}[1]{］}}\hspace*{\dimexpr 0.02\kakukakko@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kakukakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kakukakko@boxwidth}\makebox[.5\kakukakko@boxwidth][c]{\scalebox{.6}[1]{［}\maybescale{\kakukakko@textwidth}{.5\kakukakko@boxwidth}{\maybescaleVVVV{1.23\kakukakko@textheight}{\kakukakko@boxwidth}{#1}}\scalebox{.6}[1]{］}}\hspace*{\dimexpr 0.02\kakukakko@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -466,14 +446,12 @@
   \settowidth{\kikakko@textwidth}{#1}%
   \settoheight{\kikakko@textheight}{#1}%
   \setlength{\kikakko@boxwidth}{\f@size pt}%
-  \multiply\kikakko@boxwidth by 123 %
-  \divide\kikakko@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
   \mbox{%
   \hbox to \kikakko@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kikakko@boxwidth}\makebox[.5\kikakko@boxwidth][c]{\scalebox{.6}[1]{〔}\maybescale{\kikakko@textwidth}{.5\kikakko@boxwidth}{\maybescaleVVVV{\kikakko@textheight}{\kikakko@boxwidth}{#1}}\scalebox{.6}[1]{〕}}\hspace*{\dimexpr 0.02\kikakko@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kikakko@boxwidth}\makebox[.5\kikakko@boxwidth][c]{\scalebox{.6}[1]{〔}\maybescale{\kikakko@textwidth}{.5\kikakko@boxwidth}{\maybescaleVVVV{1.23\kikakko@textheight}{\kikakko@boxwidth}{#1}}\scalebox{.6}[1]{〕}}\hspace*{\dimexpr 0.02\kikakko@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -484,14 +462,12 @@
   \settowidth{\ykakko@textwidth}{#1}%
   \settoheight{\ykakko@textheight}{#1}%
   \setlength{\ykakko@boxwidth}{\f@size pt}%
-  \multiply\ykakko@boxwidth by 123 %
-  \divide\ykakko@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
   \mbox{%
   \hbox to \ykakko@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\ykakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\ykakko@boxwidth}\makebox[.5\ykakko@boxwidth][c]{\scalebox{.6}[1]{〈}\maybescale{\ykakko@textwidth}{.5\ykakko@boxwidth}{\maybescaleVVVV{\ykakko@textheight}{\ykakko@boxwidth}{#1}}\scalebox{.6}[1]{〉}}\hspace*{\dimexpr 0.02\ykakko@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\ykakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\ykakko@boxwidth}\makebox[.5\ykakko@boxwidth][c]{\scalebox{.6}[1]{〈}\maybescale{\ykakko@textwidth}{.5\ykakko@boxwidth}{\maybescaleVVVV{1.23\ykakko@textheight}{\ykakko@boxwidth}{#1}}\scalebox{.6}[1]{〉}}\hspace*{\dimexpr 0.02\ykakko@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -502,14 +478,12 @@
   \settowidth{\nykakko@textwidth}{#1}%
   \settoheight{\nykakko@textheight}{#1}%
   \setlength{\nykakko@boxwidth}{\f@size pt}%
-  \multiply\nykakko@boxwidth by 123 %
-  \divide\nykakko@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
   \mbox{%
   \hbox to \nykakko@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\nykakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\nykakko@boxwidth}\makebox[.5\nykakko@boxwidth][c]{\scalebox{.6}[1]{《}\maybescale{\nykakko@textwidth}{.5\nykakko@boxwidth}{\maybescaleVVVV{\nykakko@textheight}{\nykakko@boxwidth}{#1}}\scalebox{.6}[1]{》}}\hspace*{\dimexpr 0.02\nykakko@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\nykakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\nykakko@boxwidth}\makebox[.5\nykakko@boxwidth][c]{\scalebox{.6}[1]{《}\maybescale{\nykakko@textwidth}{.5\nykakko@boxwidth}{\maybescaleVVVV{1.23\nykakko@textheight}{\nykakko@boxwidth}{#1}}\scalebox{.6}[1]{》}}\hspace*{\dimexpr 0.02\nykakko@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -520,14 +494,12 @@
   \settowidth{\namikakko@textwidth}{#1}%
   \settoheight{\namikakko@textheight}{#1}%
   \setlength{\namikakko@boxwidth}{\f@size pt}%
-  \multiply\namikakko@boxwidth by 123 %
-  \divide\namikakko@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
   \mbox{%
   \hbox to \namikakko@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\namikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\namikakko@boxwidth}\makebox[.5\namikakko@boxwidth][c]{\scalebox{.6}[1]{｛}\maybescale{\namikakko@textwidth}{.5\namikakko@boxwidth}{\maybescaleVVVV{\namikakko@textheight}{\namikakko@boxwidth}{#1}}\scalebox{.6}[1]{｝}}\hspace*{\dimexpr 0.02\namikakko@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\namikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\namikakko@boxwidth}\makebox[.5\namikakko@boxwidth][c]{\scalebox{.6}[1]{｛}\maybescale{\namikakko@textwidth}{.5\namikakko@boxwidth}{\maybescaleVVVV{1.23\namikakko@textheight}{\namikakko@boxwidth}{#1}}\scalebox{.6}[1]{｝}}\hspace*{\dimexpr 0.02\namikakko@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -538,14 +510,12 @@
   \settowidth{\kagikakko@textwidth}{#1}%
   \settoheight{\kagikakko@textheight}{#1}%
   \setlength{\kagikakko@boxwidth}{\f@size pt}%
-  \multiply\kagikakko@boxwidth by 123 %
-  \divide\kagikakko@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
   \mbox{%
   \hbox to \kagikakko@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kagikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kagikakko@boxwidth}\makebox[.5\kagikakko@boxwidth][c]{\scalebox{.6}[1]{「}\maybescale{\kagikakko@textwidth}{.5\kagikakko@boxwidth}{\maybescaleVVVV{\kagikakko@textheight}{\kagikakko@boxwidth}{#1}}\scalebox{.6}[1]{」}}\hspace*{\dimexpr 0.02\kagikakko@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kagikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kagikakko@boxwidth}\makebox[.5\kagikakko@boxwidth][c]{\scalebox{.6}[1]{「}\maybescale{\kagikakko@textwidth}{.5\kagikakko@boxwidth}{\maybescaleVVVV{1.23\kagikakko@textheight}{\kagikakko@boxwidth}{#1}}\scalebox{.6}[1]{」}}\hspace*{\dimexpr 0.02\kagikakko@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -556,14 +526,12 @@
   \settowidth{\nkagikakko@textwidth}{#1}%
   \settoheight{\nkagikakko@textheight}{#1}%
   \setlength{\nkagikakko@boxwidth}{\f@size pt}%
-  \multiply\nkagikakko@boxwidth by 123 %
-  \divide\nkagikakko@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
   \mbox{%
   \hbox to \nkagikakko@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\nkagikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\nkagikakko@boxwidth}\makebox[.5\nkagikakko@boxwidth][c]{\scalebox{.6}[1]{『}\maybescale{\nkagikakko@textwidth}{.5\nkagikakko@boxwidth}{\maybescaleVVVV{\nkagikakko@textheight}{\nkagikakko@boxwidth}{#1}}\scalebox{.6}[1]{』}}\hspace*{\dimexpr 0.02\nkagikakko@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\nkagikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\nkagikakko@boxwidth}\makebox[.5\nkagikakko@boxwidth][c]{\scalebox{.6}[1]{『}\maybescale{\nkagikakko@textwidth}{.5\nkagikakko@boxwidth}{\maybescaleVVVV{1.23\nkagikakko@textheight}{\nkagikakko@boxwidth}{#1}}\scalebox{.6}[1]{』}}\hspace*{\dimexpr 0.02\nkagikakko@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
@@ -574,14 +542,12 @@
   \settowidth{\period@textwidth}{#1}%
   \setlength{\period@boxwidth}{\f@size pt}%
   \settoheight{\period@textheight}{#1}%
-  \multiply\period@boxwidth by 123 %
-  \divide\period@boxwidth by 100 %
   \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
   \mbox{%
   \hbox to \period@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\period@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\period@boxwidth}\makebox[.5\period@boxwidth][c]{\maybescale{\period@textwidth}{.5\period@boxwidth}{\maybescaleVVVV{\period@textheight}{\period@boxwidth}{#1}}\scalebox{1}[1]{.}}\hspace*{\dimexpr 0.02\period@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\period@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\period@boxwidth}\makebox[.5\period@boxwidth][c]{\maybescale{\period@textwidth}{.5\period@boxwidth}{\maybescaleVVVV{1.23\period@textheight}{\period@boxwidth}{#1}}\scalebox{1}[1]{.}}\hspace*{\dimexpr 0.02\period@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 
