@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{KKsymbols}[2025/10/28, Version 1.1.0]
+\ProvidesPackage{KKsymbols}[2025/11/10, Version 1.1.1]
 \RequirePackage{luatexja-adjust}
 \RequirePackage{expl3}
 \RequirePackage{calc}
@@ -565,7 +565,7 @@
   \hbox to \ichimoji@boxwidth{%
   \hss
   \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\ichimoji@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\ichimoji@boxwidth}\makebox[\ichimoji@boxwidth][c]{\maybescale{\ichimoji@textwidth}{\ichimoji@boxwidth}{\maybescaleVVVV{\ichimoji@textheight}{\ichimoji@boxwidth}{#1}}}\hspace*{\dimexpr 0.02\ichimoji@boxwidth}}}}};
+      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\ichimoji@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\ichimoji@boxwidth}\makebox[\ichimoji@boxwidth][c]{\maybescale{\ichimoji@textwidth}{\ichimoji@boxwidth}{\maybescaleVVVV{1.23\ichimoji@textheight}{\ichimoji@boxwidth}{#1}}}\hspace*{\dimexpr 0.02\ichimoji@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
 \endinput

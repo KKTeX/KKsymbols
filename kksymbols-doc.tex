@@ -27,7 +27,7 @@
 
 \title{\texttt{KKsymbols} Package Documentation}
 \author{Kosei Kawaguchi a.k.a. KKTeX}
-\date{Version 1.1.0 (2025/10/28)}
+\date{Version 1.1.1 (2025/11/10)}
 \begin{document}
 
 \begin{titlepage}
@@ -739,13 +739,14 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \item \textbf{v1.0.3 (2025/10/12)} --- Fixed a problem related to maru series.
     \item \textbf{v1.0.4 (2025/10/18)} --- Added \verb|\ichimoji| command.
     \item \textbf{v1.1.0 (2025/10/28)} --- Unify all commands to zenkaku width.
+    \item \textbf{v1.1.1 (2025/11/10)} --- Modified the scaling system of \verb|\ichimoji|.
 \end{itemize}
 
 \section{Source Code}
 
 \begin{lstlisting}
   \NeedsTeXFormat{LaTeX2e}
-  \ProvidesPackage{KKsymbols}[2025/10/28, Version 1.1.0]
+  \ProvidesPackage{KKsymbols}[2025/11/10, Version 1.1.1]
   \RequirePackage{luatexja-adjust}
   \RequirePackage{expl3}
   \RequirePackage{calc}
@@ -1311,7 +1312,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \hbox to \ichimoji@boxwidth{%
     \hss
     \tikz[baseline=(char.base)]{%
-        \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\ichimoji@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\ichimoji@boxwidth}\makebox[\ichimoji@boxwidth][c]{\maybescale{\ichimoji@textwidth}{\ichimoji@boxwidth}{\maybescaleVVVV{\ichimoji@textheight}{\ichimoji@boxwidth}{#1}}}\hspace*{\dimexpr 0.02\ichimoji@boxwidth}}}}};
+        \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\ichimoji@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\ichimoji@boxwidth}\makebox[\ichimoji@boxwidth][c]{\maybescale{\ichimoji@textwidth}{\ichimoji@boxwidth}{\maybescaleVVVV{1.23\ichimoji@textheight}{\ichimoji@boxwidth}{#1}}}\hspace*{\dimexpr 0.02\ichimoji@boxwidth}}}}};
     }\hss}}}\ltjghostafterjachar
   }
   \endinput
