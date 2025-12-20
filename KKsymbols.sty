@@ -1245,5 +1245,91 @@
   }%
   \ltjghostafterjachar%
 }
+
+
+\DeclareRobustCommand{\hishi@new}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\seihou@boxwidth@new}{\zw}%
+  \settowidth{\seihou@var@yokohaba}{#1}%
+  \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+  \ltjghostbeforejachar%
+  \hbox to \seihou@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \seihou@boxwidth@new{%
+  \vss%
+  \hbox to \seihou@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        line width=.04\seihou@boxwidth@new,  
+        minimum size=.5\seihou@boxwidth@new, 
+        draw,
+        shape=diamond,
+        inner sep=.03\seihou@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \seihou@boxwidth@inner{
+        \vss%
+        \hbox to \seihou@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+\DeclareRobustCommand{\hishi@new@no}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\seihou@boxwidth@new}{\zw}%
+  \settowidth{\seihou@var@yokohaba}{#1}%
+  \settoheight{\seihou@var@tate}{#1}%
+  \settodepth{\seihou@var@fuka}{#1}%
+  \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
+  \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+  \ltjghostbeforejachar%
+  \hbox to \seihou@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \seihou@boxwidth@new{%
+  \vss%
+  \hbox to \seihou@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        line width=.04\seihou@boxwidth@new,  
+        minimum size=.5\seihou@boxwidth@new, 
+        draw,
+        shape=diamond,
+        inner sep=.03\seihou@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \seihou@boxwidth@inner{
+        \vss%
+        \hbox to \seihou@boxwidth@inner{%
+        \hss%
+          % これだけ他のやつと違うので注意！
+          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
 %%%
 \endinput
