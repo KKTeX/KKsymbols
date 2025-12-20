@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{KKsymbols}[2025/11/10, Version 1.1.1]
+\ProvidesPackage{KKsymbols}[2025/11/10, Version 2.0.0--undev]
 \RequirePackage{luatexja-adjust}
 \RequirePackage{expl3}
 \RequirePackage{calc}
@@ -568,4 +568,138 @@
       \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\ichimoji@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\ichimoji@boxwidth}\makebox[\ichimoji@boxwidth][c]{\maybescale{\ichimoji@textwidth}{\ichimoji@boxwidth}{\maybescaleVVVV{1.23\ichimoji@textheight}{\ichimoji@boxwidth}{#1}}}\hspace*{\dimexpr 0.02\ichimoji@boxwidth}}}}};
   }\hss}}}\ltjghostafterjachar
 }
+
+
+% 完全に作り直す。（v2.0.0以降）
+% 単位系を全部\zwに。
+
+% 全体で使用
+\NewDocumentCommand{\shukushou@adj@new}{ m m m }{%
+  % \ifdim\maru@var@yokohaba < \maru@boxwidth@inner
+  %   \resizebox*{\width}{\maru@boxwidth@inner}{#1}%
+  % \else
+  %   \resizebox*{\maru@boxwidth@inner}{\maru@boxwidth@inner}{#1}%
+  % \fi%
+  \ifdim #1 < #2%
+    \resizebox*{\width}{#2}{#3}%
+  \else%
+    \resizebox*{#2}{#2}{#3}%
+  \fi%
+}
+\NewDocumentCommand{\shukushou@adj@new@no}{ m m m }{%
+  \ifdim #1 < #2%
+    #3%
+  \else%
+    \resizebox*{!}{#2}{#3}%
+  \fi%
+}
+\NewDocumentCommand{\rot@or@not@kksym}{}{%
+  \ifnum\ltjgetparameter{direction}=3
+    \def\rot@kksym@tateyoko{90}%
+  \else
+    \def\rot@kksym@tateyoko{0}%
+  \fi
+}
+%%%
+
+
+% \maru
+\NewDocumentCommand{\vertical@adj@maru@new}{}{%
+  \ifnum\ltjgetparameter{direction}=3
+    -.5\zw%
+  \else
+    -.12\zw%
+  \fi
+}
+\newlength{\maru@boxwidth@new}
+\newlength{\maru@boxwidth@inner}
+\newlength{\maru@var@yokohaba}
+\newlength{\maru@var@tate}
+\newlength{\maru@var@fuka}
+\newlength{\maru@var@zenkou}
+\DeclareRobustCommand{\maru@new}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \settowidth{\maru@var@yokohaba}{#1}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+  \ltjghostbeforejachar%
+  \hbox to \maru@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \maru@boxwidth@new{%
+  \vss%
+  \hbox to \maru@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        shape=circle,
+        line width=.04\maru@boxwidth@new,  
+        minimum size=.9\maru@boxwidth@new, 
+        draw,
+        inner sep=.02\maru@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \maru@boxwidth@inner{
+        \vss%
+        \hbox to \maru@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+\DeclareRobustCommand{\maru@new@no}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \settowidth{\maru@var@yokohaba}{#1}%
+  \settoheight{\maru@var@tate}{#1}%
+  \settodepth{\maru@var@fuka}{#1}%
+  \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+  \ltjghostbeforejachar%
+  \hbox to \maru@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \maru@boxwidth@new{%
+  \vss%
+  \hbox to \maru@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        shape=circle,
+        line width=.04\maru@boxwidth@new,  
+        minimum size=.9\maru@boxwidth@new, 
+        draw,
+        inner sep=.02\maru@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \maru@boxwidth@inner{
+        \vss%
+        \hbox to \maru@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new@no{\maru@var@zenkou}{\maru@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+% あとで\maruに統合。スターオプションで変更可能に
+%%%
 \endinput
