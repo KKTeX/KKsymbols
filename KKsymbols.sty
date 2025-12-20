@@ -594,11 +594,19 @@
     \resizebox*{!}{#2}{#3}%
   \fi%
 }
+\NewDocumentCommand{\RotYoko}{O{0}}{%
+  \def\KKsymbolsRot@val@y{#1}%
+}
+\NewDocumentCommand{\RotTate}{O{90}}{%
+  \def\KKsymbolsRot@val@t{#1}%
+}
+\def\KKsymbolsRot@val@t{90}
+\def\KKsymbolsRot@val@y{0}
 \NewDocumentCommand{\rot@or@not@kksym}{}{%
   \ifnum\ltjgetparameter{direction}=3
-    \def\rot@kksym@tateyoko{90}%
+    \def\rot@kksym@tateyoko{\KKsymbolsRot@val@t}%
   \else
-    \def\rot@kksym@tateyoko{0}%
+    \def\rot@kksym@tateyoko{\KKsymbolsRot@val@y}%
   \fi
 }
 %%%
@@ -863,6 +871,366 @@
         \hbox to \maru@boxwidth@inner{%
         \hss%
           \shukushou@adj@new@no{\maru@var@zenkou}{\maru@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+%%%
+
+
+% \seihou
+\NewDocumentCommand{\vertical@adj@seihou@new}{}{%
+  \ifnum\ltjgetparameter{direction}=3
+    -.5\zw%
+  \else
+    -.12\zw%
+  \fi
+}
+\newlength{\seihou@boxwidth@new}
+\newlength{\seihou@boxwidth@inner}
+\newlength{\seihou@var@yokohaba}
+\newlength{\seihou@var@tate}
+\newlength{\seihou@var@fuka}
+\newlength{\seihou@var@zenkou}
+
+\DeclareRobustCommand{\seihou@new}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\seihou@boxwidth@new}{\zw}%
+  \settowidth{\seihou@var@yokohaba}{#1}%
+  \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \ltjghostbeforejachar%
+  \hbox to \seihou@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \seihou@boxwidth@new{%
+  \vss%
+  \hbox to \seihou@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        line width=.04\seihou@boxwidth@new,  
+        minimum size=.85\seihou@boxwidth@new, 
+        draw,
+        inner sep=.1\seihou@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \seihou@boxwidth@inner{
+        \vss%
+        \hbox to \seihou@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+\DeclareRobustCommand{\seihou@new@no}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\seihou@boxwidth@new}{\zw}%
+  \settowidth{\seihou@var@yokohaba}{#1}%
+  \settoheight{\seihou@var@tate}{#1}%
+  \settodepth{\seihou@var@fuka}{#1}%
+  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
+  \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \ltjghostbeforejachar%
+  \hbox to \seihou@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \seihou@boxwidth@new{%
+  \vss%
+  \hbox to \seihou@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        line width=.04\seihou@boxwidth@new,  
+        minimum size=.85\seihou@boxwidth@new, 
+        draw,
+        inner sep=.1\seihou@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \seihou@boxwidth@inner{
+        \vss%
+        \hbox to \seihou@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new@no{\seihou@var@zenkou}{\seihou@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+
+
+\DeclareRobustCommand{\kuroseihou@new}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\seihou@boxwidth@new}{\zw}%
+  \settowidth{\seihou@var@yokohaba}{#1}%
+  \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \ltjghostbeforejachar%
+  \hbox to \seihou@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \seihou@boxwidth@new{%
+  \vss%
+  \hbox to \seihou@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        line width=.04\seihou@boxwidth@new,  
+        minimum size=.85\seihou@boxwidth@new, 
+        draw,
+        fill=black,%%%
+        inner sep=.1\seihou@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \seihou@boxwidth@inner{
+        \vss%
+        \hbox to \seihou@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{%
+            \textcolor{white}{#1}}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+\DeclareRobustCommand{\kuroseihou@new@no}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\seihou@boxwidth@new}{\zw}%
+  \settowidth{\seihou@var@yokohaba}{#1}%
+  \settoheight{\seihou@var@tate}{#1}%
+  \settodepth{\seihou@var@fuka}{#1}%
+  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
+  \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \ltjghostbeforejachar%
+  \hbox to \seihou@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \seihou@boxwidth@new{%
+  \vss%
+  \hbox to \seihou@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        line width=.04\seihou@boxwidth@new,  
+        minimum size=.85\seihou@boxwidth@new, 
+        draw,
+        fill=black,%%%
+        inner sep=.1\seihou@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \seihou@boxwidth@inner{
+        \vss%
+        \hbox to \seihou@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new@no{\seihou@var@zenkou}{\seihou@boxwidth@inner}{%
+            \textcolor{white}{#1}}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+
+
+\DeclareRobustCommand{\seimaru@new}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\seihou@boxwidth@new}{\zw}%
+  \settowidth{\seihou@var@yokohaba}{#1}%
+  \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \ltjghostbeforejachar%
+  \hbox to \seihou@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \seihou@boxwidth@new{%
+  \vss%
+  \hbox to \seihou@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        line width=.04\seihou@boxwidth@new,  
+        minimum size=.85\seihou@boxwidth@new, 
+        draw,
+        rounded corners=.13\zw,%%%
+        inner sep=.1\seihou@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \seihou@boxwidth@inner{
+        \vss%
+        \hbox to \seihou@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+\DeclareRobustCommand{\seimaru@new@no}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\seihou@boxwidth@new}{\zw}%
+  \settowidth{\seihou@var@yokohaba}{#1}%
+  \settoheight{\seihou@var@tate}{#1}%
+  \settodepth{\seihou@var@fuka}{#1}%
+  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
+  \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \ltjghostbeforejachar%
+  \hbox to \seihou@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \seihou@boxwidth@new{%
+  \vss%
+  \hbox to \seihou@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        line width=.04\seihou@boxwidth@new,  
+        minimum size=.85\seihou@boxwidth@new, 
+        draw,
+        rounded corners=.13\zw,%%%
+        inner sep=.1\seihou@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \seihou@boxwidth@inner{
+        \vss%
+        \hbox to \seihou@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new@no{\seihou@var@zenkou}{\seihou@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+
+
+\DeclareRobustCommand{\kuroseimaru@new}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\seihou@boxwidth@new}{\zw}%
+  \settowidth{\seihou@var@yokohaba}{#1}%
+  \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \ltjghostbeforejachar%
+  \hbox to \seihou@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \seihou@boxwidth@new{%
+  \vss%
+  \hbox to \seihou@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        line width=.04\seihou@boxwidth@new,  
+        minimum size=.85\seihou@boxwidth@new, 
+        draw,
+        fill=black,%%%
+        rounded corners=.13\zw,%%%
+        inner sep=.1\seihou@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \seihou@boxwidth@inner{
+        \vss%
+        \hbox to \seihou@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{%
+            \textcolor{white}{#1}}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+\DeclareRobustCommand{\kuroseimaru@new@no}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\seihou@boxwidth@new}{\zw}%
+  \settowidth{\seihou@var@yokohaba}{#1}%
+  \settoheight{\seihou@var@tate}{#1}%
+  \settodepth{\seihou@var@fuka}{#1}%
+  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
+  \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \ltjghostbeforejachar%
+  \hbox to \seihou@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \seihou@boxwidth@new{%
+  \vss%
+  \hbox to \seihou@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        line width=.04\seihou@boxwidth@new,  
+        minimum size=.85\seihou@boxwidth@new, 
+        draw,
+        fill=black,%%%
+        rounded corners=.13\zw,%%%
+        inner sep=.1\seihou@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \seihou@boxwidth@inner{
+        \vss%
+        \hbox to \seihou@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new@no{\seihou@var@zenkou}{\seihou@boxwidth@inner}{%
+            \textcolor{white}{#1}}%
         \hss%
         }%
         \vss%
