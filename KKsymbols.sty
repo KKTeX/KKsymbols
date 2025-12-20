@@ -570,6 +570,7 @@
 }
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 完全に作り直す。（v2.0.0以降）
 % 単位系を全部\zwに。
 
@@ -617,6 +618,7 @@
 \newlength{\maru@var@tate}
 \newlength{\maru@var@fuka}
 \newlength{\maru@var@zenkou}
+
 \DeclareRobustCommand{\maru@new}[1]{%
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
@@ -701,5 +703,179 @@
   \ltjghostafterjachar%
 }
 % あとで\maruに統合。スターオプションで変更可能に
+
+
+\DeclareRobustCommand{\kuromaru@new}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \settowidth{\maru@var@yokohaba}{#1}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+  \ltjghostbeforejachar%
+  \hbox to \maru@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \maru@boxwidth@new{%
+  \vss%
+  \hbox to \maru@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        shape=circle,
+        fill=black,%%%
+        line width=.04\maru@boxwidth@new,  
+        minimum size=.9\maru@boxwidth@new, 
+        draw,
+        inner sep=.02\maru@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \maru@boxwidth@inner{
+        \vss%
+        \hbox to \maru@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{%
+            \textcolor{white}{#1}}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+\DeclareRobustCommand{\kuromaru@new@no}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \settowidth{\maru@var@yokohaba}{#1}%
+  \settoheight{\maru@var@tate}{#1}%
+  \settodepth{\maru@var@fuka}{#1}%
+  \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+  \ltjghostbeforejachar%
+  \hbox to \maru@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \maru@boxwidth@new{%
+  \vss%
+  \hbox to \maru@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        shape=circle,
+        fill=black,%%%
+        line width=.04\maru@boxwidth@new,  
+        minimum size=.9\maru@boxwidth@new, 
+        draw,
+        inner sep=.02\maru@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \maru@boxwidth@inner{
+        \vss%
+        \hbox to \maru@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new@no{\maru@var@zenkou}{\maru@boxwidth@inner}{%
+            \textcolor{white}{#1}}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+
+
+\DeclareRobustCommand{\nmaru@new}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \settowidth{\maru@var@yokohaba}{#1}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.76 * \maru@boxwidth@new / sqrt(2)}%
+  \ltjghostbeforejachar%
+  \hbox to \maru@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \maru@boxwidth@new{%
+  \vss%
+  \hbox to \maru@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        shape=circle,
+        line width=.03\maru@boxwidth@new,  
+        minimum size=.88\maru@boxwidth@new, 
+        draw, double, double distance=.03\zw,%%%
+        inner sep=.06\maru@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \maru@boxwidth@inner{
+        \vss%
+        \hbox to \maru@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+\DeclareRobustCommand{\nmaru@new@no}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \settowidth{\maru@var@yokohaba}{#1}%
+  \settoheight{\maru@var@tate}{#1}%
+  \settodepth{\maru@var@fuka}{#1}%
+  \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.76 * \maru@boxwidth@new / sqrt(2)}%
+  \ltjghostbeforejachar%
+  \hbox to \maru@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \maru@boxwidth@new{%
+  \vss%
+  \hbox to \maru@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        shape=circle,
+        line width=.03\maru@boxwidth@new,  
+        minimum size=.88\maru@boxwidth@new, 
+        draw, double, double distance=.03\zw,%%%
+        inner sep=.06\maru@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \maru@boxwidth@inner{
+        \vss%
+        \hbox to \maru@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new@no{\maru@var@zenkou}{\maru@boxwidth@inner}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
 %%%
 \endinput
