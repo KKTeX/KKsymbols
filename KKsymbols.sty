@@ -1534,7 +1534,7 @@
         inner sep=.03\seihou@boxwidth@new,
         rotate=\rot@kksym@tateyoko
       ] (char){%
-      \vbox to \seihou@boxwidth@inner{
+      \vbox to \seihou@boxwidth@inner{%
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
@@ -1600,6 +1600,124 @@
   }%
   }%
   \ltjghostafterjachar%
+}
+%%%
+
+
+% \kakko
+\newlength{\kakko@boxwidth@new}
+\newlength{\kakko@boxwidth@inner}
+\newlength{\kakko@var@yokohaba}
+\newlength{\kakko@var@tate}
+\newlength{\kakko@var@fuka}
+\newlength{\kakko@var@zenkou}
+
+\DeclareRobustCommand{\kakko@byouga@internal}[3]{% 横の方
+  \setlength{\kakko@boxwidth@new}{\zw}%
+  \settowidth{\kakko@var@yokohaba}{#3}%
+  \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+    \hbox to \zw{\hss%
+      \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
+        \vbox to \kakko@boxwidth@inner{
+        \vss%
+        \hbox to \kakko@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new{\kakko@var@yokohaba}{\kakko@boxwidth@inner}{#3}%
+        \hss%
+        }%
+        \vss%
+      }%
+      \hspace*{-.1\zw}\scalebox{.63}[1]{#2}%
+    \hss}%
+}
+\DeclareRobustCommand{\kakko@byouga@internal@no}[3]{% 横の方
+  \setlength{\kakko@boxwidth@new}{\zw}%
+  \settowidth{\kakko@var@yokohaba}{#3}%
+  \settoheight{\kakko@var@tate}{#3}%
+  \settodepth{\kakko@var@fuka}{#3}%
+  \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
+  \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+    \hbox to \zw{\hss%
+      \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
+        \vbox to \kakko@boxwidth@inner{
+        \vss%
+        \hbox to \kakko@boxwidth@inner{%
+        \hss%
+          \shukushou@adj@new@no{\kakko@var@zenkou}{\kakko@boxwidth@inner}{#3}%
+        \hss%
+        }%
+        \vss%
+      }%
+      \hspace*{-.1\zw}\scalebox{.63}[1]{#2}%
+    \hss}%
+}
+
+\DeclareRobustCommand{\kakko@byouga@internal@tate}[3]{% 縦の方
+  \rot@or@not@kksym%
+  \ifnum\ltjgetparameter{direction}=3\pgfmathsetmacro{\rot@kksym@tateyoko}{\rot@kksym@tateyoko - 90}\fi%
+  \setlength{\kakko@boxwidth@new}{\zw}%
+  \settowidth{\kakko@var@yokohaba}{#3}%
+  \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+    \raisebox{-.5\zw}{%
+    \rotatebox[origin=c]{90}{%
+    \hbox to \zw{\hss%
+    \vbox to \zw{\vss%
+      \hbox to \zw{\hss%
+      \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
+        \vbox to \kakko@boxwidth@inner{%
+        \vss%
+        \hbox to \kakko@boxwidth@inner{%
+        \hss%
+          \raisebox{-1.2\zw}{%
+            \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
+              \shukushou@adj@new{\kakko@var@yokohaba}{\kakko@boxwidth@inner}{#3}%
+            }%
+          }%
+        \hss%
+        }%
+        \vss%
+      }%
+      \hspace*{-.1\zw}\scalebox{.63}[1]{#2}\vspace*{.3\zw}%
+    \hss}%
+    \vss}%
+    \hss}%
+    }%
+    }%
+}
+\DeclareRobustCommand{\kakko@byouga@internal@tate@no}[3]{% 縦の方
+  \rot@or@not@kksym%
+  \ifnum\ltjgetparameter{direction}=3\pgfmathsetmacro{\rot@kksym@tateyoko}{\rot@kksym@tateyoko - 90}\fi%
+  \setlength{\kakko@boxwidth@new}{\zw}%
+  \settowidth{\kakko@var@yokohaba}{#3}%
+  \settoheight{\kakko@var@tate}{#3}%
+  \settodepth{\kakko@var@fuka}{#3}%
+  \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
+  \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+    \raisebox{-.5\zw}{%
+    \rotatebox[origin=c]{90}{%
+    \hbox to \zw{\hss%
+    \vbox to \zw{\vss%
+      \hbox to \zw{\hss%
+      \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
+        \vbox to \kakko@boxwidth@inner{%
+        \vss%
+        \hbox to \kakko@boxwidth@inner{%
+        \hss%
+          \raisebox{-.9\zw}{%
+            \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
+              \shukushou@adj@new@no{\kakko@var@zenkou}{\kakko@boxwidth@inner}{#3}%
+            }%
+          }%
+        \hss%
+        }%
+        \vss%
+      }%
+      \hspace*{-.1\zw}\scalebox{.63}[1]{#2}\vspace*{.3\zw}%
+    \hss}%
+    \vss}%
+    \hss}%
+    }%
+    }%
 }
 %%%
 \endinput
