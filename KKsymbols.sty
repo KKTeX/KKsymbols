@@ -623,9 +623,22 @@
 \newlength{\maru@boxwidth@new}
 \newlength{\maru@boxwidth@inner}
 \newlength{\maru@var@yokohaba}
+\newlength{\maru@var@yokohaba@cal}
 \newlength{\maru@var@tate}
 \newlength{\maru@var@fuka}
 \newlength{\maru@var@zenkou}
+
+\NewDocumentCommand{\shukushou@adj@new@no@maru}{ m m m m }{%
+  \ifdim #1 < #2%
+    \ifdim #3 > #2%
+      \resizebox*{#3}{!}{#4}%
+    \else%
+      #4%
+    \fi%
+  \else%
+    \resizebox*{!}{#2}{#4}%
+  \fi%
+}
 
 \DeclareRobustCommand{\maru@new}[1]{%
   \rot@or@not@kksym%
@@ -674,6 +687,7 @@
   \settoheight{\maru@var@tate}{#1}%
   \settodepth{\maru@var@fuka}{#1}%
   \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
+  \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
   \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
   \ltjghostbeforejachar%
   \hbox to \maru@boxwidth@new{%
@@ -695,7 +709,7 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no{\maru@var@zenkou}{\maru@boxwidth@inner}{#1}%
+          \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{#1}%
         \hss%
         }%
         \vss%
@@ -762,6 +776,7 @@
   \settoheight{\maru@var@tate}{#1}%
   \settodepth{\maru@var@fuka}{#1}%
   \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
+  \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
   \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
   \ltjghostbeforejachar%
   \hbox to \maru@boxwidth@new{%
@@ -784,7 +799,7 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no{\maru@var@zenkou}{\maru@boxwidth@inner}{%
+          \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{%
             \textcolor{white}{#1}}%
         \hss%
         }%
@@ -802,11 +817,22 @@
 }
 
 
+\NewDocumentCommand{\shukushou@adj@new@no@nmaru}{ m m m m }{%
+  \ifdim #1 < #2%
+    \ifdim #3 > #2%
+      \resizebox*{#3}{!}{#4}%
+    \else%
+      \scalebox{.9}{#4}% ここだけスケーリングを変えないと収まらないので注意。
+    \fi%
+  \else%
+    \resizebox*{!}{#2}{#4}%
+  \fi%
+}
 \DeclareRobustCommand{\nmaru@new}[1]{%
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
   \settowidth{\maru@var@yokohaba}{#1}%
-  \pgfmathsetlength{\maru@boxwidth@inner}{0.76 * \maru@boxwidth@new / sqrt(2)}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.85 * \maru@boxwidth@new / sqrt(2)}%
   \ltjghostbeforejachar%
   \hbox to \maru@boxwidth@new{%
   \raisebox{\vertical@adj@maru@new}{%
@@ -821,7 +847,8 @@
         minimum size=.88\maru@boxwidth@new, 
         draw, double, double distance=.03\zw,%%%
         inner sep=.06\maru@boxwidth@new,
-        rotate=\rot@kksym@tateyoko
+        rotate=\rot@kksym@tateyoko,
+        scale=.87
       ] (char){%
       \vbox to \maru@boxwidth@inner{
         \vss%
@@ -849,7 +876,8 @@
   \settoheight{\maru@var@tate}{#1}%
   \settodepth{\maru@var@fuka}{#1}%
   \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
-  \pgfmathsetlength{\maru@boxwidth@inner}{0.76 * \maru@boxwidth@new / sqrt(2)}%
+  \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.82 * \maru@boxwidth@new / sqrt(2)}%
   \ltjghostbeforejachar%
   \hbox to \maru@boxwidth@new{%
   \raisebox{\vertical@adj@maru@new}{%
@@ -864,13 +892,14 @@
         minimum size=.88\maru@boxwidth@new, 
         draw, double, double distance=.03\zw,%%%
         inner sep=.06\maru@boxwidth@new,
-        rotate=\rot@kksym@tateyoko
+        rotate=\rot@kksym@tateyoko,
+        scale=.9
       ] (char){%
-      \vbox to \maru@boxwidth@inner{
+      \vbox to \maru@boxwidth@inner{%
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no{\maru@var@zenkou}{\maru@boxwidth@inner}{#1}%
+          \shukushou@adj@new@no@nmaru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{#1}%
         \hss%
         }%
         \vss%
@@ -1608,9 +1637,22 @@
 \newlength{\kakko@boxwidth@new}
 \newlength{\kakko@boxwidth@inner}
 \newlength{\kakko@var@yokohaba}
+\newlength{\kakko@var@yokohaba@cal}
 \newlength{\kakko@var@tate}
 \newlength{\kakko@var@fuka}
 \newlength{\kakko@var@zenkou}
+
+\NewDocumentCommand{\shukushou@adj@new@no@kakko}{ m m m m }{%
+  \ifdim #1 < #2%
+    \ifdim #3 > #2%
+      \resizebox*{#3}{!}{#4}%
+    \else%
+      #4%
+    \fi%
+  \else%
+    \resizebox*{!}{#2}{#4}%
+  \fi%
+}
 
 \DeclareRobustCommand{\kakko@byouga@internal}[3]{% 横の方
   \setlength{\kakko@boxwidth@new}{\zw}%
@@ -1638,6 +1680,7 @@
   \settoheight{\kakko@var@tate}{#3}%
   \settodepth{\kakko@var@fuka}{#3}%
   \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
+  \pgfmathsetlength{\kakko@var@yokohaba@cal}{0.9 * \kakko@var@yokohaba}%
   \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
   \ltjghostbeforejachar%
     \hbox to \zw{\hss%
@@ -1646,7 +1689,7 @@
         \vss%
         \hbox to \kakko@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no{\kakko@var@zenkou}{\kakko@boxwidth@inner}{#3}%
+          \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{#3}%
         \hss%
         }%
         \vss%
@@ -1698,6 +1741,7 @@
   \settoheight{\kakko@var@tate}{#3}%
   \settodepth{\kakko@var@fuka}{#3}%
   \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
+  \pgfmathsetlength{\kakko@var@yokohaba@cal}{0.9 * \kakko@var@yokohaba}%
   \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
   \ltjghostbeforejachar%
     \raisebox{-.5\zw}{%
@@ -1716,7 +1760,7 @@
             \hbox to \kakko@boxwidth@inner{%
             \hss%
             \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
-              \shukushou@adj@new@no{\kakko@var@zenkou}{\kakko@boxwidth@inner}{#3}%
+              \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{#3}%
             }\hss}\vss}%
           }%
         \hss%
@@ -1738,15 +1782,21 @@
 \DeclareRobustCommand{\ichimoji@new}[1]{%
   \ifnum\ltjgetparameter{direction}=3%
     \ltjghostbeforejachar%
-      \raisebox{.11\zw}{%
+    \raisebox{-.5\zw}{\hbox to \zw {\hss%
+    \vbox to \zw {\vss%
+      \hbox to \zw {\hss%
         \resizebox*{\zw}{\zw}{#1}%
-      }%
+      \hss}%
+    \vss}\hss}}%
     \ltjghostafterjachar%
   \else%
     \ltjghostbeforejachar%
-      \raisebox{.1\zw}{%
+    \raisebox{-.12\zw}{\hbox to \zw {\hss%
+    \vbox to \zw {\vss%
+      \hbox to \zw {\hss%
         \resizebox*{\zw}{\zw}{#1}%
-      }%
+      \hss}%
+    \vss}\hss}}%
     \ltjghostafterjachar%
   \fi%
 }
