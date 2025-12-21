@@ -1616,6 +1616,7 @@
   \setlength{\kakko@boxwidth@new}{\zw}%
   \settowidth{\kakko@var@yokohaba}{#3}%
   \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+  \ltjghostbeforejachar%
     \hbox to \zw{\hss%
       \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
         \vbox to \kakko@boxwidth@inner{
@@ -1629,6 +1630,7 @@
       }%
       \hspace*{-.1\zw}\scalebox{.63}[1]{#2}%
     \hss}%
+  \ltjghostafterjachar%
 }
 \DeclareRobustCommand{\kakko@byouga@internal@no}[3]{% 横の方
   \setlength{\kakko@boxwidth@new}{\zw}%
@@ -1637,6 +1639,7 @@
   \settodepth{\kakko@var@fuka}{#3}%
   \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
   \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+  \ltjghostbeforejachar%
     \hbox to \zw{\hss%
       \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
         \vbox to \kakko@boxwidth@inner{
@@ -1650,6 +1653,7 @@
       }%
       \hspace*{-.1\zw}\scalebox{.63}[1]{#2}%
     \hss}%
+  \ltjghostafterjachar%
 }
 
 \DeclareRobustCommand{\kakko@byouga@internal@tate}[3]{% 縦の方
@@ -1658,6 +1662,7 @@
   \setlength{\kakko@boxwidth@new}{\zw}%
   \settowidth{\kakko@var@yokohaba}{#3}%
   \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+  \ltjghostbeforejachar%
     \raisebox{-.5\zw}{%
     \rotatebox[origin=c]{90}{%
     \hbox to \zw{\hss%
@@ -1683,6 +1688,7 @@
     \hss}%
     }%
     }%
+  \ltjghostafterjachar%
 }
 \DeclareRobustCommand{\kakko@byouga@internal@tate@no}[3]{% 縦の方
   \rot@or@not@kksym%
@@ -1693,6 +1699,7 @@
   \settodepth{\kakko@var@fuka}{#3}%
   \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
   \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+  \ltjghostbeforejachar%
     \raisebox{-.5\zw}{%
     \rotatebox[origin=c]{90}{%
     \hbox to \zw{\hss%
@@ -1703,10 +1710,14 @@
         \vss%
         \hbox to \kakko@boxwidth@inner{%
         \hss%
-          \raisebox{-1\zw}{%
+          \raisebox{-1.6\zw}{%
+            \vbox to \kakko@boxwidth@inner{%
+            \vss%
+            \hbox to \kakko@boxwidth@inner{%
+            \hss%
             \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
               \shukushou@adj@new@no{\kakko@var@zenkou}{\kakko@boxwidth@inner}{#3}%
-            }%
+            }\hss}\vss}%
           }%
         \hss%
         }%
@@ -1718,6 +1729,7 @@
     \hss}%
     }%
     }%
+  \ltjghostafterjachar%
 }
 %%%
 \endinput
