@@ -1732,4 +1732,23 @@
   \ltjghostafterjachar%
 }
 %%%
+
+
+% % \ichimoji
+\DeclareRobustCommand{\ichimoji@new}[1]{%
+  \ifnum\ltjgetparameter{direction}=3%
+    \ltjghostbeforejachar%
+      \raisebox{.11\zw}{%
+        \resizebox*{\zw}{\zw}{#1}%
+      }%
+    \ltjghostafterjachar%
+  \else%
+    \ltjghostbeforejachar%
+      \raisebox{.1\zw}{%
+        \resizebox*{\zw}{\zw}{#1}%
+      }%
+    \ltjghostafterjachar%
+  \fi%
+}
+%%%
 \endinput
