@@ -633,7 +633,7 @@
     \ifdim #3 > #2%
       \resizebox*{#3}{!}{#4}%
     \else%
-      #4%
+      \scalebox{.9}{#4}%
     \fi%
   \else%
     \resizebox*{!}{#2}{#4}%
@@ -817,17 +817,6 @@
 }
 
 
-\NewDocumentCommand{\shukushou@adj@new@no@nmaru}{ m m m m }{%
-  \ifdim #1 < #2%
-    \ifdim #3 > #2%
-      \resizebox*{#3}{!}{#4}%
-    \else%
-      \scalebox{.9}{#4}% ここだけスケーリングを変えないと収まらないので注意。
-    \fi%
-  \else%
-    \resizebox*{!}{#2}{#4}%
-  \fi%
-}
 \DeclareRobustCommand{\nmaru@new}[1]{%
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
@@ -899,7 +888,7 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@nmaru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{#1}%
+          \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{#1}%
         \hss%
         }%
         \vss%
@@ -927,10 +916,23 @@
 }
 \newlength{\seihou@boxwidth@new}
 \newlength{\seihou@boxwidth@inner}
+\newlength{\seihou@var@yokohaba@cal}
 \newlength{\seihou@var@yokohaba}
 \newlength{\seihou@var@tate}
 \newlength{\seihou@var@fuka}
 \newlength{\seihou@var@zenkou}
+
+\NewDocumentCommand{\shukushou@adj@new@no@seihou}{ m m m m }{%
+  \ifdim #1 < #2%
+    \ifdim #3 > #2%
+      \resizebox*{#3}{!}{#4}%
+    \else%
+      \scalebox{.9}{#4}%
+    \fi%
+  \else%
+    \resizebox*{!}{#2}{#4}%
+  \fi%
+}
 
 \DeclareRobustCommand{\seihou@new}[1]{%
   \rot@or@not@kksym%
@@ -978,6 +980,7 @@
   \settoheight{\seihou@var@tate}{#1}%
   \settodepth{\seihou@var@fuka}{#1}%
   \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
+  \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -998,7 +1001,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no{\seihou@var@zenkou}{\seihou@boxwidth@inner}{#1}%
+          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{#1}%
         \hss%
         }%
         \vss%
@@ -1063,6 +1066,7 @@
   \settoheight{\seihou@var@tate}{#1}%
   \settodepth{\seihou@var@fuka}{#1}%
   \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
+  \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1084,7 +1088,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no{\seihou@var@zenkou}{\seihou@boxwidth@inner}{%
+          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{%
             \textcolor{white}{#1}}%
         \hss%
         }%
@@ -1149,6 +1153,7 @@
   \settoheight{\seihou@var@tate}{#1}%
   \settodepth{\seihou@var@fuka}{#1}%
   \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
+  \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1170,7 +1175,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no{\seihou@var@zenkou}{\seihou@boxwidth@inner}{#1}%
+          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{#1}%
         \hss%
         }%
         \vss%
@@ -1236,6 +1241,7 @@
   \settoheight{\seihou@var@tate}{#1}%
   \settodepth{\seihou@var@fuka}{#1}%
   \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
+  \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1258,7 +1264,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no{\seihou@var@zenkou}{\seihou@boxwidth@inner}{%
+          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{%
             \textcolor{white}{#1}}%
         \hss%
         }%
@@ -1647,7 +1653,7 @@
     \ifdim #3 > #2%
       \resizebox*{#3}{!}{#4}%
     \else%
-      #4%
+      \scalebox{.9}{#4}%
     \fi%
   \else%
     \resizebox*{!}{#2}{#4}%
