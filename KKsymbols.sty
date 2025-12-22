@@ -903,6 +903,94 @@
   }%
   \ltjghostafterjachar%
 }
+
+
+\newlength{\jegg@boxwidth@inner@cal}%%%
+\DeclareRobustCommand{\jegg@new}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \settowidth{\maru@var@yokohaba}{#1}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+  \pgfmathsetlength{\jegg@boxwidth@inner@cal}{0.77 * \maru@boxwidth@inner}%%%
+  \ltjghostbeforejachar%
+  \hbox to \maru@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \maru@boxwidth@new{%
+  \vss%
+  \hbox to \maru@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        shape=ellipse,
+        line width=.04\maru@boxwidth@new,  
+        minimum height=.9\maru@boxwidth@new, 
+        minimum width=.7\maru@boxwidth@new, 
+        draw,
+        inner sep=0\maru@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \maru@boxwidth@inner{
+        \vss%
+        \hbox to \jegg@boxwidth@inner@cal{%
+        \hss%
+          \shukushou@adj@new{\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
+\DeclareRobustCommand{\jegg@new@black}[1]{%
+  \rot@or@not@kksym%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \settowidth{\maru@var@yokohaba}{#1}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+  \pgfmathsetlength{\jegg@boxwidth@inner@cal}{0.77 * \maru@boxwidth@inner}%%%
+  \ltjghostbeforejachar%
+  \hbox to \maru@boxwidth@new{%
+  \raisebox{\vertical@adj@maru@new}{%
+  \vbox to \maru@boxwidth@new{%
+  \vss%
+  \hbox to \maru@boxwidth@new{%
+    \hss%
+    \tikz[baseline=(char.base)]{%
+      \node[
+        shape=ellipse,
+        line width=.04\maru@boxwidth@new,  
+        minimum height=.9\maru@boxwidth@new, 
+        minimum width=.7\maru@boxwidth@new, 
+        draw,
+        fill=black!70,
+        inner sep=0\maru@boxwidth@new,
+        rotate=\rot@kksym@tateyoko
+      ] (char){%
+      \vbox to \maru@boxwidth@inner{
+        \vss%
+        \hbox to \jegg@boxwidth@inner@cal{%
+        \hss%
+          \shukushou@adj@new{\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{#1}%
+        \hss%
+        }%
+        \vss%
+      }%
+      };
+    }%
+    \hss%
+  }%
+  \vss%
+  }%
+  }%
+  }%
+  \ltjghostafterjachar%
+}
 %%%
 
 
