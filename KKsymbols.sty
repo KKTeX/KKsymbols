@@ -1,586 +1,283 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{KKsymbols}[2025/11/10, Version 2.0.0--undev]
+\ProvidesPackage{KKsymbols}[2025/11/10, Version 2.0.0]
 \RequirePackage{luatexja-adjust}
 \RequirePackage{expl3}
 \RequirePackage{calc}
 \RequirePackage{tikz}
 \usetikzlibrary{shapes}
 
-\newcommand{\dccare}[1]{%
-  \ifnum\ltjgetparameter{direction}=3
-    % 縦書き
-    \vphantom{田}\raisebox{\dimexpr.09\dimexpr\f@size pt\relax}{\scalebox{1}[.9]{#1}}%
+\DeclareRobustCommand{\maru}{%
+  \@ifstar{\maru@new@no}{\maru@new}%
+}
+
+\DeclareRobustCommand{\kuromaru}{%
+  \@ifstar{\kuromaru@new@no}{\kuromaru@new}%
+}
+
+\DeclareRobustCommand{\nmaru}{%
+  \@ifstar{\nmaru@new@no}{\nmaru@new}%
+}
+
+\DeclareRobustCommand{\jegg}{%
+  \@ifstar{\jegg@new@black}{\jegg@new}%
+}
+
+\DeclareRobustCommand{\seihou}{%
+  \@ifstar{\seihou@new@no}{\seihou@new}%
+}
+
+\DeclareRobustCommand{\kuroseihou}{%
+  \@ifstar{\kuroseihou@new@no}{\kuroseihou@new}%
+}
+
+\DeclareRobustCommand{\seimaru}{%
+  \@ifstar{\seimaru@new@no}{\seimaru@new}%
+}
+
+\DeclareRobustCommand{\kuroseimaru}{%
+  \@ifstar{\kuroseimaru@new@no}{\kuroseimaru@new}%
+}
+
+\DeclareRobustCommand{\hishi}{%
+  \@ifstar{\hishi@new@no}{\hishi@new}%
+}
+
+\DeclareRobustCommand{\kurohishi}{%
+  \@ifstar{\kurohishi@new@no}{\kurohishi@new}%
+}
+
+\DeclareRobustCommand{\maruhishi}{%
+  \@ifstar{\kurohishi@new@no}{\kurohishi@new}%
+}
+
+\DeclareRobustCommand{\kuromaruhishi}{%
+  \@ifstar{\kuromaruhishi@new@no}{\kuromaruhishi@new}%
+}
+
+\DeclareRobustCommand{\kakko@y@internal}[1]{\kakko@byouga@internal{（}{）}{#1}}
+\DeclareRobustCommand{\kakko@y@internal@no}[1]{\kakko@byouga@internal@no{（}{）}{#1}}
+\DeclareRobustCommand{\kakko@t@internal}[1]{\kakko@byouga@internal@tate{（}{）}{#1}}
+\DeclareRobustCommand{\kakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{（}{）}{#1}}
+\DeclareRobustCommand{\kakko}{%
+  \@ifstar{\kakko@star}{\kakko@nostar}% 
+}
+\newcommand{\kakko@star}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \kakko@t@internal@no{#1}%
   \else
-    % 横書き
-    \vphantom{田}\raisebox{\dimexpr.155\dimexpr\f@size pt\relax}{\scalebox{1}[.9]{#1}}%
+    \kakko@y@internal@no{#1}%
   \fi
 }
-\newcommand{\ndccare}[1]{\vphantom{田}#1}
-
-\newcommand{\VerticalAdjustSlowcare}{%
-  \ifnum\ltjgetparameter{direction}=3
-    0em % 縦組
+\newcommand{\kakko@nostar}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \kakko@t@internal{#1}%
   \else
-    -.04em  % 横組
-  \fi
-}
-
-\newcommand{\VerticalAdjustSlowcareX}{%
-  \ifnum\ltjgetparameter{direction}=3
-    0em % 縦組
-  \else
-    .35em  % 横組
-  \fi
-}
-
-\ExplSyntaxOn
-\newsavebox\jpmid_box
-
-\NewDocumentCommand{\slowcare}{m}
- {
-  \jpmid_iterate:n { \ndccare{\raisebox{\VerticalAdjustSlowcare}{#1}} }
- }
-
-\cs_new_protected:Nn \jpmid_iterate:n
- {
-  \tl_map_inline:nn { #1 }
-   {
-     \sbox\jpmid_box{##1}%
-     \raisebox{-\dimexpr(\ht\jpmid_box-\dp\jpmid_box)/2\relax + \dimexpr\VerticalAdjustSlowcareX}{\usebox\jpmid_box}%
-   }
- }
-\ExplSyntaxOff
-
-\newcommand{\VerticalAdjustMaru}{%
-  \ifnum\ltjgetparameter{direction}=3
-    -0.035ex % 縦組
-  \else
-    0.19ex  % 横組
-  \fi
-}
-
-\newcommand{\VerticalAdjustNMaru}{%
-  \ifnum\ltjgetparameter{direction}=3
-    -0.035ex % 縦組
-  \else
-    0.23ex  % 横組
-  \fi
-}
-
-\newcommand{\maybescale}[3]{%
-  \ifdim #1 > #2%
-    \ifdim #1 > 0pt%
-      \edef\scalefactor{%
-        \fpeval{ \strip@pt\dimexpr #2\relax / \strip@pt\dimexpr #1\relax }%
-      }%
-    \else%
-      \def\scalefactor{1}%
-    \fi%
-    \scalebox{\scalefactor}[1]{#3}%
-  \else%
-    #3%
-  \fi%
-}
-
-%maru系縦方向
-\newcommand{\maybescaleV}[3]{%
-  \ifnum\ltjgetparameter{direction}=3
-    #3%
-  \else
-    \ifdim \dimexpr 1.5\dimexpr #1\relax < #2%
-      \edef\verticalscale{%
-        \fpeval{0.72 * (\strip@pt\dimexpr #2\relax / \strip@pt\dimexpr #1\relax)}%
-      }%
-      \scalebox{1}[\verticalscale]{#3}%
-    \else%
-      #3%
-    \fi%
+    \kakko@y@internal{#1}%
   \fi
 }
 
-%seihou系縦方向
-\newcommand{\maybescaleVV}[3]{%
-  \ifnum\ltjgetparameter{direction}=3
-    #3%
+\DeclareRobustCommand{\sumikakko@y@internal}[1]{\kakko@byouga@internal{【}{】}{#1}}
+\DeclareRobustCommand{\sumikakko@y@internal@no}[1]{\kakko@byouga@internal@no{【}{】}{#1}}
+\DeclareRobustCommand{\sumikakko@t@internal}[1]{\kakko@byouga@internal@tate{【}{】}{#1}}
+\DeclareRobustCommand{\sumikakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{【}{】}{#1}}
+\DeclareRobustCommand{\sumikakko}{%
+  \@ifstar{\sumikakko@star}{\sumikakko@nostar}% 
+}
+\newcommand{\sumikakko@star}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \sumikakko@t@internal@no{#1}%
   \else
-    \ifdim \dimexpr 1.5\dimexpr #1\relax < #2%
-      \edef\verticalscale{%
-        \fpeval{0.64 * (\strip@pt\dimexpr #2\relax / \strip@pt\dimexpr #1\relax)}%
-      }%
-      \scalebox{1}[\verticalscale]{#3}%
-    \else%
-      #3%
-    \fi%
+    \sumikakko@y@internal@no{#1}%
+  \fi
+}
+\newcommand{\sumikakko@nostar}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \sumikakko@t@internal{#1}%
+  \else
+    \sumikakko@y@internal{#1}%
   \fi
 }
 
-%hishi系縦方向
-\newcommand{\maybescaleVVV}[3]{%
-  \ifnum\ltjgetparameter{direction}=3
-    #3%
+\DeclareRobustCommand{\kakukakko@y@internal}[1]{\kakko@byouga@internal{［}{］}{#1}}
+\DeclareRobustCommand{\kakukakko@y@internal@no}[1]{\kakko@byouga@internal@no{［}{］}{#1}}
+\DeclareRobustCommand{\kakukakko@t@internal}[1]{\kakko@byouga@internal@tate{［}{］}{#1}}
+\DeclareRobustCommand{\kakukakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{［}{］}{#1}}
+\DeclareRobustCommand{\kakukakko}{%
+  \@ifstar{\kakukakko@star}{\kakukakko@nostar}% 
+}
+\newcommand{\kakukakko@star}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \kakukakko@t@internal@no{#1}%
   \else
-    \ifdim \dimexpr 1.5\dimexpr #1\relax < #2%
-      \edef\verticalscale{%
-        \fpeval{0.58 * (\strip@pt\dimexpr #2\relax / \strip@pt\dimexpr #1\relax)}%
-      }%
-      \scalebox{1}[\verticalscale]{#3}%
-    \else%
-      #3%
-    \fi%
+    \kakukakko@y@internal@no{#1}%
+  \fi
+}
+\newcommand{\kakukakko@nostar}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \kakukakko@t@internal{#1}%
+  \else
+    \kakukakko@y@internal{#1}%
   \fi
 }
 
-%kakko系
-\newcommand{\maybescaleVVVV}[3]{%
-  \ifnum\ltjgetparameter{direction}=3
-    #3%
+\DeclareRobustCommand{\kikakko@y@internal}[1]{\kakko@byouga@internal{〔}{〕}{#1}}
+\DeclareRobustCommand{\kikakko@y@internal@no}[1]{\kakko@byouga@internal@no{〔}{〕}{#1}}
+\DeclareRobustCommand{\kikakko@t@internal}[1]{\kakko@byouga@internal@tate{〔}{〕}{#1}}
+\DeclareRobustCommand{\kikakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{〔}{〕}{#1}}
+\DeclareRobustCommand{\kikakko}{%
+  \@ifstar{\kikakko@star}{\kikakko@nostar}% 
+}
+\newcommand{\kikakko@star}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \kikakko@t@internal@no{#1}%
   \else
-    \ifdim \dimexpr 1.5\dimexpr #1\relax < #2%
-      \edef\verticalscale{%
-        \fpeval{0.58 * (\strip@pt\dimexpr #2\relax / \strip@pt\dimexpr #1\relax)}%
-      }%
-      \scalebox{1}[\verticalscale]{#3}%
-    \else%
-      #3%
-    \fi%
+    \kikakko@y@internal@no{#1}%
+  \fi
+}
+\newcommand{\kikakko@nostar}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \kikakko@t@internal{#1}%
+  \else
+    \kikakko@y@internal{#1}%
   \fi
 }
 
-\newlength{\maru@boxwidth}
-\newlength{\maru@textwidth}
-\newlength{\maru@textheight}
-\DeclareRobustCommand{\maru}[1]{%
-  \settowidth{\maru@textwidth}{#1}%
-  \settoheight{\maru@textheight}{#1}%
-  \setlength{\maru@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar%
-  \vphantom{羅}\raisebox{\VerticalAdjustMaru}{%
-    \hbox to \maru@boxwidth{%
-      \hss
-      \tikz[baseline=(char.base)]{%
-        \node[
-          shape=circle,
-          line width=0.08ex,  
-          minimum size=.9\maru@boxwidth, 
-          draw,
-          inner sep=\dimexpr -0.22\dimexpr\f@size pt 
-        ] (char){%
-          \raisebox{0.033ex}{\scalebox{0.75}{\vphantom{羅}\makebox[.83\maru@boxwidth][c]{\maybescale{\maru@textwidth}{.8\maru@boxwidth}{\maybescaleV{\maru@textheight}{1.03\maru@boxwidth}{#1}}}}}% 
-        };
-      }%
-      \hss
-    }%
-  }%
-  \ltjghostafterjachar
+\DeclareRobustCommand{\ykakko@y@internal}[1]{\kakko@byouga@internal{〈}{〉}{#1}}
+\DeclareRobustCommand{\ykakko@y@internal@no}[1]{\kakko@byouga@internal@no{〈}{〉}{#1}}
+\DeclareRobustCommand{\ykakko@t@internal}[1]{\kakko@byouga@internal@tate{〈}{〉}{#1}}
+\DeclareRobustCommand{\ykakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{〈}{〉}{#1}}
+\DeclareRobustCommand{\ykakko}{%
+  \@ifstar{\ykakko@star}{\ykakko@nostar}% 
 }
-
-\newlength{\kuromaru@boxwidth}
-\newlength{\kuromaru@textwidth}
-\newlength{\kuromaru@textheight}
-\DeclareRobustCommand{\kuromaru}[1]{%
-  \settowidth{\kuromaru@textwidth}{#1}%
-  \settoheight{\kuromaru@textheight}{#1}%
-  \setlength{\kuromaru@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar%
-  \vphantom{羅}\raisebox{\VerticalAdjustMaru}{%
-    \hbox to \kuromaru@boxwidth{%
-      \hss
-      \tikz[baseline=(char.base)]{%
-        \node[
-          shape=circle,
-          line width=0.08ex,  
-          minimum size=.9\kuromaru@boxwidth,  
-          draw, fill=black,
-          inner sep=\dimexpr -0.22\dimexpr\f@size pt    
-        ] (char){%
-          \raisebox{0.033ex}{\textcolor{white}{\scalebox{0.75}{\vphantom{羅}\makebox[.85\kuromaru@boxwidth][c]{\maybescale{\kuromaru@textwidth}{.82\kuromaru@boxwidth}{\maybescaleV{\kuromaru@textheight}{1.03\kuromaru@boxwidth}{#1}}}}}}%
-        };
-      }%
-      \hss
-    }%
-  }%
-  \ltjghostafterjachar
-}
-
-\newlength{\nmaru@boxwidth}
-\newlength{\nmaru@textwidth}
-\newlength{\nmaru@textheight}
-\DeclareRobustCommand{\nmaru}[1]{%
-  \settowidth{\nmaru@textwidth}{#1}%
-  \settoheight{\nmaru@textheight}{#1}%
-  \setlength{\nmaru@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar%
-  \vphantom{羅}\raisebox{\VerticalAdjustNMaru}{%
-    \hbox to 1.02\nmaru@boxwidth{%
-      \hss
-      \tikz[baseline=(char.base),scale=.93]{%
-        \node[
-          shape=circle,
-          line width=0.06ex,  
-          minimum size=.9\nmaru@boxwidth,  
-          draw, double, double distance=0.08ex,
-          inner sep=\dimexpr -0.22\dimexpr\f@size pt    
-        ] (char){%
-          \raisebox{0.033ex}{\scalebox{0.7}{\vphantom{羅}\makebox[.85\nmaru@boxwidth][c]{\maybescale{\nmaru@textwidth}{.81\nmaru@boxwidth}{\maybescaleV{\nmaru@textheight}{1.03\nmaru@boxwidth}{#1}}}}}%
-        };
-      }%
-      \hss
-    }%
-  }%
-  \ltjghostafterjachar
-}
-
-
-\newcommand{\VerticalAdjustMaruX}{%
-  \ifnum\ltjgetparameter{direction}=3
-    -.13ex % 縦組
+\newcommand{\ykakko@star}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \ykakko@t@internal@no{#1}%
   \else
-    -.11ex  % 横組
+    \ykakko@y@internal@no{#1}%
+  \fi
+}
+\newcommand{\ykakko@nostar}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \ykakko@t@internal{#1}%
+  \else
+    \ykakko@y@internal{#1}%
   \fi
 }
 
-\newcommand{\VerticalAdjustMaruY}{%
-  \ifnum\ltjgetparameter{direction}=3
-    .124ex % 縦組
+\DeclareRobustCommand{\nykakko@y@internal}[1]{\kakko@byouga@internal{《}{》}{#1}}
+\DeclareRobustCommand{\nykakko@y@internal@no}[1]{\kakko@byouga@internal@no{《}{》}{#1}}
+\DeclareRobustCommand{\nykakko@t@internal}[1]{\kakko@byouga@internal@tate{《}{》}{#1}}
+\DeclareRobustCommand{\nykakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{《}{》}{#1}}
+\DeclareRobustCommand{\nykakko}{%
+  \@ifstar{\nykakko@star}{\nykakko@nostar}% 
+}
+\newcommand{\nykakko@star}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \nykakko@t@internal@no{#1}%
   \else
-    .25ex  % 横組
+    \nykakko@y@internal@no{#1}%
+  \fi
+}
+\newcommand{\nykakko@nostar}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \nykakko@t@internal{#1}%
+  \else
+    \nykakko@y@internal{#1}%
   \fi
 }
 
-\newlength{\seihou@boxwidth}
-\newlength{\seihou@textwidth}
-\newlength{\seihou@textheight}
-\DeclareRobustCommand{\seihou}[1]{%
-  \settowidth{\seihou@textwidth}{#1}%
-  \settoheight{\seihou@textheight}{#1}%
-  \setlength{\seihou@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
-  \mbox{%
-  \hbox to \seihou@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[draw, line width=0.08ex, minimum size=\dimexpr 0.88\dimexpr\f@size pt, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\seihou@boxwidth}\makebox[.82\seihou@boxwidth][c]{\maybescale{\seihou@textwidth}{.82\seihou@boxwidth}{\maybescaleVV{\seihou@textheight}{1.23\seihou@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\seihou@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
+\DeclareRobustCommand{\namikakko@y@internal}[1]{\kakko@byouga@internal{｛}{｝}{#1}}
+\DeclareRobustCommand{\namikakko@y@internal@no}[1]{\kakko@byouga@internal@no{｛}{｝}{#1}}
+\DeclareRobustCommand{\namikakko@t@internal}[1]{\kakko@byouga@internal@tate{｛}{｝}{#1}}
+\DeclareRobustCommand{\namikakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{｛}{｝}{#1}}
+\DeclareRobustCommand{\namikakko}{%
+  \@ifstar{\namikakko@star}{\namikakko@nostar}% 
 }
-
-\newlength{\kuroseihou@boxwidth}
-\newlength{\kuroseihou@textwidth}
-\newlength{\kuroseihou@textheight}
-\DeclareRobustCommand{\kuroseihou}[1]{%
-  \settowidth{\kuroseihou@textwidth}{#1}%
-  \settoheight{\kuroseihou@textheight}{#1}%
-  \setlength{\kuroseihou@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
-  \mbox{%
-  \hbox to \kuroseihou@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[draw, fill=black, line width=0.08ex, minimum size=\dimexpr 0.88\dimexpr\f@size pt, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\kuroseihou@boxwidth}\textcolor{white}{\makebox[.82\kuroseihou@boxwidth][c]{\maybescale{\kuroseihou@textwidth}{.82\kuroseihou@boxwidth}{\maybescaleVV{\kuroseihou@textheight}{1.23\kuroseihou@boxwidth}{#1}}}}\hspace*{\dimexpr 0.1\kuroseihou@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\seimaru@boxwidth}
-\newlength{\seimaru@textwidth}
-\newlength{\seimaru@textheight}
-\DeclareRobustCommand{\seimaru}[1]{%
-  \settowidth{\seimaru@textwidth}{#1}%
-  \settoheight{\seimaru@textheight}{#1}%
-  \setlength{\seimaru@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
-  \mbox{%
-  \hbox to \seimaru@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[draw, rounded corners=0.435ex, line width=0.08ex, minimum size=.88\seimaru@boxwidth, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\seimaru@boxwidth}\makebox[.8\seimaru@boxwidth][c]{\maybescale{\seimaru@textwidth}{.82\seimaru@boxwidth}{\maybescaleVV{\seimaru@textheight}{1.23\seimaru@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\seimaru@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\kuroseimaru@boxwidth}
-\newlength{\kuroseimaru@textwidth}
-\newlength{\kuroseimaru@textheight}
-\DeclareRobustCommand{\kuroseimaru}[1]{%
-  \settowidth{\kuroseimaru@textwidth}{#1}%
-  \settoheight{\kuroseimaru@textheight}{#1}%
-  \setlength{\kuroseimaru@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
-  \mbox{%
-  \hbox to \kuroseimaru@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[draw, fill=black, rounded corners=0.435ex, line width=0.08ex, minimum size=.88\kuroseimaru@boxwidth, inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruY}{\scalebox{.8}{\hspace*{\dimexpr 0.1\kuroseimaru@boxwidth}\textcolor{white}{\makebox[.8\kuroseimaru@boxwidth][c]{\maybescale{\kuroseimaru@textwidth}{.82\kuroseimaru@boxwidth}{\maybescaleVV{\kuroseimaru@textheight}{1.23\kuroseimaru@boxwidth}{#1}}}}\hspace*{\dimexpr 0.1\kuroseimaru@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newcommand{\VerticalAdjustMaruZ}{%
-  \ifnum\ltjgetparameter{direction}=3
-    .1ex % 縦組
+\newcommand{\namikakko@star}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \namikakko@t@internal@no{#1}%
   \else
-    .42ex  % 横組
+    \namikakko@y@internal@no{#1}%
+  \fi
+}
+\newcommand{\namikakko@nostar}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \namikakko@t@internal{#1}%
+  \else
+    \namikakko@y@internal{#1}%
   \fi
 }
 
-\newlength{\hishi@boxwidth}
-\newlength{\hishi@textwidth}
-\newlength{\hishi@textheight}
-\DeclareRobustCommand{\hishi}[1]{%
-  \settowidth{\hishi@textwidth}{#1}%
-  \settoheight{\hishi@textheight}{#1}%
-  \setlength{\hishi@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
-  \mbox{%
-  \hbox to \hishi@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[draw, shape=diamond, line width=0.08ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\hishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.53}{\hspace*{\dimexpr 0.1\hishi@boxwidth}\makebox[.67\hishi@boxwidth][c]{\maybescale{\hishi@textwidth}{.67\hishi@boxwidth}{\maybescaleVVV{\hishi@textheight}{1.7\hishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\hishi@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
+\DeclareRobustCommand{\kagikakko@y@internal}[1]{\kakko@byouga@internal{「}{」}{#1}}
+\DeclareRobustCommand{\kagikakko@y@internal@no}[1]{\kakko@byouga@internal@no{「}{」}{#1}}
+\DeclareRobustCommand{\kagikakko@t@internal}[1]{\kakko@byouga@internal@tate{「}{」}{#1}}
+\DeclareRobustCommand{\kagikakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{「}{」}{#1}}
+\DeclareRobustCommand{\kagikakko}{%
+  \@ifstar{\kagikakko@star}{\kagikakko@nostar}% 
 }
-
-\newlength{\kurohishi@boxwidth}
-\newlength{\kurohishi@textwidth}
-\newlength{\kurohishi@textheight}
-\DeclareRobustCommand{\kurohishi}[1]{%
-  \settowidth{\kurohishi@textwidth}{#1}%
-  \settoheight{\kurohishi@textheight}{#1}%
-  \setlength{\kurohishi@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
-  \mbox{%
-  \hbox to \kurohishi@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[draw, shape=diamond, fill=black, line width=0.08ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\kurohishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.53}{\hspace*{\dimexpr 0.1\kurohishi@boxwidth}\textcolor{white}{\makebox[.67\kurohishi@boxwidth][c]{\maybescale{\kurohishi@textwidth}{.67\kurohishi@boxwidth}{\maybescaleVVV{\kurohishi@textheight}{1.7\kurohishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\kurohishi@boxwidth}}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\maruhishi@boxwidth}
-\newlength{\maruhishi@textwidth}
-\newlength{\maruhishi@textheight}
-\DeclareRobustCommand{\maruhishi}[1]{%
-  \settowidth{\maruhishi@textwidth}{#1}%
-  \settoheight{\maruhishi@textheight}{#1}%
-  \setlength{\maruhishi@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
-  \mbox{%
-  \hbox to \maruhishi@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[draw, rounded corners=0.3ex, shape=diamond, line width=0.08ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\maruhishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.53}{\hspace*{\dimexpr 0.1\maruhishi@boxwidth}\makebox[.67\maruhishi@boxwidth][c]{\maybescale{\maruhishi@textwidth}{.67\maruhishi@boxwidth}{\maybescaleVVV{\maruhishi@textheight}{1.7\maruhishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\maruhishi@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\kuromaruhishi@boxwidth}
-\newlength{\kuromaruhishi@textwidth}
-\newlength{\kuromaruhishi@textheight}
-\DeclareRobustCommand{\kuromaruhishi}[1]{%
-  \settowidth{\kuromaruhishi@textwidth}{#1}%
-   \settoheight{\kuromaruhishi@textheight}{#1}%
-  \setlength{\kuromaruhishi@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustMaruX}{%
-  \mbox{%
-  \hbox to \kuromaruhishi@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[draw, fill=black, rounded corners=0.3ex, shape=diamond, line width=0.08ex, minimum size=\dimexpr 0.95\dimexpr\f@size pt, inner sep=-\dimexpr .13\kuromaruhishi@boxwidth, align=center] (char) {\vphantom{\raisebox{0.124ex}{羅}}{\raisebox{\VerticalAdjustMaruZ}{\scalebox{.57}{\hspace*{\dimexpr 0.1\kuromaruhishi@boxwidth}\textcolor{white}{\makebox[.67\kuromaruhishi@boxwidth][c]{\maybescale{\kuromaruhishi@textwidth}{.67\kuromaruhishi@boxwidth}{\maybescaleVVV{\kuromaruhishi@textheight}{1.7\kuromaruhishi@boxwidth}{#1}}}\hspace*{\dimexpr 0.1\kuromaruhishi@boxwidth}}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newcommand{\VerticalAdjustKakkoX}{%
-  \ifnum\ltjgetparameter{direction}=3
-    -0ex % 縦組
+\newcommand{\kagikakko@star}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \kagikakko@t@internal@no{#1}%
   \else
-    -0ex  % 横組
+    \kagikakko@y@internal@no{#1}%
+  \fi
+}
+\newcommand{\kagikakko@nostar}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \kagikakko@t@internal{#1}%
+  \else
+    \kagikakko@y@internal{#1}%
   \fi
 }
 
-\newlength{\kakko@boxwidth}
-\newlength{\kakko@textwidth}
-\newlength{\kakko@textheight}
-\DeclareRobustCommand{\kakko}[1]{%
-  \settowidth{\kakko@textwidth}{#1}%
-  \settoheight{\kakko@textheight}{#1}%
-  \setlength{\kakko@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \kakko@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kakko@boxwidth}\makebox[.5\kakko@boxwidth][c]{\scalebox{.65}[1]{（}\maybescale{\kakko@textwidth}{.5\kakko@boxwidth}{\maybescaleVVVV{\kakko@textheight}{1.23\kakko@boxwidth}{#1}}\scalebox{.65}[1]{）}}\hspace*{\dimexpr 0.02\kakko@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
+\DeclareRobustCommand{\nkagikakko@y@internal}[1]{\kakko@byouga@internal{『}{』}{#1}}
+\DeclareRobustCommand{\nkagikakko@y@internal@no}[1]{\kakko@byouga@internal@no{『}{』}{#1}}
+\DeclareRobustCommand{\nkagikakko@t@internal}[1]{\kakko@byouga@internal@tate{『}{』}{#1}}
+\DeclareRobustCommand{\nkagikakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{『}{』}{#1}}
+\DeclareRobustCommand{\nkagikakko}{%
+  \@ifstar{\nkagikakko@star}{\nkagikakko@nostar}% 
 }
-
-\newlength{\sumikakko@boxwidth}
-\newlength{\sumikakko@textwidth}
-\newlength{\sumikakko@textheight}
-\DeclareRobustCommand{\sumikakko}[1]{%
-  \settowidth{\sumikakko@textwidth}{#1}%
-  \settoheight{\sumikakko@textheight}{#1}%
-  \setlength{\sumikakko@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \sumikakko@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\sumikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\sumikakko@boxwidth}\makebox[.5\sumikakko@boxwidth][c]{\scalebox{.6}[1]{【}\maybescale{\sumikakko@textwidth}{.5\sumikakko@boxwidth}{\maybescaleVVVV{\sumikakko@textheight}{1.23\sumikakko@boxwidth}{#1}}\scalebox{.6}[1]{】}}\hspace*{\dimexpr 0.02\sumikakko@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
+\newcommand{\nkagikakko@star}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \nkagikakko@t@internal@no{#1}%
+  \else
+    \nkagikakko@y@internal@no{#1}%
+  \fi
 }
-
-\newlength{\kakukakko@boxwidth}
-\newlength{\kakukakko@textwidth}
-\newlength{\kakukakko@textheight}
-\DeclareRobustCommand{\kakukakko}[1]{%
-  \settowidth{\kakukakko@textwidth}{#1}%
-  \settoheight{\kakukakko@textheight}{#1}%
-  \setlength{\kakukakko@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \kakukakko@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kakukakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kakukakko@boxwidth}\makebox[.5\kakukakko@boxwidth][c]{\scalebox{.6}[1]{［}\maybescale{\kakukakko@textwidth}{.5\kakukakko@boxwidth}{\maybescaleVVVV{1.23\kakukakko@textheight}{\kakukakko@boxwidth}{#1}}\scalebox{.6}[1]{］}}\hspace*{\dimexpr 0.02\kakukakko@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\kikakko@boxwidth}
-\newlength{\kikakko@textwidth}
-\newlength{\kikakko@textheight}
-\DeclareRobustCommand{\kikakko}[1]{%
-  \settowidth{\kikakko@textwidth}{#1}%
-  \settoheight{\kikakko@textheight}{#1}%
-  \setlength{\kikakko@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \kikakko@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kikakko@boxwidth}\makebox[.5\kikakko@boxwidth][c]{\scalebox{.6}[1]{〔}\maybescale{\kikakko@textwidth}{.5\kikakko@boxwidth}{\maybescaleVVVV{1.23\kikakko@textheight}{\kikakko@boxwidth}{#1}}\scalebox{.6}[1]{〕}}\hspace*{\dimexpr 0.02\kikakko@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\ykakko@boxwidth}
-\newlength{\ykakko@textwidth}
-\newlength{\ykakko@textheight}
-\DeclareRobustCommand{\ykakko}[1]{%
-  \settowidth{\ykakko@textwidth}{#1}%
-  \settoheight{\ykakko@textheight}{#1}%
-  \setlength{\ykakko@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \ykakko@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\ykakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\ykakko@boxwidth}\makebox[.5\ykakko@boxwidth][c]{\scalebox{.6}[1]{〈}\maybescale{\ykakko@textwidth}{.5\ykakko@boxwidth}{\maybescaleVVVV{1.23\ykakko@textheight}{\ykakko@boxwidth}{#1}}\scalebox{.6}[1]{〉}}\hspace*{\dimexpr 0.02\ykakko@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\nykakko@boxwidth}
-\newlength{\nykakko@textwidth}
-\newlength{\nykakko@textheight}
-\DeclareRobustCommand{\nykakko}[1]{%
-  \settowidth{\nykakko@textwidth}{#1}%
-  \settoheight{\nykakko@textheight}{#1}%
-  \setlength{\nykakko@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \nykakko@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\nykakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\nykakko@boxwidth}\makebox[.5\nykakko@boxwidth][c]{\scalebox{.6}[1]{《}\maybescale{\nykakko@textwidth}{.5\nykakko@boxwidth}{\maybescaleVVVV{1.23\nykakko@textheight}{\nykakko@boxwidth}{#1}}\scalebox{.6}[1]{》}}\hspace*{\dimexpr 0.02\nykakko@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\namikakko@boxwidth}
-\newlength{\namikakko@textwidth}
-\newlength{\namikakko@textheight}
-\DeclareRobustCommand{\namikakko}[1]{%
-  \settowidth{\namikakko@textwidth}{#1}%
-  \settoheight{\namikakko@textheight}{#1}%
-  \setlength{\namikakko@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \namikakko@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\namikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\namikakko@boxwidth}\makebox[.5\namikakko@boxwidth][c]{\scalebox{.6}[1]{｛}\maybescale{\namikakko@textwidth}{.5\namikakko@boxwidth}{\maybescaleVVVV{1.23\namikakko@textheight}{\namikakko@boxwidth}{#1}}\scalebox{.6}[1]{｝}}\hspace*{\dimexpr 0.02\namikakko@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\kagikakko@boxwidth}
-\newlength{\kagikakko@textwidth}
-\newlength{\kagikakko@textheight}
-\DeclareRobustCommand{\kagikakko}[1]{%
-  \settowidth{\kagikakko@textwidth}{#1}%
-  \settoheight{\kagikakko@textheight}{#1}%
-  \setlength{\kagikakko@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \kagikakko@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\kagikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\kagikakko@boxwidth}\makebox[.5\kagikakko@boxwidth][c]{\scalebox{.6}[1]{「}\maybescale{\kagikakko@textwidth}{.5\kagikakko@boxwidth}{\maybescaleVVVV{1.23\kagikakko@textheight}{\kagikakko@boxwidth}{#1}}\scalebox{.6}[1]{」}}\hspace*{\dimexpr 0.02\kagikakko@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\nkagikakko@boxwidth}
-\newlength{\nkagikakko@textwidth}
-\newlength{\nkagikakko@textheight}
-\DeclareRobustCommand{\nkagikakko}[1]{%
-  \settowidth{\nkagikakko@textwidth}{#1}%
-  \settoheight{\nkagikakko@textheight}{#1}%
-  \setlength{\nkagikakko@boxwidth}{\f@size pt}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \nkagikakko@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\nkagikakko@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\nkagikakko@boxwidth}\makebox[.5\nkagikakko@boxwidth][c]{\scalebox{.6}[1]{『}\maybescale{\nkagikakko@textwidth}{.5\nkagikakko@boxwidth}{\maybescaleVVVV{1.23\nkagikakko@textheight}{\nkagikakko@boxwidth}{#1}}\scalebox{.6}[1]{』}}\hspace*{\dimexpr 0.02\nkagikakko@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\period@boxwidth}
-\newlength{\period@textwidth}
-\newlength{\period@textheight}
-\DeclareRobustCommand{\period}[1]{%
-  \settowidth{\period@textwidth}{#1}%
-  \setlength{\period@boxwidth}{\f@size pt}%
-  \settoheight{\period@textheight}{#1}%
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \period@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\period@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\period@boxwidth}\makebox[.5\period@boxwidth][c]{\maybescale{\period@textwidth}{.5\period@boxwidth}{\maybescaleVVVV{1.23\period@textheight}{\period@boxwidth}{#1}}\scalebox{1}[1]{.}}\hspace*{\dimexpr 0.02\period@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
-}
-
-\newlength{\ichimoji@boxwidth}
-\newlength{\ichimoji@textwidth}
-\newlength{\ichimoji@textheight}
-\DeclareRobustCommand{\ichimoji}[1]{%
-  \settowidth{\ichimoji@textwidth}{#1}%
-  \setlength{\ichimoji@boxwidth}{\f@size pt}%
-  \settoheight{\ichimoji@textheight}{#1}%
-  \multiply\ichimoji@boxwidth by 100 %
-  \divide\ichimoji@boxwidth by 100 %
-  \ltjghostbeforejachar\vphantom{羅}\raisebox{\VerticalAdjustKakkoX}{%
-  \mbox{%
-  \hbox to \ichimoji@boxwidth{%
-  \hss
-  \tikz[baseline=(char.base)]{%
-      \node[inner sep=-\dimexpr 0.125\dimexpr\f@size pt, align=center, minimum size=.8\ichimoji@boxwidth] (char) {{\raisebox{\VerticalAdjustKakkoX}{\scalebox{1}{\hspace*{\dimexpr 0.02\ichimoji@boxwidth}\makebox[\ichimoji@boxwidth][c]{\maybescale{\ichimoji@textwidth}{\ichimoji@boxwidth}{\maybescaleVVVV{1.23\ichimoji@textheight}{\ichimoji@boxwidth}{#1}}}\hspace*{\dimexpr 0.02\ichimoji@boxwidth}}}}};
-  }\hss}}}\ltjghostafterjachar
+\newcommand{\nkagikakko@nostar}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \nkagikakko@t@internal{#1}%
+  \else
+    \nkagikakko@y@internal{#1}%
+  \fi
 }
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 完全に作り直す。（v2.0.0以降）
-% 単位系を全部\zwに。
+\DeclareRobustCommand{\period@y@internal}[1]{\kakko@byouga@internal{\relax}{.}{#1}}
+\DeclareRobustCommand{\period@y@internal@no}[1]{\kakko@byouga@internal@no{\relax}{.}{#1}}
+\DeclareRobustCommand{\period@t@internal}[1]{\kakko@byouga@internal@tate{\relax}{.}{#1}}
+\DeclareRobustCommand{\period@t@internal@no}[1]{\kakko@byouga@internal@tate@no{\relax}{.}{#1}}
+\DeclareRobustCommand{\period}{%
+  \@ifstar{\period@star}{\period@nostar}% 
+}
+\newcommand{\period@star}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \period@t@internal@no{#1}%
+  \else
+    \period@y@internal@no{#1}%
+  \fi
+}
+\newcommand{\period@nostar}[1]{%
+  \ifnum\ltjgetparameter{direction}=3\relax
+    \period@t@internal{#1}%
+  \else
+    \period@y@internal{#1}%
+  \fi
+}
+
 
 % 全体で使用
 \NewDocumentCommand{\shukushou@adj@new}{ m m m }{%
-  % \ifdim\maru@var@yokohaba < \maru@boxwidth@inner
-  %   \resizebox*{\width}{\maru@boxwidth@inner}{#1}%
-  % \else
-  %   \resizebox*{\maru@boxwidth@inner}{\maru@boxwidth@inner}{#1}%
-  % \fi%
   \ifdim #1 < #2%
     \resizebox*{\width}{#2}{#3}%
   \else%
@@ -724,7 +421,6 @@
   }%
   \ltjghostafterjachar%
 }
-% あとで\maruに統合。スターオプションで変更可能に
 
 
 \DeclareRobustCommand{\kuromaru@new}[1]{%
@@ -1872,7 +1568,7 @@
 %%%
 
 
-% % \ichimoji
+% \ichimoji
 \DeclareRobustCommand{\ichimoji@new}[1]{%
   \ifnum\ltjgetparameter{direction}=3%
     \ltjghostbeforejachar%
@@ -1894,5 +1590,6 @@
     \ltjghostafterjachar%
   \fi%
 }
+\let\ichimoji\ichimoji@new
 %%%
 \endinput
