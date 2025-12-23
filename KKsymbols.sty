@@ -54,6 +54,10 @@
   \@ifstar{\kuromaruhishi@new@no}{\kuromaruhishi@new}%
 }
 
+\DeclareRobustCommand{\ichimoji}{%
+  \@ifstar{\ichimoji@new@no}{\ichimoji@new}%
+}
+
 \DeclareRobustCommand{\kakko@y@internal}[1]{\kakko@byouga@internal{（}{）}{#1}}
 \DeclareRobustCommand{\kakko@y@internal@no}[1]{\kakko@byouga@internal@no{（}{）}{#1}}
 \DeclareRobustCommand{\kakko@t@internal}[1]{\kakko@byouga@internal@tate{（}{）}{#1}}
@@ -1569,6 +1573,18 @@
 
 
 % \ichimoji
+\newlength{\ichimoji@yk@new}
+\newlength{\ichimoji@ht@new}
+\newlength{\ichimoji@dp@new}
+\newlength{\ichimoji@zenkou@new}
+\DeclareRobustCommand{\ichimoji@scaling}[1]{%
+  \ifdim\ichimoji@yk@new > \zw%
+    \pgfmathsetmacro{\ratio@ichimoji@yk}{\strip@pt\zw/\strip@pt\ichimoji@yk@new}%
+    \scalebox{\ratio@ichimoji@yk}[1]{#1}%
+  \else%
+    #1%
+  \fi%
+}
 \DeclareRobustCommand{\ichimoji@new}[1]{%
   \ifnum\ltjgetparameter{direction}=3%
     \ltjghostbeforejachar%
@@ -1590,6 +1606,30 @@
     \ltjghostafterjachar%
   \fi%
 }
-\let\ichimoji\ichimoji@new
+\DeclareRobustCommand{\ichimoji@new@no}[1]{%
+  \settowidth{\ichimoji@yk@new}{#1}%
+  \settoheight{\ichimoji@ht@new}{#1}%
+  \settodepth{\ichimoji@dp@new}{#1}%
+  \pgfmathsetlength{\ichimoji@zenkou@new}{\ichimoji@ht@new + \ichimoji@dp@new}%
+  \ifnum\ltjgetparameter{direction}=3%
+    \ltjghostbeforejachar%
+    \raisebox{-.5\zw}{\hbox to \zw {\hss%
+    \vbox to \zw {\vss%
+      \hbox to \zw {\hss%
+        \ichimoji@scaling{#1}%
+      \hss}%
+    \vss}\hss}}%
+    \ltjghostafterjachar%
+  \else%
+    \ltjghostbeforejachar%
+    \raisebox{-.12\zw}{\hbox to \zw {\hss%
+    \vbox to \zw {\vss%
+      \hbox to \zw {\hss%
+        \ichimoji@scaling{#1}%
+      \hss}%
+    \vss}\hss}}%
+    \ltjghostafterjachar%
+  \fi%
+}
 %%%
 \endinput
