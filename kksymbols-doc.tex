@@ -1,11 +1,15 @@
-\documentclass[luatex,fontsize=10pt,paper=b5,twoside]{jlreq}%
-\usepackage{KKsymbols}
-\usepackage[dvipsnames, svgnames, x11names]{xcolor}
+\documentclass[luatex,fontsize=8pt,paper=b5,twoside]{jlreq}%
+\usepackage{luwa-ul}
 \usepackage{hyperref}
-\usepackage{fp}
-\usepackage{listings}
 \usepackage{caption}
-\usepackage{luacode}
+\usepackage[most]{tcolorbox}
+\usepackage{fp}
+\usepackage{lltjext}
+\usepackage{luatexja-ruby}
+\usepackage{KKsymbols}
+\usepackage{amsmath,amssymb}
+
+\usepackage{listings}
 \lstset{
     basicstyle=\ttfamily\small,
     keywordstyle=\color{blue},
@@ -16,6 +20,26 @@
     columns=flexible           
 }
 
+% You can omit these font settings.
+\RequirePackage[no-math]{fontspec}
+\RequirePackage[no-math,match,scale=1]{luatexja-fontspec}
+\RequirePackage[hiragino-pro,deluxe,expert]{luatexja-preset}
+\setmainfont{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]\setmainjfont{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\renewfontfamily{\sffamily}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]
+\renewfontfamily{\mcfamily}{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\renewfontfamily{\gtfamily}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]
+\providefontfamily{\mgfamily}{HiraMaruPro-W4}
+\newfontfamily{\sfhira}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]\newjfontfamily{\sfhiraj}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]
+\newfontfamily{\mchira}{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]\newjfontfamily{\mchiraj}{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\newfontfamily{\gthira}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6,FontFace={eb}{\shapedefault}{HiraKakuStd-W8}]\newjfontfamily{\gthiraj}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6,FontFace={eb}{\shapedefault}{HiraKakuStd-W8}]
+\newfontfamily{\mghira}{HiraMaruPro-W4}\newjfontfamily{\mghiraj}{HiraMaruPro-W4}
+\renewcommand{\sffamily}{\sfhira\sfhiraj}
+\renewcommand{\mcfamily}{\mchira\mchiraj}
+\renewcommand{\gtfamily}{\gthira\gthiraj}
+\renewcommand{\mgfamily}{\mghira\mghiraj}
+%%%
+
+
 \usepackage{hyperref} 
 \hypersetup{
   luatex, pdfencoding=auto, 
@@ -24,6 +48,43 @@
   citecolor=black,     
   urlcolor=DeepSkyBlue3,      
   pdfborder={0 0 0}, 
+}
+
+\colorlet{grayLight}{white!80!black} 
+
+\NewTCBListing{SourceCode}{ O{Input} m !o !O{DeepSkyBlue3} }{%
+  enhanced, colback=black!70, colframe=Snow4,
+  toptitle=-1mm, bottomtitle=-1mm,
+  righttitle=-1mm, lefttitle=-1mm,
+  arc=.5mm, 
+  title={\tcbox[on line, arc=.5mm, boxsep=0pt, boxrule=0pt, top=1mm, bottom=0.8mm, left=2mm, right=2.2mm, colback=gray!80, coltext=white]{\raisebox{-0.1ex}{\vphantom{羅}\vphantom{j}#1}}},fonttitle=\gtfamily\footnotesize,boxrule=0.8pt,
+  breakable,before upper={\color{white}},top=-0.5mm,bottom=-0.5mm,
+  after title=\IfNoValueTF{#3}{}{{\hfill\tcbox[on line, arc=.5mm, boxsep=0pt, boxrule=0pt, top=1mm, bottom=0.8mm, left=2mm, right=2.2mm, colback=white!80!black, coltext=#4]{\raisebox{-0.1ex}{\vphantom{羅}\vphantom{j}#3}}}},
+  listing only,
+  listing options={
+    language={#2},
+    basicstyle=\ttfamily,
+    keywordstyle=\ttfamily\color{white},
+    stringstyle=\itshape\color{white},
+    commentstyle=\small\gtfamily\color{DeepSkyBlue2},
+    showspaces=false,showtabs=false,
+    breaklines=true,breakindent=0pt,
+    showstringspaces=false,
+    columns=fullflexible,
+    tabsize=2,
+    numbers=left,numbersep=1.5pt,
+    numberstyle=\scriptsize\gtfamily\color{gray},
+  }
+}
+
+\NewTColorBox{OutPut}{ m !o !O{DeepSkyBlue3} }{%
+  enhanced, colframe=Snow4,
+  toptitle=-1mm, bottomtitle=-1mm,
+  righttitle=-1mm, lefttitle=-1mm,
+  arc=.5mm, colback=white, 
+  title={\tcbox[on line, arc=.5mm, boxsep=0pt, boxrule=0pt, top=1mm, bottom=0.8mm, left=2mm, right=2.2mm, colback=gray!40, coltext=DeepSkyBlue3]{\raisebox{-0.1ex}{\vphantom{羅}\vphantom{j}#1}}},fonttitle=\gtfamily\footnotesize,boxrule=0.8pt,
+  breakable,top=-0.5mm,bottom=-0.5mm,
+  after title=\IfNoValueTF{#2}{}{{\hfill\tcbox[on line, arc=.5mm, boxsep=0pt, boxrule=0pt, top=1mm, bottom=0.8mm, left=2mm, right=2.2mm, colback=white!80!black, coltext=#3]{\raisebox{-0.1ex}{\vphantom{羅}\vphantom{j}#2}}}}, bottom=2mm, top=2mm, 
 }
 
 \title{\texttt{KKsymbols} Package Documentation}
@@ -334,21 +395,68 @@ They behave as if they were single kanji or hiragana characters:
 
 The spacing between \verb|\maru| and other characters is adjusted using \verb|\ltjghostbeforejachar| and \verb|\ltjghostafterjachar| so that it behaves like hiragana or kanji.
 
-\textbf{Naturally, these commands also work correctly in vertical writing environments. But only when they include math-mode (in vertical mode), they don't work correctly.}
-
 When changing the font size using commands such as \verb|\Large|, each command is scaled proportionally according to the font size change:
 
 \begin{quotation}
-  \tiny \maru{あああ}\kuromaru{2222}\nmaru{亀}
-  \normalsize \maru{あああ}\kuromaru{2222}\nmaru{亀}
-  \Huge \maru{あああ}\kuromaru{2222}\nmaru{亀}
+  {\tiny \maru{あああ}\kuromaru{2222}\nmaru{亀}}
+
+  {\normalsize \maru{あああ}\kuromaru{2222}\nmaru{亀}}
+
+  {\Huge \maru{あああ}\kuromaru{2222}\nmaru{亀}}
 \end{quotation}
 
 You can also change the current font:
 \begin{quotation}
-  \LARGE\maru{あいう}\kuromaru{午後}\nmaru{悟}
-  \gtfamily \maru{あいう}\kuromaru{午後}\nmaru{悟}
+  {\LARGE\maru{あいう}\kuromaru{午後}\nmaru{悟}}%
+
+  {\gtfamily \maru{あいう}\kuromaru{午後}\nmaru{悟}}
 \end{quotation}
+
+\subsection{Vertical mode}
+\textbf{Naturally, these commands also work correctly in vertical writing environments. But only when they include math-mode (in vertical mode), they don't.} Also when you want to typeset \maru{あ}, for instance, in vertical mode, you should use \verb|\RotTate| command. 
+
+\begin{SourceCode}{TeX}
+  % In vertical mode
+  \RotTate[0]\kakko{あ}\kakko{い}\kakko{う}\par
+  \RotTate[90]\kakko{1}\kakko{1}\kakko{3}
+\end{SourceCode}
+
+\begin{OutPut}{Output}
+  \parbox<t>{5\zw}{%
+    \RotTate[0]\kakko{あ}\kakko{い}\kakko{う}\par
+    \RotTate[90]\kakko{1}\kakko{2}\kakko{3}
+  }
+\end{OutPut}
+
+\subsection{Rotation}
+This package provides \verb|\Rottate| and \verb|\RotYoko|.
+
+\begin{description}
+  \item[In horizontal mode] The default value is \verb|0|. 
+  \item[In vertical mode] The default value is \verb|90|. 
+\end{description}
+
+\begin{SourceCode}{TeX}
+  % In horizontal mode
+  \RotYoko[45]\kakko{あ}\kakko{い}\kakko{う}\par
+  \RotYoko[60]\kakko{1}\kakko{2}\kakko{3}
+
+  % In vertical mode
+  \RotTate[45]\kakko{あ}\kakko{い}\kakko{う}\par
+  \RotTate[60]\kakko{1}\kakko{2}\kakko{3}
+\end{SourceCode}
+
+\begin{OutPut}{Output}
+  \RotYoko[45]\kakko{あ}\kakko{い}\kakko{う}\par
+  \RotYoko[60]\kakko{1}\kakko{2}\kakko{3}
+
+  \bigskip
+
+  \parbox<t>{5\zw}{%
+    \RotTate[45]\kakko{あ}\kakko{い}\kakko{う}\par
+    \RotTate[60]\kakko{1}\kakko{2}\kakko{3}
+  }
+\end{OutPut}
 
 \section{The seihou series}
 The commands introduced below are used in exactly the same way as the maru series.
@@ -814,6 +922,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\maru@boxwidth@new}{\zw}%
     \settowidth{\maru@var@yokohaba}{#1}%
     \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \maru@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -858,6 +967,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
     \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
     \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \maru@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -900,6 +1010,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\maru@boxwidth@new}{\zw}%
     \settowidth{\maru@var@yokohaba}{#1}%
     \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \maru@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -946,6 +1057,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
     \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
     \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \maru@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -990,6 +1102,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\maru@boxwidth@new}{\zw}%
     \settowidth{\maru@var@yokohaba}{#1}%
     \pgfmathsetlength{\maru@boxwidth@inner}{0.85 * \maru@boxwidth@new / sqrt(2)}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \maru@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1035,6 +1148,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
     \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
     \pgfmathsetlength{\maru@boxwidth@inner}{0.82 * \maru@boxwidth@new / sqrt(2)}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \maru@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1080,6 +1194,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \settowidth{\maru@var@yokohaba}{#1}%
     \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
     \pgfmathsetlength{\jegg@boxwidth@inner@cal}{0.77 * \maru@boxwidth@inner}%%%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \maru@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1122,6 +1237,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \settowidth{\maru@var@yokohaba}{#1}%
     \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
     \pgfmathsetlength{\jegg@boxwidth@inner@cal}{0.77 * \maru@boxwidth@inner}%%%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \maru@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1195,6 +1311,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\seihou@boxwidth@new}{\zw}%
     \settowidth{\seihou@var@yokohaba}{#1}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1238,6 +1355,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
     \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1279,6 +1397,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\seihou@boxwidth@new}{\zw}%
     \settowidth{\seihou@var@yokohaba}{#1}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1324,6 +1443,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
     \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1367,6 +1487,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\seihou@boxwidth@new}{\zw}%
     \settowidth{\seihou@var@yokohaba}{#1}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1411,6 +1532,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
     \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1453,6 +1575,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\seihou@boxwidth@new}{\zw}%
     \settowidth{\seihou@var@yokohaba}{#1}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1499,6 +1622,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
     \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1543,6 +1667,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\seihou@boxwidth@new}{\zw}%
     \settowidth{\seihou@var@yokohaba}{#1}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1586,6 +1711,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \settodepth{\seihou@var@fuka}{#1}%
     \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1629,6 +1755,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\seihou@boxwidth@new}{\zw}%
     \settowidth{\seihou@var@yokohaba}{#1}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1673,6 +1800,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \settodepth{\seihou@var@fuka}{#1}%
     \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1717,6 +1845,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\seihou@boxwidth@new}{\zw}%
     \settowidth{\seihou@var@yokohaba}{#1}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1762,6 +1891,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \settodepth{\seihou@var@fuka}{#1}%
     \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1807,6 +1937,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\seihou@boxwidth@new}{\zw}%
     \settowidth{\seihou@var@yokohaba}{#1}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1853,6 +1984,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \settodepth{\seihou@var@fuka}{#1}%
     \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
     \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+    \leavevmode%
     \ltjghostbeforejachar%
     \hbox to \seihou@boxwidth@new{%
     \raisebox{\vertical@adj@maru@new}{%
@@ -1917,9 +2049,11 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
   }
 
   \DeclareRobustCommand{\kakko@byouga@internal}[3]{% 横の方
+    \rot@or@not@kksym%
     \setlength{\kakko@boxwidth@new}{\zw}%
     \settowidth{\kakko@var@yokohaba}{#3}%
     \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
       \hbox to \zw{\hss%
         \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
@@ -1927,7 +2061,8 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
           \vss%
           \hbox to \kakko@boxwidth@inner{%
           \hss%
-            \shukushou@adj@new{\kakko@var@yokohaba}{\kakko@boxwidth@inner}{#3}%
+            \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
+              \shukushou@adj@new{\kakko@var@yokohaba}{\kakko@boxwidth@inner}{#3}}%
           \hss%
           }%
           \vss%
@@ -1937,6 +2072,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \ltjghostafterjachar%
   }
   \DeclareRobustCommand{\kakko@byouga@internal@no}[3]{% 横の方
+    \rot@or@not@kksym%
     \setlength{\kakko@boxwidth@new}{\zw}%
     \settowidth{\kakko@var@yokohaba}{#3}%
     \settoheight{\kakko@var@tate}{#3}%
@@ -1944,6 +2080,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
     \pgfmathsetlength{\kakko@var@yokohaba@cal}{0.9 * \kakko@var@yokohaba}%
     \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
       \hbox to \zw{\hss%
         \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
@@ -1951,7 +2088,8 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
           \vss%
           \hbox to \kakko@boxwidth@inner{%
           \hss%
-            \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{#3}%
+            \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
+              \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{#3}}%
           \hss%
           }%
           \vss%
@@ -1967,6 +2105,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \setlength{\kakko@boxwidth@new}{\zw}%
     \settowidth{\kakko@var@yokohaba}{#3}%
     \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
       \raisebox{-.5\zw}{%
       \rotatebox[origin=c]{90}{%
@@ -2005,6 +2144,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
     \pgfmathsetlength{\kakko@var@yokohaba@cal}{0.9 * \kakko@var@yokohaba}%
     \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+    \leavevmode%
     \ltjghostbeforejachar%
       \raisebox{-.5\zw}{%
       \rotatebox[origin=c]{90}{%
@@ -2055,6 +2195,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
   }
   \DeclareRobustCommand{\ichimoji@new}[1]{%
     \ifnum\ltjgetparameter{direction}=3%
+      \leavevmode%
       \ltjghostbeforejachar%
       \raisebox{-.5\zw}{\hbox to \zw {\hss%
       \vbox to \zw {\vss%
@@ -2064,6 +2205,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
       \vss}\hss}}%
       \ltjghostafterjachar%
     \else%
+      \leavevmode%
       \ltjghostbeforejachar%
       \raisebox{-.12\zw}{\hbox to \zw {\hss%
       \vbox to \zw {\vss%
@@ -2080,6 +2222,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
     \settodepth{\ichimoji@dp@new}{#1}%
     \pgfmathsetlength{\ichimoji@zenkou@new}{\ichimoji@ht@new + \ichimoji@dp@new}%
     \ifnum\ltjgetparameter{direction}=3%
+      \leavevmode%
       \ltjghostbeforejachar%
       \raisebox{-.5\zw}{\hbox to \zw {\hss%
       \vbox to \zw {\vss%
@@ -2089,6 +2232,7 @@ Released under the \href{https://www.latex-project.org/lppl/}{LaTeX Project Publ
       \vss}\hss}}%
       \ltjghostafterjachar%
     \else%
+      \leavevmode%
       \ltjghostbeforejachar%
       \raisebox{-.12\zw}{\hbox to \zw {\hss%
       \vbox to \zw {\vss%
