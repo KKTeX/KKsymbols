@@ -15,6 +15,7 @@ Dependencies:
 LuaLaTeX-ja, tikz, clac,
 
 Notice
+-------------
 This package is **LuaLaTeX-only**. 
 
 See kksymbols-doc.tex for usage examples.
