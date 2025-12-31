@@ -20,6 +20,14 @@
 
 ---
 
+## Acknowledgements / Credits
+In developing this package, I made extensive use of the advice I received from Mr. Yusuke Terada.
+
+I recommend you to refer to his article when you develop new-type symbols on LaTeX.
+
+- **Link**: [https://doratex.hatenablog.jp/entry/20211205/1638697391](https://doratex.hatenablog.jp/entry/20211205/1638697391)
+---
+
 ## Key Features / 特徴
 
 - **Various Enclosures / 多彩な囲み形状**
