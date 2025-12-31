@@ -1,13 +1,10 @@
 \documentclass[luatex,fontsize=8pt,paper=b5,twoside]{jlreq}%
-\usepackage{luwa-ul}
-\usepackage{hyperref}
-\usepackage{caption}
-\usepackage[most]{tcolorbox}
-\usepackage{fp}
-\usepackage{lltjext}
-\usepackage{luatexja-ruby}
-\usepackage{KKsymbols}
 \usepackage{amsmath,amssymb}
+\usepackage{booktabs,caption}
+\usepackage{luwa-ul}
+\usepackage[most]{tcolorbox}
+\usepackage{luatexja-ruby,lltjext}
+\usepackage{KKsymbols}
 
 \usepackage{listings}
 \lstset{
@@ -21,22 +18,25 @@
 }
 
 % You can omit these font settings.
+\makeatletter
 \RequirePackage[no-math]{fontspec}
 \RequirePackage[no-math,match,scale=1]{luatexja-fontspec}
 \RequirePackage[hiragino-pro,deluxe,expert]{luatexja-preset}
-\setmainfont{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]\setmainjfont{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
-\renewfontfamily{\sffamily}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]
-\renewfontfamily{\mcfamily}{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
-\renewfontfamily{\gtfamily}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]
-\providefontfamily{\mgfamily}{HiraMaruPro-W4}
-\newfontfamily{\sfhira}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]\newjfontfamily{\sfhiraj}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]
-\newfontfamily{\mchira}{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]\newjfontfamily{\mchiraj}{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
-\newfontfamily{\gthira}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6,FontFace={eb}{\shapedefault}{HiraKakuStd-W8}]\newjfontfamily{\gthiraj}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6,FontFace={eb}{\shapedefault}{HiraKakuStd-W8}]
-\newfontfamily{\mghira}{HiraMaruPro-W4}\newjfontfamily{\mghiraj}{HiraMaruPro-W4}
-\renewcommand{\sffamily}{\sfhira\sfhiraj}
-\renewcommand{\mcfamily}{\mchira\mchiraj}
-\renewcommand{\gtfamily}{\gthira\gthiraj}
-\renewcommand{\mgfamily}{\mghira\mghiraj}
+\setmainfont{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\setmainjfont{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\newfontfamily{\sfhira@pre}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]
+\newjfontfamily{\sfhiraj@pre}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]
+\newfontfamily{\mchira@pre}{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\newjfontfamily{\mchiraj@pre}{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\newfontfamily{\gthira@pre}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6,FontFace={eb}{\shapedefault}{HiraKakuStd-W8}]
+\newjfontfamily{\gthiraj@pre}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6,FontFace={eb}{\shapedefault}{HiraKakuStd-W8}]
+\newfontfamily{\mghira@pre}{HiraMaruPro-W4}
+\newjfontfamily{\mghiraj@pre}{HiraMaruPro-W4}
+\renewcommand{\sffamily}{\sfhira@pre\sfhiraj@pre}
+\renewcommand{\mcfamily}{\mchira@pre\mchiraj@pre}
+\renewcommand{\gtfamily}{\gthira@pre\gthiraj@pre}
+\renewcommand{\mgfamily}{\mghira@pre\mghiraj@pre}
+\makeatother
 %%%
 
 
@@ -52,7 +52,7 @@
 
 \colorlet{grayLight}{white!80!black} 
 
-\NewTCBListing{SourceCode}{ O{Input} m !o !O{DeepSkyBlue3} }{%
+\NewTCBListing{SourceCode}{ m m !o !O{DeepSkyBlue3} }{%
   enhanced, colback=black!70, colframe=Snow4,
   toptitle=-1mm, bottomtitle=-1mm,
   righttitle=-1mm, lefttitle=-1mm,
@@ -415,7 +415,7 @@ You can also change the current font:
 \subsection{Vertical mode}
 \textbf{Naturally, these commands also work correctly in vertical writing environments. But only when they include math-mode (in vertical mode), they don't.} Also when you want to typeset \maru{あ}, for instance, in vertical mode, you should use \verb|\RotTate| command. 
 
-\begin{SourceCode}{TeX}
+\begin{SourceCode}{Input}{TeX}
   % In vertical mode
   \RotTate[0]\kakko{あ}\kakko{い}\kakko{う}\par
   \RotTate[90]\kakko{1}\kakko{1}\kakko{3}
@@ -436,7 +436,7 @@ This package provides \verb|\Rottate| and \verb|\RotYoko|.
   \item[In vertical mode] The default value is \verb|90|. 
 \end{description}
 
-\begin{SourceCode}{TeX}
+\begin{SourceCode}{Input}{TeX}
   % In horizontal mode
   \RotYoko[45]\kakko{あ}\kakko{い}\kakko{う}\par
   \RotYoko[60]\kakko{1}\kakko{2}\kakko{3}
