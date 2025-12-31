@@ -89,7 +89,7 @@
 
 \title{\texttt{KKsymbols} Package Documentation}
 \author{Kosei Kawaguchi a.k.a. KKTeX}
-\date{Version 2.0.0 (2025/12/23)}
+\date{Version 2.0.0a (2025/12/31)}
 \begin{document}
 
 \begin{titlepage}
@@ -99,10 +99,14 @@
 \tableofcontents
 \newpage
 
-\section{Outline in Japanese}
-このパッケージは、既存のotfフォントに頼ることなく、「任意のフォント、任意の引数で」丸数字などの特殊記号を再現する目的で作成されています。
+\section{Outline}
+Japanese: このパッケージは、既存のotfフォントに頼ることなく、「任意のフォント、任意の引数で」丸数字などの特殊記号を再現する目的で作成されています。
 
-luatexja-otfにおける\verb|\ajMaru|などは、その設計上いたしかなないデメリットとして、早見表がないと使い物にならないというものがありました。しかし、本パッケージでは、一から特殊文字を設計し直すというという取り組みを行なっているため、そのようなメリットが解消されています。
+luatexja-otfにおける\verb|\ajMaru|などは、その設計上いたしかなないデメリットとして、早見表がないと使い物にならないというものがありました。しかし、本パッケージでは、一から特殊文字を設計し直すというという取り組みを行なっているため、そのようなデメリットが解消されています。
+
+English: This package is designed to reproduce special characters, such as circled numbers, using arbitrary fonts and parameters without relying on existing otf font sets.
+
+A known disadvantage of commands like \verb|\ajMaru| in luatexja-otf is that they are practically unusable without a reference chart. In contrast, this package addresses this issue by re-engineering special characters from the ground up, eliminating the need for complex lookup tables.
 
 {%
 \fboxsep=0pt\fboxrule=.1pt
@@ -371,7 +375,23 @@ Since this package internally calls \verb|\ltjghostbeforejachar| and \verb|\ltjg
 \subsection{The maru series}
 This package provides \verb|\maru|, \verb|\kuromaru|, and \verb|\nmaru|. Each of them takes one mandatory argument and no optional arguments. You can pass strings of any length and in any font as arguments.
 
-In most cases, \verb|\maru{argument}| will meet your demands. However, only when you take lowercase alphabet in these commands, you must use star-command just like \verb|\maru*{m}|.
+In most cases, \verb|\maru{argument}| will meet your demands. However, only when you take lowercase alphabet in these commands, you must use star-command just like \verb|\maru*{m}|\footnote{\texttt{\textbackslash jegg} is an exception of this rule. When you use \texttt{\textbackslash jegg}, you don't have to put the star option no matter the argument is lowercase or not. If you do it, the background color of the \texttt{\textbackslash jegg} changes into gray. Only in this case, the effect of the option is different.}.
+
+\begin{SourceCode}{Input}{TeX}[Mind the star option!]
+  % Normal Characters
+  \maru{A}\maru{あ}\maru{QED.}
+
+  % Lowercase Alphabetic Characters
+  \maru*{a}\maru*{j}\maru*{z}
+\end{SourceCode}
+
+\begin{OutPut}{Output}
+  % Normal Characters
+  \maru{A}\maru{あ}\maru{QED.}
+
+  % Lowercase Alphabetic Characters
+  \maru*{a}\maru*{j}\maru*{z}
+\end{OutPut}
 
 They are used as follows.
 
@@ -419,7 +439,7 @@ You can also change the current font:
 \end{quotation}
 
 \subsection{Vertical mode}
-\textbf{Naturally, these commands also work correctly in vertical writing environments. But only when they include math-mode (in vertical mode), they don't.} Also when you want to typeset \maru{あ}, for instance, in vertical mode, you should use \verb|\RotTate| command. 
+\textbf{Naturally, these commands also work correctly in vertical writing environments. But only when they include math-mode (in vertical mode), sometimes they don't.} Also when you want to typeset \maru{あ}, for instance, in vertical mode, you should use \verb|\RotTate| command. 
 
 \begin{SourceCode}{Input}{TeX}
   % In vertical mode
@@ -503,6 +523,23 @@ Qjg & \hishi{Qjg} & \kurohishi{Qjg} & \maruhishi{Qjg} & \kuromaruhishi{Qjg} \\
 }\bigskip
 
 
+\begin{SourceCode}{Input}{TeX}[Mind the star option!]
+  % Normal Characters
+  \seihou{A}\seihou{あ}\seihou{QED.}
+
+  % Lowercase Alphabetic Characters
+  \seihou*{a}\seihou*{j}\seihou*{z}
+\end{SourceCode}
+
+\begin{OutPut}{Output}
+  % Normal Characters
+  \seihou{A}\seihou{あ}\seihou{QED.}
+
+  % Lowercase Alphabetic Characters
+  \seihou*{a}\seihou*{j}\seihou*{z}
+\end{OutPut}
+
+
 \section{The kakko series}
 The commands introduced below are used in exactly the same way as the maru series.
 
@@ -542,6 +579,21 @@ Qjg & \nykakko{Qjg} & \namikakko{Qjg} & \kagikakko{Qjg} & \nkagikakko{Qjg} & \pe
 \end{tabular}
 }\bigskip
 
+\begin{SourceCode}{Input}{TeX}[Mind the star option!]
+  % Normal Characters
+  \kakko{A}\kakko{あ}\kakko{QED.}
+
+  % Lowercase Alphabetic Characters
+  \kakko*{a}\kakko*{j}\kakko*{z}
+\end{SourceCode}
+
+\begin{OutPut}{Output}
+  % Normal Characters
+  \kakko{A}\kakko{あ}\kakko{QED.}
+
+  % Lowercase Alphabetic Characters
+  \kakko*{a}\kakko*{j}\kakko*{z}
+\end{OutPut}
 
 \section{License}
 
@@ -550,21 +602,19 @@ Released under the MIT License.
 \section{Version History}
 
 \begin{itemize}
-    \item \textbf{v1.0.0 (2025/10/03)} --- Initial public release.
-    \item \textbf{v1.0.1 (2025/10/04)} --- Added \verb|\slowcare|, and adjusted \verb|\dccare|.
-    \item \textbf{v1.0.2 (2025/10/05)} --- Fixed a problem related to dependency environments.
-    \item \textbf{v1.0.3 (2025/10/12)} --- Fixed a problem related to maru series.
-    \item \textbf{v1.0.4 (2025/10/18)} --- Added \verb|\ichimoji| command.
-    \item \textbf{v1.1.0 (2025/10/28)} --- Unify all commands to zenkaku width.
-    \item \textbf{v1.1.1 (2025/11/10)} --- Modified the scaling system of \verb|\ichimoji|.
-    \item \textbf{v2.0.0 (2025/12/23)} --- Renewed every scaling system in order to make the outputs very close to oft characters.
+  \item \textbf{v1.0.0 (2025/10/03)} --- Initial public release.
+  \item \textbf{v1.0.1--1.0.4} --- Added \verb|\ichimoji|; fixed various bugs.
+  \item \textbf{v1.1.0 (2025/10/28)} --- Unified all commands to \textit{zenkaku} (full-width).
+  \item \textbf{v1.1.1 (2025/11/10)} --- Refined \verb|\ichimoji| scaling logic.
+  \item \textbf{v2.0.0 (2025/12/23)} --- Overhauled scaling to match OTF character quality.
+  \item \textbf{v2.0.0a (2025/12/31)} --- Added explanations regarding several important notes.
 \end{itemize}
 
 \section{Source Code}
 
 \begin{lstlisting}
   \NeedsTeXFormat{LaTeX2e}
-  \ProvidesPackage{KKsymbols}[2025/12/23, Version 2.0.0]
+  \ProvidesPackage{KKsymbols}[2025/12/31, Version 2.0.0a]
   \RequirePackage{luatexja-adjust}
   \RequirePackage{expl3}
   \RequirePackage{calc}
