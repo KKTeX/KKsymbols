@@ -454,39 +454,45 @@ The commands \verb|\RotYoko| and \verb|\RotTate| redefine this "automatic rotati
 
 \begin{SourceCode}{Input}{TeX}
   % In horizontal mode
-  \RotYoko[45]\kakko{あ}\kakko{い}\kakko{う}\par
-  \RotYoko[60]\kakko{1}\kakko{2}\kakko{3}
+  {\RotYoko[45]\kakko{あ}\kakko{い}\kakko{う}}\par
+  {\RotYoko[60]\kakko{1}\kakko{2}\kakko{3}}
 
   % In vertical mode
-  \RotTate[45]\kakko{あ}\kakko{い}\kakko{う}\par
-  \RotTate[60]\kakko{1}\kakko{2}\kakko{3}
+  \parbox<t>{5\zw}{% <t> option requires lltjext package.
+    {\RotTate[45]\kakko{あ}\kakko{い}\kakko{う}}\par
+    {\RotTate[60]\kakko{1}\kakko{2}\kakko{3}}
+  }
 \end{SourceCode}
 
 \begin{OutPut}{Output}
-  \RotYoko[45]\kakko{あ}\kakko{い}\kakko{う}\par
-  \RotYoko[60]\kakko{1}\kakko{2}\kakko{3}
+  {\RotYoko[45]\kakko{あ}\kakko{い}\kakko{う}}\par
+  {\RotYoko[60]\kakko{1}\kakko{2}\kakko{3}}
 
   \bigskip
 
-  \parbox<t>{5\zw}{%
-    \RotTate[45]\kakko{あ}\kakko{い}\kakko{う}\par
-    \RotTate[60]\kakko{1}\kakko{2}\kakko{3}
+  \parbox<t>{5\zw}{% <t> option requires lltjext package.
+    {\RotTate[45]\kakko{あ}\kakko{い}\kakko{う}}\par
+    {\RotTate[60]\kakko{1}\kakko{2}\kakko{3}}
   }
 \end{OutPut}
 
 \subsection{Vertical mode}
-Also when you want to typeset \maru{あ}, for instance, in vertical mode, you should use \verb|\RotTate| command. 
+When you want to typeset \maru{あ}, for instance, in vertical mode, you should use \verb|\RotTate| command. 
+
+As described in the previous subsection, the effect of \verb|\RotTate| lasts, when localized, in a certain group. So when you typeset hiragana and kanji, use it like this:
 
 \begin{SourceCode}{Input}{TeX}
   % In vertical mode
-  \RotTate[0]\kakko{あ}\kakko{い}\kakko{う}\par
-  \RotTate[90]\kakko{1}\kakko{1}\kakko{3}
+  \parbox<t>{5\zw}{%
+    {\RotTate[0]\kakko{あ}\kakko{い}\kakko{う}}\par
+    \kakko{1}\kakko{1}\kakko{3}
+  }
 \end{SourceCode}
 
 \begin{OutPut}{Output}
   \parbox<t>{5\zw}{%
-    \RotTate[0]\kakko{あ}\kakko{い}\kakko{う}\par
-    \RotTate[90]\kakko{1}\kakko{2}\kakko{3}
+    {\RotTate[0]\kakko{あ}\kakko{い}\kakko{う}}\par
+    \kakko{1}\kakko{1}\kakko{3}
   }
 \end{OutPut}
 
