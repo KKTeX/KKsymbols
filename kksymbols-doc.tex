@@ -438,29 +438,19 @@ You can also change the current font:
   {\gtfamily \maru{あいう}\kuromaru{午後}\nmaru{悟}}
 \end{quotation}
 
-\subsection{Vertical mode}
-\textbf{Naturally, these commands also work correctly in vertical writing environments. But only when they include math-mode (in vertical mode), sometimes they don't.} Also when you want to typeset \maru{あ}, for instance, in vertical mode, you should use \verb|\RotTate| command. 
 
-\begin{SourceCode}{Input}{TeX}
-  % In vertical mode
-  \RotTate[0]\kakko{あ}\kakko{い}\kakko{う}\par
-  \RotTate[90]\kakko{1}\kakko{1}\kakko{3}
-\end{SourceCode}
-
-\begin{OutPut}{Output}
-  \parbox<t>{5\zw}{%
-    \RotTate[0]\kakko{あ}\kakko{い}\kakko{う}\par
-    \RotTate[90]\kakko{1}\kakko{2}\kakko{3}
-  }
-\end{OutPut}
-
-\subsection{Rotation}
-This package provides \verb|\RotTate| and \verb|\RotYoko|.
+\section{Rotation}
+\subsection{Commands}
+This package provides \verb|\RotTate| and \verb|\RotYoko|. The differnces are as follows:
 
 \begin{description}
-  \item[In horizontal mode] The default value is \verb|0|. 
-  \item[In vertical mode] The default value is \verb|90|. 
+  \item[In horizontal mode] You should use \verb|\RotYoko|. The default value is \verb|0|. Therefore, if you use \verb|\RotYoko| with no arguments, this is equal to \verb|\RotYoko[0]| 
+  \item[In vertical mode] You should use \verb|\RotTate|. The default value is \verb|90|. Therefore, if you use \verb|\RotTate| with no arguments, this is equal to \verb|\RotTate[90]| 
 \end{description}
+
+From a technical perspective: Commands like \verb|\maru| provided by this package automatically rotate their arguments based on the ``current typesetting direction'' Specifically, the package applies a 0-degree rotation for horizontal writing (yoko-gaki) and a 90-degree rotation for vertical writing (tate-gaki).
+
+The commands \verb|\RotYoko| and \verb|\RotTate| redefine this "automatic rotation angle" to the value specified in their arguments. Consequently, the effect is persistent unless localized (similar to how font-size commands like \verb|\small| behave). Therefore, please ensure you use appropriate scoping, such as enclosing the command within curly braces \verb|{...}|, when applying these settings.
 
 \begin{SourceCode}{Input}{TeX}
   % In horizontal mode
@@ -481,6 +471,22 @@ This package provides \verb|\RotTate| and \verb|\RotYoko|.
   \parbox<t>{5\zw}{%
     \RotTate[45]\kakko{あ}\kakko{い}\kakko{う}\par
     \RotTate[60]\kakko{1}\kakko{2}\kakko{3}
+  }
+\end{OutPut}
+
+\subsection{Vertical mode}
+Also when you want to typeset \maru{あ}, for instance, in vertical mode, you should use \verb|\RotTate| command. 
+
+\begin{SourceCode}{Input}{TeX}
+  % In vertical mode
+  \RotTate[0]\kakko{あ}\kakko{い}\kakko{う}\par
+  \RotTate[90]\kakko{1}\kakko{1}\kakko{3}
+\end{SourceCode}
+
+\begin{OutPut}{Output}
+  \parbox<t>{5\zw}{%
+    \RotTate[0]\kakko{あ}\kakko{い}\kakko{う}\par
+    \RotTate[90]\kakko{1}\kakko{2}\kakko{3}
   }
 \end{OutPut}
 
