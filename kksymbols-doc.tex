@@ -89,7 +89,7 @@
 
 \title{\texttt{KKsymbols} Package Documentation}
 \author{Kosei Kawaguchi a.k.a. KKTeX}
-\date{Version 2.0.0a (2025/12/31)}
+\date{Version 2.0.1 (2025/01/08)}
 \begin{document}
 
 \begin{titlepage}
@@ -371,6 +371,9 @@ Load the package:
 \section{Caution}
 Since this package internally calls \verb|\ltjghostbeforejachar| and \verb|\ltjghostafterjachar|, it can be used only in a LuaLaTeX environment.
 
+\section{Updates for LuaTeX-ja v20260107.0}
+With the update to luatexja version 20260107.0, the commands provided by the KKsymbols package now behave identically to native Japanese characters. This improvement is due to the bug fixes in \verb|\ltjghostbeforejachar| and \verb|\ltjghostafterjachar|. Previously, when multiple commands from this package were used consecutively, proper glue was not inserted between them; however, this issue has been resolved in this update.
+
 \section{Commands}
 \subsection{The maru series}
 This package provides \verb|\maru|, \verb|\kuromaru|, and \verb|\nmaru|. Each of them takes one mandatory argument and no optional arguments. You can pass strings of any length and in any font as arguments.
@@ -619,14 +622,14 @@ Released under the MIT License.
   \item \textbf{v1.1.0 (2025/10/28)} --- Unified all commands to \textit{zenkaku} (full-width).
   \item \textbf{v1.1.1 (2025/11/10)} --- Refined \verb|\ichimoji| scaling logic.
   \item \textbf{v2.0.0 (2025/12/23)} --- Overhauled scaling to match OTF character quality.
-  \item \textbf{v2.0.0a (2025/12/31)} --- Added explanations regarding several important notes.
+  \item \textbf{v2.0.1 (2025/01/08)} --- Added explanations regarding several important notes. In addition, the manual has been updated to reflect bug fixes introduced in luatexja version 20260107.0.
 \end{itemize}
 
 \section{Source Code}
 
 \begin{lstlisting}
   \NeedsTeXFormat{LaTeX2e}
-  \ProvidesPackage{KKsymbols}[2025/12/31, Version 2.0.0a]
+  \ProvidesPackage{KKsymbols}[2025/01/08, Version 2.0.1]
   \RequirePackage{luatexja-adjust}
   \RequirePackage{expl3}
   \RequirePackage{calc}
