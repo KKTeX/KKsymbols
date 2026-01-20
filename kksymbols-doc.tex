@@ -89,7 +89,7 @@
 
 \title{\texttt{KKsymbols} Package Documentation}
 \author{Kosei Kawaguchi a.k.a. KKTeX}
-\date{Version 2.0.1 (2025/01/08)}
+\date{Version 2.0.2 (2025/01/20)}
 \begin{document}
 
 \begin{titlepage}
@@ -623,13 +623,14 @@ Released under the MIT License.
   \item \textbf{v1.1.1 (2025/11/10)} --- Refined \verb|\ichimoji| scaling logic.
   \item \textbf{v2.0.0 (2025/12/23)} --- Overhauled scaling to match OTF character quality.
   \item \textbf{v2.0.1 (2025/01/08)} --- Added explanations regarding several important notes. In addition, the manual has been updated to reflect bug fixes introduced in luatexja version 20260107.0.
+  \item \textbf{v2.0.2 (2025/01/20)} --- Slightly adjusted internal macro which used in \verb|\kakko| command.
 \end{itemize}
 
 \section{Source Code}
 
 \begin{lstlisting}
   \NeedsTeXFormat{LaTeX2e}
-  \ProvidesPackage{KKsymbols}[2025/01/08, Version 2.0.1]
+  \ProvidesPackage{KKsymbols}[2025/01/20, Version 2.0.2]
   \RequirePackage{luatexja-adjust}
   \RequirePackage{expl3}
   \RequirePackage{calc}
@@ -2111,15 +2112,17 @@ Released under the MIT License.
     \ltjghostbeforejachar%
       \hbox to \zw{\hss%
         \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
-          \vbox to \kakko@boxwidth@inner{
-          \vss%
-          \hbox to \kakko@boxwidth@inner{%
-          \hss%
-            \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
-              \shukushou@adj@new{\kakko@var@yokohaba}{\kakko@boxwidth@inner}{#3}}%
-          \hss%
+        \raisebox{-.03\zw}{%
+          \vbox to \kakko@boxwidth@inner{%
+            \vss%
+            \hbox to \kakko@boxwidth@inner{%
+            \hss%
+              \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
+                \shukushou@adj@new{\kakko@var@yokohaba}{\kakko@boxwidth@inner}{#3}}%
+            \hss%
+            }%
+            \vss%
           }%
-          \vss%
         }%
         \hspace*{-.1\zw}\scalebox{.63}[1]{#2}%
       \hss}%
@@ -2138,15 +2141,17 @@ Released under the MIT License.
     \ltjghostbeforejachar%
       \hbox to \zw{\hss%
         \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
-          \vbox to \kakko@boxwidth@inner{
-          \vss%
-          \hbox to \kakko@boxwidth@inner{%
-          \hss%
-            \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
-              \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{#3}}%
-          \hss%
+        \raisebox{-.03\zw}{%
+          \vbox to \kakko@boxwidth@inner{%
+            \vss%
+            \hbox to \kakko@boxwidth@inner{%
+            \hss%
+              \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
+                \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{#3}}%
+            \hss%
+            }%
+            \vss%
           }%
-          \vss%
         }%
         \hspace*{-.1\zw}\scalebox{.63}[1]{#2}%
       \hss}%
