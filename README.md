@@ -12,7 +12,7 @@
 `KKsymbols` は、文字を丸、四角、菱形、括弧などで囲むためのコマンドを提供するパッケージです。自動スケーリングとベースライン補正機能を備えており、横書き・縦書きのどちらでも適切な外観を維持します。
 
 - **Version**: 2.0.2
-- **Date**: 2025-01-20
+- **Date**: 2026-01-20
 - **Author**: Kosei Kawaguchi (a.k.a. KKTeX)
 - **License**: MIT
 - **Repository**: [https://github.com/KKTeX/KKsymbols](https://github.com/KKTeX/KKsymbols)
