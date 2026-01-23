@@ -1,6 +1,7 @@
 # ----- setting ------
 SAMPLE_TARGET = kksymbols-sample
 DOC_TARGET = kksymbols-doc
+TEST_TARGET = test
 RC     = .latexmkrc
 
 
@@ -10,6 +11,11 @@ RC     = .latexmkrc
 # compile
 builddoc:
 	latexmk -r $(RC) $(DOC_TARGET).tex
+	$(MAKE) clean
+
+# compile
+buildtest:
+	latexmk -r $(RC) $(TEST_TARGET).tex
 	$(MAKE) clean
 
 # cleaning except for PDF
