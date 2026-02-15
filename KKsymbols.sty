@@ -308,29 +308,6 @@
 }
 
 
-\DeclareRobustCommand{\period@y@internal}[1]{\kakko@byouga@internal{\relax}{.}{#1}}
-\DeclareRobustCommand{\period@y@internal@no}[1]{\kakko@byouga@internal@no{\relax}{.}{#1}}
-\DeclareRobustCommand{\period@t@internal}[1]{\kakko@byouga@internal@tate{\relax}{.}{#1}}
-\DeclareRobustCommand{\period@t@internal@no}[1]{\kakko@byouga@internal@tate@no{\relax}{.}{#1}}
-\DeclareRobustCommand{\period}{%
-  \@ifstar{\period@star}{\period@nostar}% 
-}
-\newcommand{\period@star}[1]{%
-  \ifnum\ltjgetparameter{direction}=3\relax
-    \period@t@internal@no{#1}%
-  \else
-    \period@y@internal@no{#1}%
-  \fi
-}
-\newcommand{\period@nostar}[1]{%
-  \ifnum\ltjgetparameter{direction}=3\relax
-    \period@t@internal{#1}%
-  \else
-    \period@y@internal{#1}%
-  \fi
-}
-
-
 % 全体で使用
 \NewDocumentCommand{\shukushou@adj@new}{ m m m }{%
   \ifdim #1 < #2%
