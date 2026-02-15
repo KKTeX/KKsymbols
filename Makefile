@@ -6,15 +6,15 @@ RC     = .latexmkrc
 
 
 # ----- main ------
-.PHONY: clean distclean pvc zip builddoc buildtest
+.PHONY: clean distclean pvc zip doc test
 
 # compile
-builddoc:
+doc:
 	latexmk -r $(RC) $(DOC_TARGET).tex
 	$(MAKE) clean
 
 # compile
-buildtest:
+test:
 	latexmk -r $(RC) $(TEST_TARGET).tex
 	$(MAKE) clean
 
@@ -36,7 +36,7 @@ styFILENAME = KKsymbols
 ZIP_DIR = $(PACKAGE)
 
 # ----- zip generation -----
-zip: distclean builddoc
+zip: distclean doc
 	mkdir -p $(ZIP_DIR)
 	cp $(styFILENAME).sty $(ZIP_DIR)
 	cp README.md $(ZIP_DIR)
