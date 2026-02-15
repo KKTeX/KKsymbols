@@ -78,7 +78,7 @@
 
 \title{\texttt{KKsymbols} Package Documentation}
 \author{Kosei Kawaguchi a.k.a. KKTeX}
-\date{Version 2.0.3 (2026/02/16)}
+\date{Version 2.1.0 (2026/02/16)}
 \begin{document}
 
 \begin{titlepage}
@@ -358,16 +358,13 @@ Load the package:
 \end{verbatim}
 
 \section{Caution}
-Since this package internally calls \verb|\ltjghostbeforejachar| and \verb|\ltjghostafterjachar|, it can be used only in a LuaLaTeX environment.
-
-\section{Updates for LuaTeX-ja v20260107.0}
-With the update to luatexja version 20260107.0, the commands provided by the KKsymbols package now behave identically to native Japanese characters. This improvement is due to the bug fixes in \verb|\ltjghostbeforejachar| and \verb|\ltjghostafterjachar|. Previously, when multiple commands from this package were used consecutively, proper glue was not inserted between them; however, this issue has been resolved in this update.
+\namiKK{Since this package internally calls \KKverb|\ltjghostbeforejachar| and \KKverb|\ltjghostafterjachar|, it can be used \textbf{only in a LuaLaTeX environment.}}
 
 \section{Commands}
 \subsection{The maru series}
 This package provides \verb|\maru|, \verb|\kuromaru|, and \verb|\nmaru|. Each of them takes one mandatory argument and no optional arguments. You can pass strings of any length and in any font as arguments.
 
-In most cases, \verb|\maru{argument}| will meet your demands. However, only when you take lowercase alphabet in these commands, you must use star-command just like \verb|\maru*{m}|\footnote{\texttt{\textbackslash jegg} is an exception of this rule. When you use \texttt{\textbackslash jegg}, you don't have to put the star option no matter the argument is lowercase or not. If you do it, the background color of the \texttt{\textbackslash jegg} changes into gray. Only in this case, the effect of the option is different.}.
+In most cases, \verb|\maru{argument}| will meet your demands. However, only when you take lowercase alphabet in these commands, you must use star-command just like \verb|\maru*{m}|\footnote{\KKverb|\jegg| is an exception of this rule. When you use \KKverb|\jegg|, you don't have to put the star option no matter the argument is lowercase or not. If you do it, the background color of the \KKverb|\jegg| changes into gray. Only in this case, the effect of the option is different.}.
 
 \begin{SourceCode}{Input}{TeX}[Mind the star option!]
   % Normal Characters
@@ -547,7 +544,7 @@ Qjg & \hishi{Qjg} & \kurohishi{Qjg} & \maruhishi{Qjg} & \kuromaruhishi{Qjg} \\
 \section{The kakko series}
 The commands introduced below are used in exactly the same way as the maru series.
 
-In most cases, \verb|\kakko{argument}| will meet your demands. However, only when you take lowercase alphabet in these commands, you must use star-command just like \verb|\kakko*{m}|.
+In most cases, \verb|\kakko{argument}| will meet your demands. However, only when you take lowercase alphabet in these commands, you must use star-command just like \verb|\kakko*{m}|\footnote{\KKverb|\zenkakuhabafixer| is an exception of this rule. It does not take a star option.}.
 
 \bigskip{%
 \centering
@@ -569,16 +566,16 @@ Qjg & \kakko{Qjg} & \sumikakko{Qjg} & \kakukakko{Qjg} & \kikakko{Qjg} & \ykakko{
 \bigskip{%
 \centering
 \captionof{table}{kakko series\maru{2}}
-\begin{tabular}{|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
-argument & \texttt{\textbackslash nykakko} & \texttt{\textbackslash namikakko} & \texttt{\textbackslash kagikakko} & \texttt{\textbackslash nkagikakko} & \texttt{\textbackslash ichimoji} \\
+argument & \texttt{\textbackslash nykakko} & \texttt{\textbackslash namikakko} & \texttt{\textbackslash kagikakko} & \texttt{\textbackslash nkagikakko} & \texttt{\textbackslash ichimoji} & \texttt{\textbackslash zenkakuhabafixer}\\
 \hline
-1     & \nykakko{1}     & \namikakko{1}     & \kagikakko{1}     & \nkagikakko{1}     & \ichimoji{1} \\
-97    & \nykakko{97}    & \namikakko{97}    & \kagikakko{97}    & \nkagikakko{97}    & \ichimoji{97} \\
-だ    & \nykakko{だ}    & \namikakko{だ}    & \kagikakko{だ}    & \nkagikakko{だ}    & \ichimoji{だ} \\
-ばばば & \nykakko{ばばば} & \namikakko{ばばば} & \kagikakko{ばばば} & \nkagikakko{ばばば} & \ichimoji{ばばば} \\
-m & \nykakko*{m} & \namikakko*{m} & \kagikakko*{m} & \nkagikakko*{m} & \ichimoji*{m} \\
-Qjg & \nykakko{Qjg} & \namikakko{Qjg} & \kagikakko{Qjg} & \nkagikakko{Qjg} & \ichimoji{Qjg} \\
+1     & \nykakko{1}     & \namikakko{1}     & \kagikakko{1}     & \nkagikakko{1}     & \ichimoji{1} & \zenkakuhabafixer{1} \\
+97    & \nykakko{97}    & \namikakko{97}    & \kagikakko{97}    & \nkagikakko{97}    & \ichimoji{97} & \zenkakuhabafixer{97} \\
+だ    & \nykakko{だ}    & \namikakko{だ}    & \kagikakko{だ}    & \nkagikakko{だ}    & \ichimoji{だ} & \zenkakuhabafixer{だ} \\
+ばばば & \nykakko{ばばば} & \namikakko{ばばば} & \kagikakko{ばばば} & \nkagikakko{ばばば} & \ichimoji{ばばば} & \zenkakuhabafixer{ばばば} \\
+m & \nykakko*{m} & \namikakko*{m} & \kagikakko*{m} & \nkagikakko*{m} & \ichimoji*{m} & \zenkakuhabafixer{m} \\
+Qjg & \nykakko{Qjg} & \namikakko{Qjg} & \kagikakko{Qjg} & \nkagikakko{Qjg} & \ichimoji{Qjg} & \zenkakuhabafixer{Qjg} \\
 \hline
 \end{tabular}
 }\bigskip
@@ -599,6 +596,14 @@ Qjg & \nykakko{Qjg} & \namikakko{Qjg} & \kagikakko{Qjg} & \nkagikakko{Qjg} & \ic
   \kakko*{a}\kakko*{j}\kakko*{z}
 \end{OutPut}
 
+\subsection{Additional Description: \KKverb|\ichimoji| and \KKverb|\zenkakuhabafixer|}
+The major differnce of \verb|\ichimoji| and \verb|\zenkakuhabafixer| is that the former changes the vertical scale to force its totalheight to \verb|\zw|, but the latter doesn't. You can see the differnce as follows: 
+
+\begin{description}
+  \item[\KKverb|\ichimoji|] \fbox{\ichimoji{123}}
+  \item[\KKverb|\zenkakuhabafixer|] \fbox{\zenkakuhabafixer{123}}
+\end{description}
+
 \section{License}
 
 Released under the MIT License.
@@ -611,8 +616,14 @@ Released under the MIT License.
   \item \textbf{v1.1.0 (2025/10/28)} --- Unified all commands to \textit{zenkaku} (full-width).
   \item \textbf{v1.1.1 (2025/11/10)} --- Refined \verb|\ichimoji| scaling logic.
   \item \textbf{v2.0.0 (2025/12/23)} --- Overhauled scaling to match OTF character quality.
-  \item \textbf{v2.0.1 (2026/01/08)} --- Added explanations regarding several important notes. In addition, the manual has been updated to reflect bug fixes introduced in luatexja version 20260107.0.
+  \item \textbf{v2.0.1 (2026/01/08)} --- With the update to luatexja version 20260107.0, the commands provided by the KKsymbols package now behave identically to native Japanese characters. This improvement is due to the bug fixes in \verb|\ltjghostbeforejachar| and \verb|\ltjghostafterjachar|. Previously, when multiple commands from this package were used consecutively, proper glue was not inserted between them; however, this issue has been resolved in this update.
   \item \textbf{v2.0.2 (2026/01/20)} --- This update fixes a critical bug where arguments of the \verb|\kakko| command could overflow when using specific fonts (for example, Hiragino fonts with weights W4 and above). 
+  \item \textbf{v2.1.0 (2026/02/16)} --- In this update, the following points are changed.
+  \begin{itemize}
+    \item \verb|\period| command was deleted. It have never been used since the significance of existence had been absolutely questionable. I finally decided to delet it.
+    \item New package option \verb|tsumesuji| was added. 
+    \item New command \verb|\zenkakuhabafixer| was added.
+  \end{itemize}
 \end{itemize}
 
 \end{document}
