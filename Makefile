@@ -39,6 +39,7 @@ ZIP_DIR = $(PACKAGE)
 zip: distclean doc
 	mkdir -p $(ZIP_DIR)
 	cp $(styFILENAME).sty $(ZIP_DIR)
+	cp $(styFILENAME).lua $(ZIP_DIR)
 	cp README.md $(ZIP_DIR)
 	cp LICENSE.md $(ZIP_DIR)
 	cp $(PACKAGE)-doc.tex $(ZIP_DIR)
