@@ -25,7 +25,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{KKsymbols}[2026/02/16, Version 2.1.0]
+\ProvidesPackage{KKsymbols}[2026/02/17, Version 2.1.1]
 \RequirePackage{luatexja-adjust, luacode, kvoptions}
 \RequirePackage{calc}
 \RequirePackage{tikz}
@@ -44,10 +44,20 @@
 \directlua{require("KKsymbols")}%%%
 %%%
 
-\DeclareRobustCommand{\kks@ShrinkedNumber@internal}[1]{\directlua{KKsymbols.narrow_ones("\luaescapestring{#1}")}}
+\ExplSyntaxOn
+\DeclareRobustCommand{\kks@ShrinkedNumber@internal}[1]{
   % \kakkoなどの引数が
-  % -- "1"を含む
+  % -- "1"を含むかつ2桁以上
   % -- 数字のみで構成されている
+  \regex_match:nnTF { \A \d+ \Z } { #1 }
+  {
+    \directlua{KKsymbols.narrow_ones("\luaescapestring{\unexpanded{#1}}")}
+  }
+  {
+    #1
+  }
+}
+\ExplSyntaxOff
 
 \ifnum\number\kksymbols@tsumesuji=1%
   \let\kks@ShrinkedNumber=\kks@ShrinkedNumber@internal%
