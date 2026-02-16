@@ -344,18 +344,25 @@ I recommend you to refer to his article when you develop new-type symbols on \La
 \section{Installation}
 Place \texttt{KKsymbols.sty} in a directory where LaTeX can find it, e.g., your local \texttt{texmf} tree or alongside your document.
 
-Dependencies:
+\subsection{Dependencies}
+This package depends on the following packages.
+
 \begin{itemize}
     \item \texttt{LuaLaTeX-ja}
     \item \texttt{tikz}
     \item \texttt{clac}
+    \item \texttt{luacode}
+    \item \texttt{kvoptions}
 \end{itemize}
 
-Load the package:
+\subsection{Loading and Options}
+Load the package: \KKverb|\usepackage[<options>]{KKsymbols}|
 
-\begin{verbatim}
-\usepackage{KKsymbols}
-\end{verbatim}
+Currently, the following package option is provided.
+
+\begin{description}
+  \item[tsumesuji] To specify whether or not to ``shrink'' the box width occupied by ``1''. By default, \KKverb|tsumesuji=1| is specified, and the effect is activated. If you deactivate it, \KKverb|tsumesuji=0| will do.
+\end{description}
 
 \section{Caution}
 \namiKK{Since this package internally calls \KKverb|\ltjghostbeforejachar| and \KKverb|\ltjghostafterjachar|, it can be used \textbf{only in a LuaLaTeX environment.}}

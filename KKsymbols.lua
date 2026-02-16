@@ -1,7 +1,7 @@
 luatexbase.provides_module{
   name     = 'KKsymbols',
   date     = '2026/02/16',
-  version  = '2.0.3',
+  version  = '2.1.0',
 }
 
 KKS = KKS or {}

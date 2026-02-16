@@ -54,7 +54,7 @@ I recommend you to refer to his article when you develop new-type symbols on LaT
 > 本パッケージは **LuaLaTeX専用** です。
 
 **Dependencies / 依存パッケージ:**
-- `LuaLaTeX-ja`, `tikz`, `clac`
+- `LuaLaTeX-ja`, `tikz`, `clac`, `luacode`, `kvoptions`
 
 ---
 
