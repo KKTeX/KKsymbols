@@ -78,7 +78,7 @@
 
 \title{\texttt{KKsymbols} Package Documentation}
 \author{Kosei Kawaguchi a.k.a. KKTeX}
-\date{Version 2.1.1 (2026/02/17)}
+\date{Version 2.1.2 (2026/02/17)}
 \begin{document}
 
 \begin{titlepage}
@@ -362,6 +362,22 @@ Currently, the following package option is provided.
 
 \begin{description}
   \item[tsumesuji] To specify whether or not to ``shrink'' the box width occupied by ``1''. By default, \KKverb|tsumesuji=1| is specified, and the effect is activated. If you deactivate it, \KKverb|tsumesuji=0| will do.
+
+  To clarify, this option is applied when the argument of a command subject to the \KKverb|tsumesuji| option—after expansion—is a numeric string of two or more digits and contains the digit ``1''. The differnce is present in the following example:
+  \begin{SourceCode}{Input}{TeX}
+    % NOT APPLIED
+    \kakko{\vphantom{X}12}
+
+    % APLIED
+    \kakko{12}
+  \end{SourceCode}
+  \begin{OutPut}{Output}
+    % NOT APPLIED
+    \kakko{\vphantom{X}12}
+
+    % APLIED
+    \kakko{12}
+  \end{OutPut}
 \end{description}
 
 \section{Caution}
@@ -632,6 +648,7 @@ Released under the MIT License.
     \item New command \verb|\zenkakuhabafixer| was added.
   \end{itemize}
   \item \textbf{v2.1.1 (2026/02/17)} --- An emergency update to fix a bug where the arguments of \KKverb|\kakko|, \KKverb|\maru| etc. caused expansion errors.
+  \item \textbf{v2.1.2 (2026/02/17)} --- The effects are applied when the argument of a command subject to the \KKverb|tsumesuji| option—after expansion—is a numeric string of two or more digits and contains the digit ``1''.
 \end{itemize}
 
 \end{document}

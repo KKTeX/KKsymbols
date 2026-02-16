@@ -25,7 +25,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{KKsymbols}[2026/02/17, Version 2.1.1]
+\ProvidesPackage{KKsymbols}[2026/02/17, Version 2.1.2]
 \RequirePackage{luatexja-adjust, luacode, kvoptions}
 \RequirePackage{calc}
 \RequirePackage{tikz}
@@ -44,19 +44,23 @@
 \directlua{require("KKsymbols")}%%%
 %%%
 
+
+%%% tsumesuji
 \ExplSyntaxOn
+
+\str_new:N \l_kks_tmp_str
+
 \DeclareRobustCommand{\kks@ShrinkedNumber@internal}[1]{
-  % \kakkoなどの引数が
-  % -- "1"を含むかつ2桁以上
-  % -- 数字のみで構成されている
-  \regex_match:nnTF { \A \d+ \Z } { #1 }
+  \str_set:Nx \l_kks_tmp_str { \text_expand:n { #1 } }
+  \regex_match:nVTF { \A \d+ \Z } \l_kks_tmp_str
   {
-    \directlua{KKsymbols.narrow_ones("\luaescapestring{\unexpanded{#1}}")}
+    \directlua{KKsymbols.narrow_ones("\luaescapestring{\l_kks_tmp_str}")}
   }
   {
     #1
   }
 }
+
 \ExplSyntaxOff
 
 \ifnum\number\kksymbols@tsumesuji=1%
@@ -66,6 +70,8 @@
 \else%
   \errmessage{KKsymbols Error: The input of the `tsumesuji' option should be 0 or 1.}
 \fi\fi%
+%%%
+
 
 \DeclareRobustCommand{\maru}{%
   \@ifstar{\maru@new@no}{\maru@new}%
