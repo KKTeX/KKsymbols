@@ -11,8 +11,8 @@
 `KKsymbols` is a LaTeX package for enclosing characters in circles, squares, diamonds, or brackets. It features automatic scaling and baseline correction to ensure a consistent appearance in both horizontal and vertical writing modes.<br>
 `KKsymbols` は、文字を丸、四角、菱形、括弧などで囲むためのコマンドを提供するパッケージです。自動スケーリングとベースライン補正機能を備えており、横書き・縦書きのどちらでも適切な外観を維持します。
 
-- **Version**: 2.1.0
-- **Date**: 2026-02-16
+- **Version**: 2.1.1
+- **Date**: 2026-02-17
 - **Author**: Kosei Kawaguchi (a.k.a. KKTeX)
 - **License**: MIT
 - **Repository**: [https://github.com/KKTeX/KKsymbols](https://github.com/KKTeX/KKsymbols)
