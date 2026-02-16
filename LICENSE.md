@@ -1,6 +1,6 @@
 # MIT License
 
-**Copyright (c) 2025 Kosei Kawaguchi**
+**Copyright (c) 2025-2026 Kosei Kawaguchi**
 
 ---
 
