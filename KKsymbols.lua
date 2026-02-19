@@ -1,6 +1,6 @@
 luatexbase.provides_module{
   name     = 'KKsymbols',
-  date     = '2026/02/17',
+  date     = '2026/02/19',
   version  = '2.1.2',
 }
 

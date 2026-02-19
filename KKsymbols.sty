@@ -25,7 +25,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{KKsymbols}[2026/02/17, Version 2.1.2]
+\ProvidesPackage{KKsymbols}[2026/02/19, Version 2.1.2]
 \RequirePackage{luatexja-adjust, luacode, kvoptions}
 \RequirePackage{calc}
 \RequirePackage{tikz}
@@ -47,32 +47,42 @@
 
 %%% tsumesuji
 \ExplSyntaxOn
-
 \str_new:N \l_kks_tmp_str
-
 \DeclareRobustCommand{\kks@ShrinkedNumber@internal}[1]{
   \str_set:Nx \l_kks_tmp_str { \text_expand:n { #1 } }
   \regex_match:nVTF { \A \d+ \Z } \l_kks_tmp_str
-  {
-    \directlua{KKsymbols.narrow_ones("\luaescapestring{\l_kks_tmp_str}")}
-  }
-  {
-    #1
-  }
+    % 先頭・末尾が数字かつ1桁以上
+    {
+      \directlua{KKsymbols.narrow_ones("\luaescapestring{\l_kks_tmp_str}")}
+    }
+    {
+      #1
+    }
 }
 
-\ExplSyntaxOff
 
-\ifnum\number\kksymbols@tsumesuji=1%
-  \let\kks@ShrinkedNumber=\kks@ShrinkedNumber@internal%
-\else\ifnum\number\kksymbols@tsumesuji=0%
-  \let\kks@ShrinkedNumber=\relax%
-\else%
-  \errmessage{KKsymbols Error: The input of the `tsumesuji' option should be 0 or 1.}
-\fi\fi%
+\msg_new:nnn { KKsymbols } { invalid-tsumesuji }
+  { 
+    The~input~of~the~`tsumesuji`~option~should~be~0~or~1. 
+  }
+\int_compare:nNnTF {\number\kksymbols@tsumesuji} = { 1 } 
+  {
+    \tl_set_eq:NN {\kks@ShrinkedNumber} {\kks@ShrinkedNumber@internal} 
+  }
+  {
+    \int_compare:nNnTF {\number\kksymbols@tsumesuji} = {0}
+      {
+        \tl_set_eq:NN {\kks@ShrinkedNumber} {\relax} 
+      }
+      {
+        \msg_error:nnn { KKsymbols } { invalid-tsumesuji } { #1 }
+      }
+  }
+\ExplSyntaxOff
 %%%
 
 
+%%% interface commands
 \DeclareRobustCommand{\maru}{%
   \@ifstar{\maru@new@no}{\maru@new}%
 }
@@ -322,6 +332,7 @@
     \nkagikakko@y@internal{#1}%
   \fi
 }
+%%%
 
 
 % 全体で使用
@@ -1669,22 +1680,28 @@
   \ifnum\ltjgetparameter{direction}=3%
     \leavevmode%
     \ltjghostbeforejachar%
-    \raisebox{-.5\zw}{\hbox to \zw {\hss%
-    \vbox to \zw {\vss%
+    \raisebox{-.5\zw}{%
+      \hbox to \zw {\hss%
+      \vbox to \zw {\vss%
       \hbox to \zw {\hss%
         \resizebox*{\zw}{\zw}{#1}%
       \hss}%
-    \vss}\hss}}%
+      \vss}%
+      \hss}%
+    }%
     \ltjghostafterjachar%
   \else%
     \leavevmode%
     \ltjghostbeforejachar%
-    \raisebox{-.12\zw}{\hbox to \zw {\hss%
-    \vbox to \zw {\vss%
+    \raisebox{-.12\zw}{%
+      \hbox to \zw {\hss%
+      \vbox to \zw {\vss%
       \hbox to \zw {\hss%
         \resizebox*{\zw}{\zw}{#1}%
       \hss}%
-    \vss}\hss}}%
+      \vss}%
+      \hss}%
+    }%
     \ltjghostafterjachar%
   \fi%
 }
@@ -1696,26 +1713,33 @@
   \ifnum\ltjgetparameter{direction}=3%
     \leavevmode%
     \ltjghostbeforejachar%
-    \raisebox{-.5\zw}{\hbox to \zw {\hss%
-    \vbox to \zw {\vss%
+    \raisebox{-.5\zw}{%
+      \hbox to \zw {\hss%
+      \vbox to \zw {\vss%
       \hbox to \zw {\hss%
         \ichimoji@scaling{#1}%
       \hss}%
-    \vss}\hss}}%
+      \vss}%
+      \hss}%
+    }%
     \ltjghostafterjachar%
   \else%
     \leavevmode%
     \ltjghostbeforejachar%
-    \raisebox{-.12\zw}{\hbox to \zw {\hss%
-    \vbox to \zw {\vss%
+    \raisebox{-.12\zw}{%
+      \hbox to \zw {\hss%
+      \vbox to \zw {\vss%
       \hbox to \zw {\hss%
         \ichimoji@scaling{#1}%
       \hss}%
-    \vss}\hss}}%
+      \vss}%
+      \hss}%
+    }%
     \ltjghostafterjachar%
   \fi%
 }
 %%%
+
 
 % \zenkakuhabafixer
 \newlength{\zenkakuhabafixer@yk@new}
@@ -1724,11 +1748,15 @@
   \settowidth{\zenkakuhabafixer@yk@new}{#1}%
   \ifdim\zenkakuhabafixer@yk@new>\zw%
     \ltjghostbeforejachar%
-    \resizebox{1\zw}{\height}{#1}%
+    \hbox to \zw {%
+      \resizebox{\zw}{\height}{#1}%
+    }%
     \ltjghostafterjachar%
   \else%
     \ltjghostbeforejachar%
-    \hbox to 1\zw{\hss #1\hss}%
+    \hbox to \zw {%
+      \hss #1\hss%
+    }%
     \ltjghostafterjachar%
   \fi%
 }
