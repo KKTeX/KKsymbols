@@ -25,7 +25,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{KKsymbols}[2026/02/19, Version 2.1.2]
+\ProvidesPackage{KKsymbols}[2026/03/08, Version 2.1.3]
 \RequirePackage{luatexja-adjust, luacode, kvoptions}
 \RequirePackage{calc}
 \RequirePackage{tikz}
@@ -384,6 +384,28 @@
 \newlength{\maru@var@fuka}
 \newlength{\maru@var@zenkou}
 
+\ExplSyntaxOn
+\newcommand{\kks@chech@maru@onedigit}[1]{
+  \str_set:Nx \l_tmpa_str { \text_expand:n { #1 } }
+  \str_if_eq:VnTF \l_tmpa_str { 0 } { \kksdigit@maru@newtrue } {
+  \str_if_eq:VnTF \l_tmpa_str { 1 } { \kksdigit@maru@newtrue } {
+  \str_if_eq:VnTF \l_tmpa_str { 2 } { \kksdigit@maru@newtrue } {
+  \str_if_eq:VnTF \l_tmpa_str { 3 } { \kksdigit@maru@newtrue } {
+  \str_if_eq:VnTF \l_tmpa_str { 4 } { \kksdigit@maru@newtrue } {
+  \str_if_eq:VnTF \l_tmpa_str { 5 } { \kksdigit@maru@newtrue } {
+  \str_if_eq:VnTF \l_tmpa_str { 6 } { \kksdigit@maru@newtrue } {
+  \str_if_eq:VnTF \l_tmpa_str { 7 } { \kksdigit@maru@newtrue } {
+  \str_if_eq:VnTF \l_tmpa_str { 8 } { \kksdigit@maru@newtrue } {
+  \str_if_eq:VnTF \l_tmpa_str { 9 } { \kksdigit@maru@newtrue } {
+    \kksdigit@maru@newfalse
+  }}}}}}}}}}
+}
+\ExplSyntaxOff
+
+\NewDocumentCommand{\shukushou@adj@new@maru@onedigit}{ m m m }{%
+  \resizebox*{!}{#2}{#3}%
+}
+
 \NewDocumentCommand{\shukushou@adj@new@no@maru}{ m m m m }{%
   \ifdim #1 < #2%
     \ifdim #3 > #2%
@@ -396,7 +418,10 @@
   \fi%
 }
 
+\newif\ifkksdigit@maru@new
+
 \DeclareRobustCommand{\maru@new}[1]{%
+  \kks@chech@maru@onedigit{#1}%
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
   \settowidth{\maru@var@yokohaba}{#1}%
@@ -422,7 +447,11 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+          \ifkksdigit@maru@new%
+            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+          \else%
+            \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+          \fi%
         \hss%
         }%
         \vss%
@@ -485,6 +514,7 @@
 
 
 \DeclareRobustCommand{\kuromaru@new}[1]{%
+  \kks@chech@maru@onedigit{#1}%
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
   \settowidth{\maru@var@yokohaba}{#1}%
@@ -511,8 +541,11 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{%
-            \textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+          \ifkksdigit@maru@new%
+            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\maru@boxwidth@inner}{\textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+          \else%
+            \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+          \fi%
         \hss%
         }%
         \vss%
@@ -577,6 +610,7 @@
 
 
 \DeclareRobustCommand{\nmaru@new}[1]{%
+  \kks@chech@maru@onedigit{#1}%
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
   \settowidth{\maru@var@yokohaba}{#1}%
@@ -603,7 +637,11 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+          \ifkksdigit@maru@new%
+            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+          \else%
+            \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+          \fi%
         \hss%
         }%
         \vss%
