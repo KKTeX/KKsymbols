@@ -1,0 +1,54 @@
+% sample-kksref.tex
+% \kksref（基準ボックス）の実演サンプル。
+% コンパイル: latexmk -r .latexmkrc sample-kksref.tex   (LuaLaTeX 専用)
+%
+% ねらい: 丸囲みのローマ数字小文字 \Rrnum を、\vphantom 手書きなしで
+%         一定の見た目に揃える（enumerate のラベルでの典型的な使い方）。
+\documentclass{jlreq}
+\usepackage[tsumesuji=1]{KKsymbols}
+\usepackage{luatexja-otf}
+\usepackage{enumitem}
+
+% KKran(\Rrnum) フォールバック（無い環境でも動くように）
+\IfFileExists{KKran.sty}{\usepackage{KKran}}{%
+  \newcommand{\Rrnum}[1]{\textit{\romannumeral #1}}}
+
+% Hiragino（環境に無ければ適宜差し替え）
+\makeatletter
+\RequirePackage[no-math]{fontspec}
+\RequirePackage[no-math,match,scale=1]{luatexja-fontspec}
+\RequirePackage[hiragino-pro,deluxe,expert]{luatexja-preset}
+\makeatother
+
+% 丸囲みローマ数字のリスト。ラベルのスコープ内で \kksref を一度設定するだけ。
+\newlist{romanmaru}{enumerate}{1}
+\setlist[romanmaru,1]{%
+  label={\kksref{\Rrnum{8}}\maru{\Rrnum{\arabic*}}},
+  leftmargin=3\zw, labelsep=1\zw,
+}
+
+\begin{document}
+
+\section*{Before / After}
+
+\noindent\textbf{Before（手書き \texttt{\textbackslash vphantom} が必要だった）:}\par
+\maru{\vphantom{\Rrnum{8}}\Rrnum{1}}\,%
+\maru{\vphantom{\Rrnum{8}}\Rrnum{4}}\,%
+\maru{\vphantom{\Rrnum{8}}\Rrnum{7}}\,%
+\maru{\vphantom{\Rrnum{8}}\Rrnum{8}}
+
+\medskip
+\noindent\textbf{After（\texttt{\textbackslash kksref} を一度設定するだけ）:}\par
+{\kksref{\Rrnum{8}}%
+ \maru{\Rrnum{1}}\,\maru{\Rrnum{4}}\,\maru{\Rrnum{7}}\,\maru{\Rrnum{8}}}
+
+\section*{実用例: 丸囲みローマ数字のリスト}
+
+\begin{romanmaru}
+  \item 第一の項目。\vphantom は書かなくてよい。
+  \item 第二の項目。
+  \item 第三の項目。
+  \item 第四の項目。すべて同じ大きさ・同じ高さに揃う。
+\end{romanmaru}
+
+\end{document}

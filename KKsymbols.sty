@@ -368,6 +368,29 @@
 %%%
 
 
+%%% 中央寄せ基準ボックス (reference box)
+% \kksref{<material>} : 以降の囲みコマンドで、引数自身の高さ・深さの代わりに
+%   <material> の高さ・深さを「基準」として中央寄せ・サイズ決定に使う。
+%   ローマ数字小文字 (\Rrnum{n}) など、字ごとに寸法がばらつく内容を一定の見た目に
+%   揃えるためのもの。従来は引数の中に \vphantom{\Rrnum{6}} を手書きしていた処理を
+%   パッケージ側で自動化する。\RotYoko 等と同様にスコープ依存。
+%   既定は空 = 従来どおり（後方互換）。
+% \kksrefreset : 基準ボックスを解除する。
+\def\kks@ref@material{}
+\DeclareRobustCommand{\kksref}[1]{\def\kks@ref@material{#1}}
+\DeclareRobustCommand{\kksrefreset}{\def\kks@ref@material{}}
+% 内容に基準ボックスの高さ・深さを与える（手書きの \vphantom{ref}#1 と等価）。
+% 基準が空なら何もしない。\vphantom は幅0なので水平方向には影響しない。
+\newcommand{\kks@withref}[1]{%
+  \ifx\kks@ref@material\@empty
+    #1%
+  \else
+    \vphantom{\kks@ref@material}#1%
+  \fi
+}
+%%%
+
+
 % \maru
 \NewDocumentCommand{\vertical@adj@maru@new}{}{%
   \ifnum\ltjgetparameter{direction}=3
@@ -448,9 +471,9 @@
         \hbox to \maru@boxwidth@inner{%
         \hss%
           \ifkksdigit@maru@new%
-            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \else%
-            \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \fi%
         \hss%
         }%
@@ -470,8 +493,8 @@
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
   \settowidth{\maru@var@yokohaba}{#1}%
-  \settoheight{\maru@var@tate}{#1}%
-  \settodepth{\maru@var@fuka}{#1}%
+  \settoheight{\maru@var@tate}{\kks@withref{#1}}%
+  \settodepth{\maru@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
   \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
   \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
@@ -496,7 +519,7 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{\kks@ShrinkedNumber{#1}}%
+          \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -542,9 +565,9 @@
         \hbox to \maru@boxwidth@inner{%
         \hss%
           \ifkksdigit@maru@new%
-            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\maru@boxwidth@inner}{\textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\maru@boxwidth@inner}{\textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
           \else%
-            \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
           \fi%
         \hss%
         }%
@@ -564,8 +587,8 @@
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
   \settowidth{\maru@var@yokohaba}{#1}%
-  \settoheight{\maru@var@tate}{#1}%
-  \settodepth{\maru@var@fuka}{#1}%
+  \settoheight{\maru@var@tate}{\kks@withref{#1}}%
+  \settodepth{\maru@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
   \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
   \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
@@ -592,7 +615,7 @@
         \hbox to \maru@boxwidth@inner{%
         \hss%
           \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{%
-            \textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
         \vss%
@@ -638,9 +661,9 @@
         \hbox to \maru@boxwidth@inner{%
         \hss%
           \ifkksdigit@maru@new%
-            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \else%
-            \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new{\maru@var@yokohaba}{\maru@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \fi%
         \hss%
         }%
@@ -660,8 +683,8 @@
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
   \settowidth{\maru@var@yokohaba}{#1}%
-  \settoheight{\maru@var@tate}{#1}%
-  \settodepth{\maru@var@fuka}{#1}%
+  \settoheight{\maru@var@tate}{\kks@withref{#1}}%
+  \settodepth{\maru@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
   \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
   \pgfmathsetlength{\maru@boxwidth@inner}{0.82 * \maru@boxwidth@new / sqrt(2)}%
@@ -687,7 +710,7 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{\kks@ShrinkedNumber{#1}}%
+          \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -735,9 +758,9 @@
         \hbox to \jegg@boxwidth@inner@cal{%
         \hss%
           \ifkksdigit@maru@new%
-            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \else%
-            \shukushou@adj@new{\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new{\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \fi%
         \hss%
         }%
@@ -783,9 +806,9 @@
         \hbox to \jegg@boxwidth@inner@cal{%
         \hss%
           \ifkksdigit@maru@new%
-            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new@maru@onedigit{\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \else%
-            \shukushou@adj@new{\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new{\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \fi%
         \hss%
         }%
@@ -859,9 +882,9 @@
         \hbox to \seihou@boxwidth@inner{%
         \hss%
           \ifkksdigit@maru@new%
-            \shukushou@adj@new@maru@onedigit{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new@maru@onedigit{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \else%
-            \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \fi%
         \hss%
         }%
@@ -881,8 +904,8 @@
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
   \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{#1}%
-  \settodepth{\seihou@var@fuka}{#1}%
+  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
+  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
@@ -906,7 +929,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{\kks@ShrinkedNumber{#1}}%
+          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -951,9 +974,9 @@
         \hbox to \seihou@boxwidth@inner{%
         \hss%
           \ifkksdigit@maru@new%
-            \shukushou@adj@new@maru@onedigit{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \shukushou@adj@new@maru@onedigit{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
           \else%
-            \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
           \fi%
         \hss%
         }%
@@ -973,8 +996,8 @@
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
   \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{#1}%
-  \settodepth{\seihou@var@fuka}{#1}%
+  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
+  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
@@ -1000,7 +1023,7 @@
         \hbox to \seihou@boxwidth@inner{%
         \hss%
           \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{%
-            \textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
         \vss%
@@ -1045,9 +1068,9 @@
         \hbox to \seihou@boxwidth@inner{%
         \hss%
           \ifkksdigit@maru@new%
-            \shukushou@adj@new@maru@onedigit{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new@maru@onedigit{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \else%
-            \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+            \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
           \fi%
         \hss%
         }%
@@ -1067,8 +1090,8 @@
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
   \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{#1}%
-  \settodepth{\seihou@var@fuka}{#1}%
+  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
+  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
@@ -1093,7 +1116,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{\kks@ShrinkedNumber{#1}}%
+          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1139,9 +1162,9 @@
         \hbox to \seihou@boxwidth@inner{%
         \hss%
           \ifkksdigit@maru@new%
-            \shukushou@adj@new@maru@onedigit{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \shukushou@adj@new@maru@onedigit{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
           \else%
-            \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
           \fi%
         \hss%
         }%
@@ -1161,8 +1184,8 @@
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
   \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{#1}%
-  \settodepth{\seihou@var@fuka}{#1}%
+  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
+  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
@@ -1189,7 +1212,7 @@
         \hbox to \seihou@boxwidth@inner{%
         \hss%
           \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{%
-            \textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
         \vss%
@@ -1232,7 +1255,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1251,8 +1274,8 @@
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
   \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{#1}%
-  \settodepth{\seihou@var@fuka}{#1}%
+  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
+  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
   \leavevmode%
@@ -1277,7 +1300,7 @@
         \hbox to \seihou@boxwidth@inner{%
         \hss%
           % これだけ他のやつと違うので注意！
-          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1321,7 +1344,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1340,8 +1363,8 @@
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
   \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{#1}%
-  \settodepth{\seihou@var@fuka}{#1}%
+  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
+  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
   \leavevmode%
@@ -1367,7 +1390,7 @@
         \hbox to \seihou@boxwidth@inner{%
         \hss%
           % これだけ他のやつと違うので注意！
-          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@ShrinkedNumber{#1}}%
+          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1412,7 +1435,7 @@
         \hbox to \seihou@boxwidth@inner{%
         \hss%
           \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{%
-            \textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
         \vss%
@@ -1431,8 +1454,8 @@
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
   \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{#1}%
-  \settodepth{\seihou@var@fuka}{#1}%
+  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
+  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
   \leavevmode%
@@ -1459,7 +1482,7 @@
         \hss%
           % これだけ他のやつと違うので注意！
           \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{%
-            \textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
         \vss%
@@ -1505,7 +1528,7 @@
         \hbox to \seihou@boxwidth@inner{%
         \hss%
           \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{%
-            \textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
         \vss%
@@ -1524,8 +1547,8 @@
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
   \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{#1}%
-  \settodepth{\seihou@var@fuka}{#1}%
+  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
+  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
   \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
   \leavevmode%
@@ -1553,7 +1576,7 @@
         \hss%
           % これだけ他のやつと違うので注意！
           \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{%
-            \textcolor{white}{\kks@ShrinkedNumber{#1}}}%
+            \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
         \vss%
@@ -1607,7 +1630,7 @@
           \hbox to \kakko@boxwidth@inner{%
           \hss%
             \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
-              \shukushou@adj@new{\kakko@var@yokohaba}{\kakko@boxwidth@inner}{\kks@ShrinkedNumber{#3}}}%
+              \shukushou@adj@new{\kakko@var@yokohaba}{\kakko@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#3}}}}%
           \hss%
           }%
           \vss%
@@ -1621,8 +1644,8 @@
   \rot@or@not@kksym%
   \setlength{\kakko@boxwidth@new}{\zw}%
   \settowidth{\kakko@var@yokohaba}{#3}%
-  \settoheight{\kakko@var@tate}{#3}%
-  \settodepth{\kakko@var@fuka}{#3}%
+  \settoheight{\kakko@var@tate}{\kks@withref{#3}}%
+  \settodepth{\kakko@var@fuka}{\kks@withref{#3}}%
   \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
   \pgfmathsetlength{\kakko@var@yokohaba@cal}{0.9 * \kakko@var@yokohaba}%
   \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
@@ -1636,7 +1659,7 @@
           \hbox to \kakko@boxwidth@inner{%
           \hss%
             \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
-              \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{\kks@ShrinkedNumber{#3}}}%
+              \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#3}}}}%
           \hss%
           }%
           \vss%
@@ -1667,7 +1690,7 @@
         \hss%
           \raisebox{-1.2\zw}{%
             \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
-              \shukushou@adj@new{\kakko@var@yokohaba}{\kakko@boxwidth@inner}{\kks@ShrinkedNumber{#3}}%
+              \shukushou@adj@new{\kakko@var@yokohaba}{\kakko@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#3}}}%
             }%
           }%
         \hss%
@@ -1687,8 +1710,8 @@
   \ifnum\ltjgetparameter{direction}=3\pgfmathsetmacro{\rot@kksym@tateyoko}{\rot@kksym@tateyoko - 90}\fi%
   \setlength{\kakko@boxwidth@new}{\zw}%
   \settowidth{\kakko@var@yokohaba}{#3}%
-  \settoheight{\kakko@var@tate}{#3}%
-  \settodepth{\kakko@var@fuka}{#3}%
+  \settoheight{\kakko@var@tate}{\kks@withref{#3}}%
+  \settodepth{\kakko@var@fuka}{\kks@withref{#3}}%
   \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
   \pgfmathsetlength{\kakko@var@yokohaba@cal}{0.9 * \kakko@var@yokohaba}%
   \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
@@ -1710,7 +1733,7 @@
             \hbox to \kakko@boxwidth@inner{%
             \hss%
             \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
-              \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{\kks@ShrinkedNumber{#3}}%
+              \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#3}}}%
             }\hss}\vss}%
           }%
         \hss%
@@ -1772,8 +1795,8 @@
 }
 \DeclareRobustCommand{\ichimoji@new@no}[1]{%
   \settowidth{\ichimoji@yk@new}{#1}%
-  \settoheight{\ichimoji@ht@new}{#1}%
-  \settodepth{\ichimoji@dp@new}{#1}%
+  \settoheight{\ichimoji@ht@new}{\kks@withref{#1}}%
+  \settodepth{\ichimoji@dp@new}{\kks@withref{#1}}%
   \pgfmathsetlength{\ichimoji@zenkou@new}{\ichimoji@ht@new + \ichimoji@dp@new}%
   \ifnum\ltjgetparameter{direction}=3%
     \leavevmode%

@@ -1,0 +1,66 @@
+% test-kksref.tex
+% \kksref（基準ボックス）機構と中央寄せの検証用。
+% コンパイル: latexmk -r .latexmkrc test-kksref.tex   (LuaLaTeX 専用)
+%
+% KKran があれば \Rrnum を使い、無ければ \textit{...} でローマ数字小文字を代用する。
+\documentclass{jlreq}
+\usepackage[tsumesuji=1]{KKsymbols}
+\usepackage{luatexja-otf}
+
+% --- KKran(\Rrnum) フォールバック ----------------------------------------
+\IfFileExists{KKran.sty}{%
+  \usepackage{KKran}%
+}{%
+  % KKran が無い環境用の簡易代用。lowercase roman numerals。
+  \makeatletter
+  \newcommand{\Rrnum}[1]{\textit{\romannumeral #1}}%
+  \makeatother
+}
+
+% --- Hiragino（環境に無ければ適宜差し替え） --------------------------------
+\makeatletter
+\RequirePackage[no-math]{fontspec}
+\RequirePackage[no-math,match,scale=1]{luatexja-fontspec}
+\RequirePackage[hiragino-pro,deluxe,expert]{luatexja-preset}
+\makeatother
+
+\fboxsep=0pt\fboxrule=.1pt
+\begin{document}
+
+\section*{1. 問題1: ローマ数字小文字の見た目揃え}
+
+\noindent\textbf{(a) 何もしない（基準ボックス無し）— 字ごとにバラつくはず:}\par
+\fbox{\maru{\Rrnum{1}}}\fbox{\maru{\Rrnum{2}}}\fbox{\maru{\Rrnum{3}}}%
+\fbox{\maru{\Rrnum{6}}}\fbox{\maru{\Rrnum{7}}}\fbox{\maru{\Rrnum{8}}}
+
+\bigskip
+\noindent\textbf{(b) 従来の手書き回避策 \texttt{\textbackslash vphantom\{\textbackslash Rrnum\{6\}\}}:}\par
+\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{1}}}\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{2}}}%
+\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{3}}}\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{6}}}%
+\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{7}}}\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{8}}}
+
+\bigskip
+\noindent\textbf{(c) 新機構 \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}} — (b) と一致すれば成功:}\par
+{\kksref{\Rrnum{6}}%
+ \fbox{\maru{\Rrnum{1}}}\fbox{\maru{\Rrnum{2}}}\fbox{\maru{\Rrnum{3}}}%
+ \fbox{\maru{\Rrnum{6}}}\fbox{\maru{\Rrnum{7}}}\fbox{\maru{\Rrnum{8}}}}
+
+\bigskip
+\noindent\textbf{(d) 他記号でも:}\par
+{\kksref{\Rrnum{6}}%
+ \fbox{\seihou{\Rrnum{3}}}\fbox{\kuroseihou{\Rrnum{8}}}\fbox{\seimaru{\Rrnum{7}}}%
+ \fbox{\kakko{\Rrnum{4}}}}
+
+\section*{2. 後方互換チェック（基準ボックス未設定 = 従来出力のまま）}
+
+\noindent\maru{1}\maru{97}\maru{だ}\maru{ばばば}\maru*{m}\maru{Qjg}\par
+\kuromaru{1}\nmaru{1}\jegg{1}\seihou{5}\seimaru{5}\hishi{3}\kakko{12}
+
+\section*{3. 問題2: フォント差での中央寄せ}
+
+\noindent
+{\mcfamily 明朝: \maru{8}\seihou{8}\kuromaru{3}}\quad
+{\gtfamily ゴシック: \maru{8}\seihou{8}\kuromaru{3}}\quad
+{\mgfamily 丸ゴ: \maru{8}\seihou{8}\kuromaru{3}}
+
+\end{document}

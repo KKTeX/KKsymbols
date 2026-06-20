@@ -27,5 +27,8 @@ extras/
 
 test.pdf
 test.tex
+test-kksref.pdf
+sample-kksref.pdf
+_overlaycheck.*
 
 Work/*
