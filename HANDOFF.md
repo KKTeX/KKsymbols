@@ -25,9 +25,20 @@
 - 検証用ファイル: `test-kksref.tex`（(a)無し/(b)手書き/(c)\kksref の比較）, `sample-kksref.tex`（実用リスト）。
 - まだ **コミットは feature ブランチに行う段階**（git 操作は Haiku に委譲、`CLAUDE.md` 規約）。
 
-**問題2（フォント差の中央ズレ＝既定の中央寄せ変更）は未着手。**
-ユーザー指示: 既定変更は **別ブランチ `feat/font-stable-centering`** で実装→テスト→ユーザー目視確認→
-その後にバージョンアップ可否を判断。§3末尾の案A/Bを参照。
+**問題2（＝既定の中央寄せを自動化）も別ブランチで実装・検証済み。**
+ブランチ `feat/font-stable-centering`（`feat/kksref-reference-box` から派生）。
+
+- 方針: 基準ボックスをユーザーに書かせず、**現在フォントの x ハイト**を既定の自動基準にする
+  （`\kks@autoref` = 文字 `x`、`\let\kks@ref@material\kks@autoref`）。`\maru{\Rrnum{n}}` と
+  書くだけで揃う。`\kksref{..}` で上書き、`\kksrefoff` で旧来動作、`\kksrefauto`/`\kksrefreset` で自動に戻す。
+- **検証結果**:
+  - 既定自動でローマ数字が自動的に揃い、手書き `\vphantom{\Rrnum{6}}` と **オーバープリント赤残差ゼロ＝同一描画**。
+  - **後方互換**: 既存 `test.tex`（数字0-26・`\maru*{m}`・`Qjg`・漢字）の出力が旧 `.sty` と
+    **ピクセル一致（AE=0）**。x ハイト以上の背の高い内容は max を取るだけで不変なため。
+- 検証用: `test-autoref.tex`（(a)`\kksrefoff`旧来 / (b)手書き / (c)自動 の比較）。
+- **未確定（ユーザー確認待ち）**: 自動基準を x ハイトにするか cap-height 等にするか、`\kksref` 系コマンド名、
+  そして **バージョン番号・日付の更新（`.sty` L28, `.lua` 冒頭）はユーザー確認後**。
+  まだ merge していない（feature ブランチ止まり）。
 
 ---
 

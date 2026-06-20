@@ -29,6 +29,9 @@ test.pdf
 test.tex
 test-kksref.pdf
 sample-kksref.pdf
+test-autoref.pdf
 _overlaycheck.*
+_ov2.*
+_dim.*
 
 Work/*

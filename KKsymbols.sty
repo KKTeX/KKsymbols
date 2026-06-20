@@ -369,18 +369,27 @@
 
 
 %%% 中央寄せ基準ボックス (reference box)
-% \kksref{<material>} : 以降の囲みコマンドで、引数自身の高さ・深さの代わりに
-%   <material> の高さ・深さを「基準」として中央寄せ・サイズ決定に使う。
-%   ローマ数字小文字 (\Rrnum{n}) など、字ごとに寸法がばらつく内容を一定の見た目に
-%   揃えるためのもの。従来は引数の中に \vphantom{\Rrnum{6}} を手書きしていた処理を
-%   パッケージ側で自動化する。\RotYoko 等と同様にスコープ依存。
-%   既定は空 = 従来どおり（後方互換）。
-% \kksrefreset : 基準ボックスを解除する。
-\def\kks@ref@material{}
+% 囲みコマンドは、引数の高さ・深さを基準に中身のサイズと中央位置を決める。
+% 引数自身の寸法を使うと、ローマ数字小文字 (\Rrnum{n}) のように字ごとに高さが
+% ばらつく内容で大きさ・上下位置が不揃いになり、さらにフォントによっても中央が
+% ずれる。そこで「基準ボックス」を内部の \vphantom として注入し、寸法を一定化する。
+%
+% 既定は【自動】: 現在フォントの x ハイト相当を基準にする（\kks@autoref）。
+%   これにより \maru{\Rrnum{3}} のように何も書かなくても揃う。漢字・かな・大文字・
+%   数字は基準より背が高いので max を取るだけで影響せず、従来どおりになる。
+%
+% \kksref{<material>} : 基準を <material> の寸法で明示上書き（スコープ依存）。
+% \kksrefauto        : 自動基準（既定）に戻す。
+% \kksrefoff         : 基準を解除＝引数自身の寸法を使う旧来動作。
+% \kksrefreset       : \kksrefauto の別名（後方互換）。
+\newcommand{\kks@autoref}{x}% 現在フォントの x（= x ハイト, 深さ0）を基準にする
+\let\kks@ref@material\kks@autoref
 \DeclareRobustCommand{\kksref}[1]{\def\kks@ref@material{#1}}
-\DeclareRobustCommand{\kksrefreset}{\def\kks@ref@material{}}
+\DeclareRobustCommand{\kksrefauto}{\let\kks@ref@material\kks@autoref}
+\DeclareRobustCommand{\kksrefoff}{\def\kks@ref@material{}}
+\DeclareRobustCommand{\kksrefreset}{\kksrefauto}
 % 内容に基準ボックスの高さ・深さを与える（手書きの \vphantom{ref}#1 と等価）。
-% 基準が空なら何もしない。\vphantom は幅0なので水平方向には影響しない。
+% 基準が空（\kksrefoff）なら何もしない。\vphantom は幅0なので水平方向には影響しない。
 \newcommand{\kks@withref}[1]{%
   \ifx\kks@ref@material\@empty
     #1%

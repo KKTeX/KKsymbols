@@ -1,0 +1,52 @@
+% test-autoref.tex
+% 自動基準（既定で現在フォントの x ハイトを基準）の検証。
+% コンパイル: latexmk -r .latexmkrc test-autoref.tex   (LuaLaTeX 専用)
+\documentclass{jlreq}
+\usepackage[tsumesuji=1]{KKsymbols}
+\usepackage{luatexja-otf}
+\IfFileExists{KKran.sty}{\usepackage{KKran}}{\newcommand{\Rrnum}[1]{\textit{\romannumeral #1}}}
+\makeatletter
+\RequirePackage[no-math]{fontspec}
+\RequirePackage[no-math,match,scale=1]{luatexja-fontspec}
+\RequirePackage[hiragino-pro,deluxe,expert]{luatexja-preset}
+\makeatother
+\fboxsep=0pt\fboxrule=.1pt
+
+\newcommand{\romanrow}{%
+  \fbox{\maru{\Rrnum{1}}}\fbox{\maru{\Rrnum{2}}}\fbox{\maru{\Rrnum{3}}}%
+  \fbox{\maru{\Rrnum{4}}}\fbox{\maru{\Rrnum{6}}}\fbox{\maru{\Rrnum{7}}}\fbox{\maru{\Rrnum{8}}}}
+
+\begin{document}
+
+\section*{自動基準: 丸囲みローマ数字（何も書かない）}
+
+\noindent\textbf{(a) \texttt{\textbackslash kksrefoff}（旧来＝引数自身の寸法。バラつくはず）:}\par
+{\kksrefoff\romanrow}
+
+\bigskip
+\noindent\textbf{(b) 手書き \texttt{\textbackslash vphantom\{\textbackslash Rrnum\{6\}\}}（従来の回避策）:}\par
+\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{1}}}\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{2}}}%
+\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{3}}}\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{4}}}%
+\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{6}}}\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{7}}}%
+\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{8}}}
+
+\bigskip
+\noindent\textbf{(c) 既定＝自動（\texttt{\textbackslash maru\{\textbackslash Rrnum\{n\}\}} のみ。何も足さない）:}\par
+\romanrow
+
+\bigskip
+\noindent\textbf{(d) 他記号でも自動:}\par
+\fbox{\seihou{\Rrnum{3}}}\fbox{\kuroseihou{\Rrnum{8}}}\fbox{\seimaru{\Rrnum{7}}}\fbox{\kakko{\Rrnum{4}}}
+
+\section*{後方互換: 背の高い内容は自動基準の影響を受けないはず}
+
+\noindent\maru{1}\maru{97}\maru{だ}\maru{ばばば}\maru{Qjg}\maru{A}\kuromaru{3}\nmaru{亀}\seihou{8}\kakko{12}
+
+\section*{フォント差での中央寄せ（自動基準で安定するか）}
+
+\noindent
+{\mcfamily 明朝: \maru{\Rrnum{3}}\,\maru{8}}\quad
+{\gtfamily ゴシック: \maru{\Rrnum{3}}\,\maru{8}}\quad
+{\mgfamily 丸ゴ: \maru{\Rrnum{3}}\,\maru{8}}
+
+\end{document}
