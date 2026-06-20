@@ -1,52 +1,66 @@
 % test-autoref.tex
-% 自動基準（既定で現在フォントの x ハイトを基準）の検証。
+% 自動基準（既定で現在フォントの x ハイトを基準）のストレステスト。
 % コンパイル: latexmk -r .latexmkrc test-autoref.tex   (LuaLaTeX 専用)
 \documentclass{jlreq}
 \usepackage[tsumesuji=1]{KKsymbols}
 \usepackage{luatexja-otf}
 \IfFileExists{KKran.sty}{\usepackage{KKran}}{\newcommand{\Rrnum}[1]{\textit{\romannumeral #1}}}
+
+% ===== フォント一式（mc/gt/mg を別フォントに割り当てて font 感応をテスト） =====
 \makeatletter
 \RequirePackage[no-math]{fontspec}
 \RequirePackage[no-math,match,scale=1]{luatexja-fontspec}
 \RequirePackage[hiragino-pro,deluxe,expert]{luatexja-preset}
+\setmainfont{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\setmainjfont{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\newfontfamily{\sfhira@pre}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]
+\newjfontfamily{\sfhiraj@pre}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6]
+\newfontfamily{\mchira@pre}{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\newjfontfamily{\mchiraj@pre}{HiraMinPro-W3}[BoldFont=HiraMinPro-W6]
+\newfontfamily{\gthira@pre}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6,FontFace={eb}{\shapedefault}{HiraKakuStd-W8}]
+\newjfontfamily{\gthiraj@pre}{HiraKakuPro-W3}[BoldFont=HiraKakuPro-W6,FontFace={eb}{\shapedefault}{HiraKakuStd-W8}]
+\newfontfamily{\mghira@pre}{HiraMaruPro-W4}
+\newjfontfamily{\mghiraj@pre}{HiraMaruPro-W4}
+\renewcommand{\sffamily}{\sfhira@pre\sfhiraj@pre}
+\renewcommand{\mcfamily}{\mchira@pre\mchiraj@pre}
+\renewcommand{\gtfamily}{\gthira@pre\gthiraj@pre}
+\renewcommand{\mgfamily}{\mghira@pre\mghiraj@pre}
 \makeatother
-\fboxsep=0pt\fboxrule=.1pt
 
+\fboxsep=0pt\fboxrule=.1pt
 \newcommand{\romanrow}{%
   \fbox{\maru{\Rrnum{1}}}\fbox{\maru{\Rrnum{2}}}\fbox{\maru{\Rrnum{3}}}%
   \fbox{\maru{\Rrnum{4}}}\fbox{\maru{\Rrnum{6}}}\fbox{\maru{\Rrnum{7}}}\fbox{\maru{\Rrnum{8}}}}
 
 \begin{document}
 
-\section*{自動基準: 丸囲みローマ数字（何も書かない）}
-
-\noindent\textbf{(a) \texttt{\textbackslash kksrefoff}（旧来＝引数自身の寸法。バラつくはず）:}\par
+\section*{1. 自動基準: 丸囲みローマ数字（何も書かない）}
+\noindent\textbf{(a) \texttt{\textbackslash kksrefoff}（旧来＝引数自身の寸法。バラつく）:}\par
 {\kksrefoff\romanrow}
-
-\bigskip
-\noindent\textbf{(b) 手書き \texttt{\textbackslash vphantom\{\textbackslash Rrnum\{6\}\}}（従来の回避策）:}\par
+\par\medskip\noindent\textbf{(b) 手書き \texttt{\textbackslash vphantom\{\textbackslash Rrnum\{6\}\}}（従来）:}\par
 \fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{1}}}\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{2}}}%
 \fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{3}}}\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{4}}}%
 \fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{6}}}\fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{7}}}%
 \fbox{\maru{\vphantom{\Rrnum{6}}\Rrnum{8}}}
-
-\bigskip
-\noindent\textbf{(c) 既定＝自動（\texttt{\textbackslash maru\{\textbackslash Rrnum\{n\}\}} のみ。何も足さない）:}\par
+\par\medskip\noindent\textbf{(c) 既定＝自動（\texttt{\textbackslash maru\{\textbackslash Rrnum\{n\}\}} のみ）:}\par
 \romanrow
 
-\bigskip
-\noindent\textbf{(d) 他記号でも自動:}\par
-\fbox{\seihou{\Rrnum{3}}}\fbox{\kuroseihou{\Rrnum{8}}}\fbox{\seimaru{\Rrnum{7}}}\fbox{\kakko{\Rrnum{4}}}
+\section*{2. フォント感応（mc/gt/mg で字形・x ハイトが変わる）}
+\noindent\textbf{明朝(mc):} {\mcfamily \fbox{\maru{\Rrnum{3}}}\fbox{\maru{8}}\fbox{\maru{A}}\fbox{\maru{あ}}}\par
+\noindent\textbf{ゴシック(gt):} {\gtfamily \fbox{\maru{\Rrnum{3}}}\fbox{\maru{8}}\fbox{\maru{A}}\fbox{\maru{あ}}}\par
+\noindent\textbf{丸ゴ(mg):} {\mgfamily \fbox{\maru{\Rrnum{3}}}\fbox{\maru{8}}\fbox{\maru{A}}\fbox{\maru{あ}}}
 
-\section*{後方互換: 背の高い内容は自動基準の影響を受けないはず}
+\section*{3. \texttt{\textbackslash Rrnum} と他の内容が同居するケース}
+\noindent 期待: 背の高い字が混ざれば自動基準は no-op（その字の寸法が支配）。\par
+\fbox{\maru{A\Rrnum{3}}}\fbox{\maru{\Rrnum{3}A}}\fbox{\maru{\Rrnum{3}g}}%
+\fbox{\maru{(\Rrnum{3})}}\fbox{\maru{\Rrnum{12}}}\fbox{\maru{第\Rrnum{3}}}%
+\fbox{\maru{\Rrnum{3}.}}\fbox{\maru{\textbf{\Rrnum{3}}}}\fbox{\maru{\Rrnum{3}\Rrnum{8}}}
 
+\section*{4. 純小文字（自動基準が効く）}
+\noindent\fbox{\maru{a}}\fbox{\maru{c}}\fbox{\maru{e}}\fbox{\maru{m}}\fbox{\maru{x}}\fbox{\maru{n}}\quad
+\textbf{[参考] 旧来:} {\kksrefoff\fbox{\maru{a}}\fbox{\maru{c}}\fbox{\maru{e}}\fbox{\maru{m}}\fbox{\maru{x}}\fbox{\maru{n}}}
+
+\section*{5. 後方互換（背の高い内容は不変のはず）}
 \noindent\maru{1}\maru{97}\maru{だ}\maru{ばばば}\maru{Qjg}\maru{A}\kuromaru{3}\nmaru{亀}\seihou{8}\kakko{12}
-
-\section*{フォント差での中央寄せ（自動基準で安定するか）}
-
-\noindent
-{\mcfamily 明朝: \maru{\Rrnum{3}}\,\maru{8}}\quad
-{\gtfamily ゴシック: \maru{\Rrnum{3}}\,\maru{8}}\quad
-{\mgfamily 丸ゴ: \maru{\Rrnum{3}}\,\maru{8}}
 
 \end{document}
