@@ -47,6 +47,15 @@
 
 %%% tsumesuji
 \ExplSyntaxOn
+% l3text の \text_expand:n / \text_purify:n は、引数にフォントサイズ命令
+% (\Large, \tiny 等) が含まれると無限ループに陥る（expl3 側の既知の挙動）。
+% 本パッケージは「引数が数字列か」を判定するため引数を \text_expand:n にかけるので、
+% サイズ命令を展開時に空へ畳んで安全化する。描画には #1 をそのまま使うため、
+% 実際の出力サイズ（\maru{\Large A} 等）には影響しない。
+\tl_map_inline:nn
+  { \tiny \scriptsize \footnotesize \small \normalsize
+    \large \Large \LARGE \huge \Huge }
+  { \text_declare_expand_equivalent:Nn #1 { } }
 \str_new:N \l_kks_tmp_str
 \DeclareRobustCommand{\kks@ShrinkedNumber@internal}[1]{
   \str_set:Nx \l_kks_tmp_str { \text_expand:n { #1 } }

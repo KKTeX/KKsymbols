@@ -30,8 +30,13 @@ test.tex
 test-kksref.pdf
 sample-kksref.pdf
 test-autoref.pdf
+stress.pdf
 _overlaycheck.*
 _ov2.*
 _dim.*
+_s*.*
+_x.*
+_fix*.*
+_e.* _p.* _r*.*
 
 Work/*
