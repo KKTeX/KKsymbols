@@ -1,0 +1,81 @@
+% stress-haranoaji.tex — コーナーケース総当たりストレステスト（原ノ味フォント版）
+% Hiragino を持たない環境でも再現できるよう、TeX Live 同梱の Harano-aji を使う。
+% コンパイル: lualatex -interaction=nonstopmode stress-haranoaji.tex
+\documentclass{jlreq}
+\usepackage[tsumesuji=1]{KKsymbols}
+\usepackage{luatexja-otf}
+\usepackage{lltjext}
+\usepackage{xcolor}
+\IfFileExists{KKran.sty}{\usepackage{KKran}}{\newcommand{\Rrnum}[1]{\textit{\romannumeral #1}}}
+% 原ノ味フォント（mc=明朝, gt=ゴシック を自動設定）。丸ゴは原ノ味に無いため未使用。
+\makeatletter
+\RequirePackage[no-math]{fontspec}
+\RequirePackage[no-math,match,scale=1]{luatexja-fontspec}
+\RequirePackage[haranoaji,deluxe]{luatexja-preset}
+\makeatother
+\fboxsep=0pt\fboxrule=.1pt
+\setlength{\parindent}{0pt}
+
+% 全マルコマンドに同じ引数を流すヘルパ
+\newcommand{\ALL}[1]{%
+  \fbox{\maru{#1}}\fbox{\kuromaru{#1}}\fbox{\nmaru{#1}}\fbox{\jegg{#1}}%
+  \fbox{\seihou{#1}}\fbox{\kuroseihou{#1}}\fbox{\seimaru{#1}}\fbox{\kuroseimaru{#1}}%
+  \fbox{\hishi{#1}}\fbox{\kurohishi{#1}}\fbox{\maruhishi{#1}}\fbox{\kuromaruhishi{#1}}%
+  \fbox{\ichimoji{#1}}\fbox{\kakko{#1}}\fbox{\sumikakko{#1}}\fbox{\kakukakko{#1}}}
+
+\begin{document}
+
+\section*{A. 退化引数（空・空白）}
+% [既知の非致命的制限] 空引数 \maru{} 等は \resizebox の零除算で
+% "Package graphics Error: Division by 0" を出す（出力は継続）。意図的に未修正。
+% \fbox{\maru{}}\fbox{\seihou{}}\fbox{\kakko{}}\fbox{\ichimoji{}}
+space間: \fbox{\maru{a b}}\fbox{\maru{1 2}}\fbox{\kakko{x y}}
+
+\section*{B. 単一文字 各種（全コマンド）}
+数字: \ALL{8}\\
+大文字: \ALL{W}\\
+小文字: \ALL{g}\\
+漢字: \ALL{亀}\\
+かな: \ALL{ぽ}\\
+記号: \ALL{?}\\
+ローマ: \ALL{\Rrnum{8}}
+
+\section*{C. 長い引数 / 幅広}
+\fbox{\maru{ABCDEFG}}\fbox{\maru{あいうえお}}\fbox{\seihou{1234567}}\fbox{\kakko{ながいテキスト}}\fbox{\maru{\Rrnum{18}}}\fbox{\maru{WWWWW}}
+
+\section*{D. ネスト（KKsymbols 入れ子）}
+\fbox{\maru{\maru{1}}}\fbox{\seihou{\maru{x}}}\fbox{\kakko{\maru{8}}}\fbox{\maru{\kakko{3}}}\fbox{\maru{\seihou{\hishi{1}}}}
+
+\section*{E. フォント・サイズ・スタイル変更を内包}
+\fbox{\maru{\textbf{8}}}\fbox{\maru{\textit{Q}}}\fbox{\maru{\Large A}}\fbox{\maru{\tiny m}}\fbox{\maru{\gtfamily あ}}\fbox{\maru{\textcolor{red}{8}}}\fbox{\maru{\Rrnum{3}\textbf{\Rrnum{8}}}}
+
+\section*{F. 特殊文字・エスケープ・数式}
+\fbox{\maru{\%}}\fbox{\maru{\&}}\fbox{\maru{\#}}\fbox{\maru{\$}}\fbox{\maru{@}}\fbox{\maru{\{\}}}\fbox{\maru{$x^2$}}\fbox{\maru{$\alpha$}}\fbox{\maru{\textasciitilde}}
+
+\section*{G. tsumesuji 数字（1 の詰め）}
+\fbox{\maru{1}}\fbox{\maru{11}}\fbox{\maru{111}}\fbox{\maru{1010}}\fbox{\maru{0}}\fbox{\maru{00}}\fbox{\maru{2026}}\fbox{\seihou{1111}}\fbox{\kakko{11}}
+
+\section*{H. ローマ数字いろいろ + 参照}
+\fbox{\maru{\Rrnum{1}}}\fbox{\maru{\Rrnum{4}}}\fbox{\maru{\Rrnum{8}}}\fbox{\maru{\Rrnum{13}}}\fbox{\maru{\Rrnum{18}}}\fbox{\maru{\Rrnum{49}}}\quad
+{\kksref{\Rrnum{18}}\fbox{\maru{\Rrnum{1}}}\fbox{\maru{\Rrnum{8}}}}\quad
+{\kksrefoff\fbox{\maru{\Rrnum{1}}}\fbox{\maru{\Rrnum{8}}}}
+
+\section*{I. \textbackslash kksref 相互作用}
+auto: \fbox{\maru{\Rrnum{3}}}\quad
+override: {\kksref{X}\fbox{\maru{\Rrnum{3}}}}\quad
+empty(=off): {\kksref{}\fbox{\maru{\Rrnum{3}}}}\quad
+nested: {\kksref{\Rrnum{8}}\fbox{\maru{\Rrnum{3}}}{\kksrefauto\fbox{\maru{\Rrnum{3}}}}\fbox{\maru{\Rrnum{3}}}}\quad
+二重vphantom: \fbox{\maru{\vphantom{\Rrnum{8}}\Rrnum{3}}}
+
+\section*{J. スターオプション}
+\fbox{\maru*{m}}\fbox{\kuromaru*{g}}\fbox{\nmaru*{p}}\fbox{\seihou*{y}}\fbox{\jegg*{8}}\fbox{\maru*{\Rrnum{3}}}
+
+\section*{K. サイズ変更コンテキスト}
+{\tiny \fbox{\maru{8}}\fbox{\maru{\Rrnum{3}}}}\quad
+{\normalsize \fbox{\maru{8}}\fbox{\maru{\Rrnum{3}}}}\quad
+{\Huge \fbox{\maru{8}}\fbox{\maru{\Rrnum{3}}}}
+
+\section*{L. 縦書き}
+\parbox<t>{14\zw}{甲\maru{\Rrnum{1}}\maru{\Rrnum{8}}\maru{8}乙\kakko{3}丙\seihou{\Rrnum{4}}\ichimoji{亀}}
+
+\end{document}
