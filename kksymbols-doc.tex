@@ -5,6 +5,8 @@
 \usepackage[most]{tcolorbox}
 \usepackage{luatexja-ruby,lltjext}
 \usepackage{KKsymbols}
+% Lowercase roman numerals for the examples (real KKran if available, otherwise a fallback).
+\IfFileExists{KKran.sty}{\usepackage{KKran}}{\providecommand{\Rrnum}[1]{\textit{\romannumeral #1}}}
 
 % You can omit these font settings.
 \makeatletter
@@ -78,7 +80,7 @@
 
 \title{\texttt{KKsymbols} Package Documentation}
 \author{Kosei Kawaguchi a.k.a. KKTeX}
-\date{Version 2.1.4 (2026/04/17)}
+\date{Version 2.2.0 (2026/06/21)}
 \begin{document}
 
 \begin{titlepage}
@@ -451,6 +453,37 @@ You can also change the current font:
 \end{quotation}
 
 
+\section{Automatic alignment (reference box)}
+By default (since v2.2.0), each enclosure sizes and vertically centers its argument against the \emph{current font's reference height} (its x-height) rather than against the argument's own bounding box. This keeps short or irregular glyphs—most notably the lowercase roman numerals produced by \KKverb|\Rrnum| (from the \texttt{KKran} package)—uniform in size and position, and it makes the result consistent across fonts.
+
+Previously you had to insert \KKverb|\vphantom| by hand to obtain a consistent reference. Now the same, aligned result is produced automatically:
+
+\begin{SourceCode}{Input}{TeX}[No more manual vphantom]
+  % Before (manual workaround)
+  \maru{\vphantom{\Rrnum{6}}\Rrnum{1}}\maru{\vphantom{\Rrnum{6}}\Rrnum{8}}
+
+  % Now (automatic, identical result)
+  \maru{\Rrnum{1}}\maru{\Rrnum{8}}
+\end{SourceCode}
+\begin{OutPut}{Output}
+  \maru{\vphantom{\Rrnum{6}}\Rrnum{1}}\maru{\vphantom{\Rrnum{6}}\Rrnum{8}}\quad
+  \maru{\Rrnum{1}}\maru{\Rrnum{8}}
+\end{OutPut}
+
+Tall content (kanji, kana, uppercase letters, digits) is taller than the reference, so it is unaffected and existing documents keep their appearance.
+
+\subsection{Overriding the reference}
+\begin{description}
+  \item[\KKverb|\kksref{<material>}|] Use the height and depth of \verb|<material>| as the reference instead of the automatic one. The effect is scoped like \KKverb|\RotYoko|, so enclose it in a group. This is handy for list labels:
+  \begin{SourceCode}{Input}{TeX}
+    {\kksref{\Rrnum{8}}%
+      \maru{\Rrnum{1}}\maru{\Rrnum{4}}\maru{\Rrnum{8}}}
+  \end{SourceCode}
+  \item[\KKverb|\kksrefoff|] Disable the reference box and fall back to the argument's own metrics (the behavior before v2.2.0).
+  \item[\KKverb|\kksrefauto|] Restore the automatic reference (the default). \KKverb|\kksrefreset| is an alias.
+\end{description}
+
+
 \section{Rotation}
 \subsection{Commands}
 This package provides \verb|\RotTate| and \verb|\RotYoko|. The differnces are as follows:
@@ -649,7 +682,8 @@ Released under the MIT License.
   \end{itemize}
   \item \textbf{v2.1.1 (2026/02/17)} --- An emergency update to fix a bug where the arguments of \KKverb|\kakko|, \KKverb|\maru| etc. caused expansion errors.
   \item \textbf{v2.1.2 (2026/02/19)} --- The effects are applied when the argument of a command subject to the \KKverb|tsumesuji| option—after expansion—is a numeric string of two or more digits and contains the digit ``1''.
-  \item \textbf{v2.1.4 (2026/04/17)} --- When the arguments provided by this package contain only one-digit-number, the internal resize algorithm is nullified. 
+  \item \textbf{v2.1.4 (2026/04/17)} --- When the arguments provided by this package contain only one-digit-number, the internal resize algorithm is nullified.
+  \item \textbf{v2.2.0 (2026/06/21)} --- Automatic vertical alignment was introduced. By default, the content of each enclosure is now sized and centered against the current font's reference height (x-height) instead of the glyph's own metrics, so that short and irregular glyphs (such as the lowercase roman numerals of \KKverb|\Rrnum|) line up uniformly without writing \KKverb|\vphantom| by hand. The new commands \KKverb|\kksref|, \KKverb|\kksrefoff|, and \KKverb|\kksrefauto| (alias \KKverb|\kksrefreset|) control this behavior. Tall content (kanji, kana, uppercase, digits) is unaffected, so existing documents are unchanged.
 \end{itemize}
 
 \end{document}

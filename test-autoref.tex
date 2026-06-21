@@ -4,6 +4,7 @@
 \documentclass{jlreq}
 \usepackage[tsumesuji=1]{KKsymbols}
 \usepackage{luatexja-otf}
+\usepackage{lltjext}% for \parbox<t> (vertical writing test)
 \IfFileExists{KKran.sty}{\usepackage{KKran}}{\newcommand{\Rrnum}[1]{\textit{\romannumeral #1}}}
 
 % ===== フォント一式（mc/gt/mg を別フォントに割り当てて font 感応をテスト） =====
@@ -62,5 +63,9 @@
 
 \section*{5. 後方互換（背の高い内容は不変のはず）}
 \noindent\maru{1}\maru{97}\maru{だ}\maru{ばばば}\maru{Qjg}\maru{A}\kuromaru{3}\nmaru{亀}\seihou{8}\kakko{12}
+
+\section*{6. 縦書きでの自動基準（\texttt{\textbackslash RotTate}）}
+\noindent\parbox<t>{12\zw}{%
+  甲乙丙\maru{\Rrnum{1}}\maru{\Rrnum{3}}\maru{\Rrnum{8}}\maru{8}丁戊\kakko{\Rrnum{4}}}
 
 \end{document}
