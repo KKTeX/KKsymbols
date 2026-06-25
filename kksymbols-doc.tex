@@ -3,10 +3,10 @@
 \usepackage{booktabs,caption}
 \usepackage{luwa-ul,KKluaverb}
 \usepackage[most]{tcolorbox}
-\usepackage{luatexja-ruby,lltjext}
+\usepackage{luatexja-ruby,lltjext,luatexja-otf}
 \usepackage{KKsymbols}
 % Lowercase roman numerals for the examples (real KKran if available, otherwise a fallback).
-\IfFileExists{KKran.sty}{\usepackage{KKran}}{\providecommand{\Rrnum}[1]{\textit{\romannumeral #1}}}
+\IfFileExists{KKran.sty}{\usepackage{KKran}}{\NewDocumentCommand{\Rrnum}{s m}{\IfBooleanTF{#1}{\uppercase\expandafter{\romannumeral #2}}{\textit{\romannumeral #2}}}}
 
 % You can omit these font settings.
 \makeatletter
@@ -80,7 +80,7 @@
 
 \title{\texttt{KKsymbols} Package Documentation}
 \author{Kosei Kawaguchi a.k.a. KKTeX}
-\date{Version 2.2.1 (2026/06/21)}
+\date{Version 2.2.2 (2026/06/26)}
 \begin{document}
 
 \begin{titlepage}
@@ -91,13 +91,19 @@
 \newpage
 
 \section{Outline}
-Japanese: このパッケージは、既存のotfフォントに頼ることなく、「任意のフォント、任意の引数で」丸数字などの特殊記号を再現する目的で作成されています。
+\paragraph{Japanese}
+このドキュメントでは、主要な仕様説明を日本語と英語の両方で記述します。日本語の説明で実用上の注意点を先に述べ、その直後に対応する英語説明を置きます。
 
-luatexja-otfにおける\verb|\ajMaru|などは、その設計上いたしかなないデメリットとして、早見表がないと使い物にならないというものがありました。しかし、本パッケージでは、一から特殊文字を設計し直すというという取り組みを行なっているため、そのようなデメリットが解消されています。
+このパッケージは、既存のOTFグリフだけに頼るのではなく、「現在のフォント」「任意の引数」「横書き・縦書き」に合わせて、丸数字や括弧付き文字などの囲み記号を構成するために作られています。
 
-English: This package is designed to reproduce special characters, such as circled numbers, using arbitrary fonts and parameters without relying on existing otf font sets.
+\texttt{luatexja-otf} の \verb|\ajMaru| などは、Adobe-Japan1 の既存グリフを呼び出すため、品質が高く高速である一方、どの番号がどのグリフになるかを知るための早見表やCID知識が必要になりがちです。本パッケージは図形と中身を組み合わせて再構成する設計なので、任意の文字列を同じインターフェースで囲めます。
 
-A known disadvantage of commands like \verb|\ajMaru| in luatexja-otf is that they are practically unusable without a reference chart. In contrast, this package addresses this issue by re-engineering special characters from the ground up, eliminating the need for complex lookup tables.
+\paragraph{English}
+This documentation now gives the important usage notes in both Japanese and English. The Japanese explanation states practical details first, followed by the corresponding English explanation.
+
+This package is designed to build enclosed symbols such as circled numbers and parenthesized characters from the current font and arbitrary arguments, in both horizontal and vertical writing modes, rather than relying only on pre-existing OTF glyphs.
+
+Commands such as \verb|\ajMaru| in \texttt{luatexja-otf} call Adobe-Japan1 glyphs directly. This gives high-quality and fast output, but it often requires a reference chart or CID knowledge to know which number maps to which glyph. KKsymbols instead composes the enclosure and the content, so arbitrary strings can be enclosed through the same interface.
 
 {%
 \fboxsep=0pt\fboxrule=.1pt
@@ -333,6 +339,58 @@ A known disadvantage of commands like \verb|\ajMaru| in luatexja-otf is that the
 }%
 }
 
+\section{Comparison with \texttt{luatexja-otf}}
+\paragraph{Japanese}
+\texttt{luatexja-otf} は Adobe-Japan1 のグリフを直接呼び出すための強力なパッケージです。代表的なコマンドには、\verb|\ajMaru|、\verb|\ajKuroMaru|、\verb|\ajKaku|、\verb|\ajKakko|、\verb|\ajRoman|、\verb|\ajroman|、\verb|\ajKakkoroman|、\verb|\ajKakkoRoman| などがあります。これらは既存グリフをそのまま使うため、印刷品質は非常に高く、処理も軽量です。
+
+一方で、\texttt{luatexja-otf} の囲み文字は「存在するグリフを選ぶ」方式です。たとえば \verb|\ajMaru{1}| は丸数字のグリフを出しますが、\verb|\ajMaru{ABC}| のような任意文字列を丸で囲む用途ではありません。対応範囲は Adobe-Japan1 側に存在するグリフと、\texttt{luatexja-ajmacros} が定義している番号範囲・合字名に依存します。
+
+KKsymbols は反対に、「囲みの形」と「中身」をその場で組み合わせる方式です。そのため \verb|\maru{ABC}|、\verb|\kakko{QED.}|、\verb|\seihou{長い文字列}| のように、数字以外の文字列や現在フォントの文字も同じ命令で処理できます。代償として、既存の完成グリフを呼び出す \texttt{luatexja-otf} よりも内部処理は重く、極端な引数では縮小や中央寄せの調整が見た目に出ることがあります。
+
+\paragraph{English}
+\texttt{luatexja-otf} is a powerful package for accessing Adobe-Japan1 glyphs directly. Typical commands include \verb|\ajMaru|, \verb|\ajKuroMaru|, \verb|\ajKaku|, \verb|\ajKakko|, \verb|\ajRoman|, \verb|\ajroman|, \verb|\ajKakkoroman|, and \verb|\ajKakkoRoman|. Since these commands use pre-designed glyphs, the output quality is excellent and the processing cost is low.
+
+The important limitation is that \texttt{luatexja-otf} selects existing glyphs. For example, \verb|\ajMaru{1}| outputs a circled-number glyph, but \verb|\ajMaru{ABC}| is not a general command for enclosing an arbitrary string. Its coverage depends on the glyphs available in Adobe-Japan1 and on the numeric ranges and ligature names defined by \texttt{luatexja-ajmacros}.
+
+KKsymbols takes the opposite approach: it composes the enclosure and the content at typesetting time. Therefore commands such as \verb|\maru{ABC}|, \verb|\kakko{QED.}|, and \verb|\seihou{long text}| work with non-numeric strings and with the current font. The tradeoff is that KKsymbols does more internal work than \texttt{luatexja-otf}, and very long or unusual arguments may visibly depend on the package's scaling and centering rules.
+
+\subsection{Command-by-command examples}
+\paragraph{Japanese}
+次の表は、同じような用途に見えるコマンドの比較です。左側の \texttt{luatexja-otf} は既存グリフ、右側の KKsymbols は現在フォントから組み立てた結果です。
+
+\paragraph{English}
+The following table compares commands that look similar in ordinary use. The \texttt{luatexja-otf} examples on the left are existing glyphs, while the KKsymbols examples on the right are composed from the current font.
+
+\begin{table}[h]
+\centering
+\caption{Comparison with \texttt{luatexja-otf}}
+\small
+\begin{tabular}{lll}
+\toprule
+Purpose & \texttt{luatexja-otf} & KKsymbols \\
+\midrule
+circled number & \verb|\ajMaru{8}| \quad \ajMaru{8} & \verb|\maru{8}| \quad \maru{8} \\
+black circled number & \verb|\ajKuroMaru{8}| \quad \ajKuroMaru{8} & \verb|\kuromaru{8}| \quad \kuromaru{8} \\
+square number & \verb|\ajKaku{8}| \quad \ajKaku{8} & \verb|\seihou{8}| \quad \seihou{8} \\
+parenthesized number & \verb|\ajKakko{8}| \quad \ajKakko{8} & \verb|\kakko{8}| \quad \kakko{8} \\
+uppercase roman & \verb|\ajRoman{8}| \quad \ajRoman{8} & \verb|\kakko{\Rrnum*{8}}| \quad \kakko{\Rrnum*{8}} \\
+lowercase roman & \verb|\ajroman{8}| \quad \ajroman{8} & \verb|\kakko{\Rrnum{8}}| \quad \kakko{\Rrnum{8}} \\
+parenthesized roman & \verb|\ajKakkoroman{8}| \quad \ajKakkoroman{8} & \verb|\kakko{\Rrnum{8}}| \quad \kakko{\Rrnum{8}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Practical selection guide}
+\paragraph{Japanese}
+完成済みの標準グリフが必要な場合、たとえば丸数字・括弧付き数字・ローマ数字が Adobe-Japan1 の範囲に収まる場合は、\texttt{luatexja-otf} が最も安定します。フォントベンダが設計した字形なので、紙面上の完成度も高くなります。
+
+任意の文字列、現在の欧文・和文フォント、太字、色付き文字、長いラベル、独自の囲み形状が必要な場合は KKsymbols が向いています。KKsymbols は「グリフを探す」必要がなく、\verb|\maru{任意}| や \verb|\kakko{ABC}| のように直接書けます。
+
+\paragraph{English}
+Use \texttt{luatexja-otf} when you need standard pre-designed glyphs, such as circled numbers, parenthesized numbers, or roman numerals that are covered by Adobe-Japan1. Since these glyphs are designed by the font vendor, they usually give the most polished printed result.
+
+Use KKsymbols when you need arbitrary strings, the current Latin or Japanese font, bold or colored content, long labels, or custom enclosure styles. KKsymbols does not require you to look up a glyph; you can write commands such as \verb|\maru{任意}| or \verb|\kakko{ABC}| directly.
+
 
 \section{Acknowledgements / Credit}
 In developing this package, I made extensive use of the advice I received from Mr.~Yusuke~Terada.
@@ -453,34 +511,76 @@ You can also change the current font:
 \end{quotation}
 
 
-\section{Automatic alignment (reference box)}
-By default (since v2.2.0), each enclosure sizes and vertically centers its argument against the \emph{current font's reference height} (its x-height) rather than against the argument's own bounding box. This keeps short or irregular glyphs—most notably the lowercase roman numerals produced by \KKverb|\Rrnum| (from the \texttt{KKran} package)—uniform in size and position, and it makes the result consistent across fonts.
+\section{Roman numerals}
+\paragraph{Japanese}
+KKsymbols 自体はローマ数字を生成しません。ローマ数字の生成には、通常 \texttt{KKran} パッケージが提供する \KKverb|\Rrnum| を使います。\KKverb|\Rrnum{8}| は小文字ローマ数字、\KKverb|\Rrnum*{8}| は大文字ローマ数字を出します。
 
-Previously you had to insert \KKverb|\vphantom| by hand to obtain a consistent reference. Now the same, aligned result is produced automatically:
+大文字ローマ数字は大文字アルファベットと同じ扱いで、通常は非スター版の囲みコマンドに入れます。たとえば \KKverb|\kakko{\Rrnum*{8}}| や \KKverb|\maru{\Rrnum*{8}}| のように書きます。
 
-\begin{SourceCode}{Input}{TeX}[No more manual vphantom]
-  % Before (manual workaround)
-  \maru{\vphantom{\Rrnum{6}}\Rrnum{1}}\maru{\vphantom{\Rrnum{6}}\Rrnum{8}}
+小文字ローマ数字は注意が必要です。小文字の \verb|i|、\verb|v|、\verb|x| は字ごとに高さが違うため、単に \KKverb|\kakko{\Rrnum{1}}| から \KKverb|\kakko{\Rrnum{10}}| までを並べると、囲み内部での縦方向の見え方が完全には揃わないことがあります。これはバグではなく、引数の実際の高さが異なるためです。
 
-  % Now (automatic, identical result)
-  \maru{\Rrnum{1}}\maru{\Rrnum{8}}
+小文字ローマ数字をリストラベルなどで厳密に揃えたい場合は、\KKverb|\kksref{\Rrnum{6}}| をグループ内で指定してください。これは各囲みコマンドの内部に \KKverb|\vphantom{\Rrnum{6}}| 相当の基準を加えるためのフックです。
+
+\paragraph{English}
+KKsymbols itself does not generate roman numerals. In ordinary use, roman numerals are supplied by the \texttt{KKran} package through \KKverb|\Rrnum|. \KKverb|\Rrnum{8}| gives a lowercase roman numeral, while \KKverb|\Rrnum*{8}| gives an uppercase roman numeral.
+
+Uppercase roman numerals behave like uppercase Latin letters. They should normally be used with the non-starred enclosure commands, for example \KKverb|\kakko{\Rrnum*{8}}| or \KKverb|\maru{\Rrnum*{8}}|.
+
+Lowercase roman numerals require more care. The letters \verb|i|, \verb|v|, and \verb|x| have different heights, so a sequence from \KKverb|\kakko{\Rrnum{1}}| to \KKverb|\kakko{\Rrnum{10}}| may not look vertically identical inside the enclosures. This is not a bug; it follows from the actual glyph metrics of the arguments.
+
+If lowercase roman numerals must be strictly aligned, for example in list labels, set \KKverb|\kksref{\Rrnum{6}}| inside a group. It works as a hook that adds a reference equivalent to \KKverb|\vphantom{\Rrnum{6}}| inside each enclosure command.
+
+\begin{SourceCode}{Input}{TeX}[Roman numerals]
+  % Uppercase roman numerals: use the non-starred enclosure command.
+  \kakko{\Rrnum*{1}}\kakko{\Rrnum*{2}}\kakko{\Rrnum*{3}}
+
+  % Lowercase roman numerals: automatic reference only.
+  \kakko{\Rrnum{1}}\kakko{\Rrnum{2}}\kakko{\Rrnum{3}}\kakko{\Rrnum{6}}
+
+  % Lowercase roman numerals: force a common reference.
+  {\kksref{\Rrnum{6}}%
+    \kakko{\Rrnum{1}}\kakko{\Rrnum{2}}\kakko{\Rrnum{3}}\kakko{\Rrnum{6}}}
 \end{SourceCode}
 \begin{OutPut}{Output}
-  \maru{\vphantom{\Rrnum{6}}\Rrnum{1}}\maru{\vphantom{\Rrnum{6}}\Rrnum{8}}\quad
-  \maru{\Rrnum{1}}\maru{\Rrnum{8}}
+  \kakko{\Rrnum*{1}}\kakko{\Rrnum*{2}}\kakko{\Rrnum*{3}}\quad
+  \kakko{\Rrnum{1}}\kakko{\Rrnum{2}}\kakko{\Rrnum{3}}\kakko{\Rrnum{6}}\quad
+  {\kksref{\Rrnum{6}}%
+    \kakko{\Rrnum{1}}\kakko{\Rrnum{2}}\kakko{\Rrnum{3}}\kakko{\Rrnum{6}}}
 \end{OutPut}
 
-Tall content (kanji, kana, uppercase letters, digits) is taller than the reference, so it is unaffected and existing documents keep their appearance.
+\section{Automatic alignment (reference box)}
+\paragraph{Japanese}
+v2.2.0 以降、各囲みコマンドは既定で「現在フォントの参照高さ」、具体的には x-height 相当を基準として中身のサイズと中央位置を決めます。これは短い文字や深さのない文字を、引数自身のバウンディングボックスだけで処理したときのばらつきを抑えるためです。
+
+ただし、既定の自動基準は \KKverb|\vphantom{\Rrnum{6}}| と同一ではありません。したがって、小文字ローマ数字を \KKverb|\Rrnum{6}| の高さ・深さで揃えたい場合は、前節のように \KKverb|\kksref{\Rrnum{6}}| を明示してください。
+
+漢字・かな・大文字・数字など、既定基準より背の高い内容は、引数自身の寸法が優先されます。このため、通常の文書では既存の出力が大きく変わらないようになっています。
+
+\paragraph{English}
+Since v2.2.0, each enclosure command uses the current font's reference height, roughly its x-height, as the default reference for sizing and vertical centering. This reduces variation when short glyphs or glyphs with no depth would otherwise be measured only by their own bounding boxes.
+
+However, the automatic reference is not identical to \KKverb|\vphantom{\Rrnum{6}}|. If lowercase roman numerals should be aligned against the height and depth of \KKverb|\Rrnum{6}|, explicitly use \KKverb|\kksref{\Rrnum{6}}| as shown in the previous section.
+
+For content taller than the default reference, such as kanji, kana, uppercase letters, or digits, the argument's own metrics still dominate. This keeps ordinary documents close to their existing appearance.
 
 \subsection{Overriding the reference}
 \begin{description}
-  \item[\KKverb|\kksref{<material>}|] Use the height and depth of \verb|<material>| as the reference instead of the automatic one. The effect is scoped like \KKverb|\RotYoko|, so enclose it in a group. This is handy for list labels:
+  \item[\KKverb|\kksref{<material>}|]
+  \textbf{Japanese:} \verb|<material>| の高さ・深さを、既定の自動基準の代わりに使います。効果は \KKverb|\RotYoko| と同じくスコープ依存なので、通常はグループで囲みます。
+
+  \textbf{English:} Use the height and depth of \verb|<material>| as the reference instead of the automatic one. The effect is scoped like \KKverb|\RotYoko|, so enclose it in a group.
   \begin{SourceCode}{Input}{TeX}
-    {\kksref{\Rrnum{8}}%
+    {\kksref{\Rrnum{6}}%
       \maru{\Rrnum{1}}\maru{\Rrnum{4}}\maru{\Rrnum{8}}}
   \end{SourceCode}
-  \item[\KKverb|\kksrefoff|] Disable the reference box and fall back to the argument's own metrics (the behavior before v2.2.0).
-  \item[\KKverb|\kksrefauto|] Restore the automatic reference (the default). \KKverb|\kksrefreset| is an alias.
+  \item[\KKverb|\kksrefoff|]
+  \textbf{Japanese:} 参照ボックスを無効化し、v2.2.0 以前のように引数自身の寸法を使います。
+
+  \textbf{English:} Disable the reference box and fall back to the argument's own metrics, which is the behavior before v2.2.0.
+  \item[\KKverb|\kksrefauto|]
+  \textbf{Japanese:} 既定の自動基準に戻します。\KKverb|\kksrefreset| は別名です。
+
+  \textbf{English:} Restore the automatic reference. \KKverb|\kksrefreset| is an alias.
 \end{description}
 
 
@@ -683,8 +783,9 @@ Released under the MIT License.
   \item \textbf{v2.1.1 (2026/02/17)} --- An emergency update to fix a bug where the arguments of \KKverb|\kakko|, \KKverb|\maru| etc. caused expansion errors.
   \item \textbf{v2.1.2 (2026/02/19)} --- The effects are applied when the argument of a command subject to the \KKverb|tsumesuji| option—after expansion—is a numeric string of two or more digits and contains the digit ``1''.
   \item \textbf{v2.1.4 (2026/04/17)} --- When the arguments provided by this package contain only one-digit-number, the internal resize algorithm is nullified.
-  \item \textbf{v2.2.0 (2026/06/21)} --- Automatic vertical alignment was introduced. By default, the content of each enclosure is now sized and centered against the current font's reference height (x-height) instead of the glyph's own metrics, so that short and irregular glyphs (such as the lowercase roman numerals of \KKverb|\Rrnum|) line up uniformly without writing \KKverb|\vphantom| by hand. The new commands \KKverb|\kksref|, \KKverb|\kksrefoff|, and \KKverb|\kksrefauto| (alias \KKverb|\kksrefreset|) control this behavior. Tall content (kanji, kana, uppercase, digits) is unaffected, so existing documents are unchanged.
-  \item \textbf{v2.2.1 (2026/06/21)} --- Bug fix: a font-size command inside an argument (e.g. \KKverb|\maru{\Large A}|) previously caused an infinite loop, because the internal one-digit/\KKverb|tsumesuji| check expands the argument with \KKverb|\text_expand:n|, which loops on font-size commands. Such commands are now declared expand-equivalent to empty for that internal check; the visible output size is unaffected. (The hang predated v2.2.0.)
+  \item \textbf{v2.2.0 (2026/06/21)} --- Automatic vertical alignment was introduced. By default, the content of each enclosure is sized and centered against the current font's reference height (x-height) instead of relying only on the glyph's own metrics. The new commands \KKverb|\kksref|, \KKverb|\kksrefoff|, and \KKverb|\kksrefauto| (alias \KKverb|\kksrefreset|) control this behavior. For strict lowercase roman-numeral alignment, use \KKverb|\kksref{\Rrnum{6}}| explicitly.
+  \item \textbf{v2.2.1 (2026/06/21)} --- Bug fix: font-size commands inside arguments no longer cause an infinite loop in the internal one-digit/\KKverb|tsumesuji| check. The visible output size is unaffected.
+  \item \textbf{v2.2.2 (2026/06/26)} --- Documentation update. The documentation now describes uppercase \KKverb|\Rrnum*{n}| and lowercase \KKverb|\Rrnum{n}| usage, clarifies when \KKverb|\kksref{\Rrnum{6}}| is needed, and adds a Japanese/English comparison with \texttt{luatexja-otf}.
 \end{itemize}
 
 \end{document}
