@@ -1,0 +1,53 @@
+% Regression and visual test for global and command-specific frame line widths.
+% Compile with: latexmk -r .latexmkrc test-linewidth.tex
+\documentclass{jlreq}
+\usepackage{lltjext}
+\usepackage[
+  linewidth=1.2pt,
+  marulinewidth=.15pt,
+  kuromarulinewidth=.04\zw,
+  jegglinewidth=.25pt,
+  hishilinewidth=1.8pt
+]{KKsymbols}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+% Expansion-only precedence checks: command-specific > global > legacy default.
+\makeatletter
+\typeout{KKS-LINEWIDTH-MARU:\kks@linewidth{\kksymbols@marulinewidth}{\kksymbols@linewidth}{.4pt}}
+\typeout{KKS-LINEWIDTH-KUROMARU:\kks@linewidth{\kksymbols@kuromarulinewidth}{\kksymbols@linewidth}{.4pt}}
+\typeout{KKS-LINEWIDTH-JEGG:\kks@linewidth{\kksymbols@jegglinewidth}{\kksymbols@linewidth}{.4pt}}
+\typeout{KKS-LINEWIDTH-HISHI:\kks@linewidth{\kksymbols@hishilinewidth}{\kksymbols@linewidth}{.4pt}}
+\makeatother
+
+\begin{document}
+\section*{Custom frame line widths}
+
+Thin command-specific overrides (\texttt{maru}, \texttt{jegg}):\par
+\fbox{\maru{A}}\fbox{\maru{m}}\fbox{\maru*{m}}\quad
+\fbox{\jegg{A}}\fbox{\jegg{m}}\fbox{\jegg*{m}}
+
+\medskip
+Global \texttt{linewidth=1.2pt}:\par
+\fbox{\nmaru{A}}\fbox{\seihou{A}}%
+\fbox{\kuroseihou{A}}\fbox{\seimaru{A}}\fbox{\kuroseimaru{A}}\quad
+\fbox{\kurohishi{A}}\fbox{\maruhishi{A}}\fbox{\kuromaruhishi{A}}
+
+\medskip
+Thick command-specific override (\texttt{hishi=1.8pt}):\par
+\fbox{\hishi{A}}\fbox{\hishi{m}}\fbox{\hishi*{m}}
+
+\medskip
+Font-relative command override (\texttt{kuromarulinewidth=.04\string\zw}):\par
+\fbox{\kuromaru{A}}\quad{\Huge\fbox{\kuromaru{A}}}
+
+\medskip
+Bracket commands use font glyphs rather than TikZ frame paths and are
+intentionally unaffected:\par
+\fbox{\kakko{A}}\fbox{\kakko{m}}
+
+\medskip
+Vertical-writing smoke test with custom widths:\par
+\parbox<t>{7\zw}{甲\maru{A}\hishi{A}\jegg{A}乙}
+\end{document}

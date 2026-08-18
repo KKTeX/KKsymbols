@@ -38,6 +38,18 @@ I recommend you to refer to his article when you develop new-type symbols on LaT
   - Features automatic scaling and baseline correction for perfect alignment with surrounding text.
   - 文字サイズに合わせた自動スケーリングと、ベースラインの自動補正機能を搭載しています。
 
+- **Automatic Lowercase Detection / 小文字の自動判定**
+  - Fully expanded lowercase ASCII arguments, including lowercase Roman numerals and letters from `KKran`, automatically use the lowercase-safe sizing path. Set `autolowercase=0` to disable automatic selection and use stars manually.
+  - 完全展開後が小文字ASCIIだけの引数（`KKran` の小文字ローマ数字・英字を含む）は、小文字向けサイズに自動調整されます。自動選択を無効にして手動でスターを指定する場合は `autolowercase=0` を指定します。
+
+- **Configurable Frame Line Width / 枠線の太さ指定**
+  - Set a common frame thickness with `linewidth=<dimension>`, or override it for each TikZ-drawn enclosure with options such as `marulinewidth=<dimension>` and `hishilinewidth=<dimension>`. The default `auto` value preserves the historical appearance.
+  - `linewidth=<寸法>` で枠線の太さを一括指定でき、`marulinewidth=<寸法>` や `hishilinewidth=<寸法>` などでコマンドごとの太さも指定できます。既定値の `auto` では従来の見た目を維持します。
+
+- **Compatibility fixes / 互換性に関する修正**
+  - The public `\maruhishi` command now reaches its intended rounded-diamond implementation instead of the filled `\kurohishi` implementation. This corrects a pre-existing miswiring and intentionally changes `\maruhishi` output. Explicit stars on the four diamond commands now select an aspect-ratio-preserving lowercase path that fits the glyph inside the diamond. A pre-existing context-dependent sizing leak in `\jegg*` has also been fixed, including when `autolowercase=0`.
+  - 公開コマンド `\maruhishi` が誤って黒菱形の実装へ接続されていた不具合を修正したため、同コマンドの出力は意図した角丸菱形へ変わります。菱形4コマンドの明示スターは、字形の縦横比を保ちつつ菱形内へ収める小文字向け経路を選ぶようになりました。また、`\jegg*` のサイズが直前のコマンドに左右される既存不具合も修正され、これは `autolowercase=0` の場合にも適用されます。
+
 - **Multi-Directional Support / 縦書き・横書き両対応**
   - Works seamlessly in both horizontal and vertical writing modes.
   - 横書きだけでなく、縦書き環境でも崩れることなく使用可能です。

@@ -1,0 +1,20 @@
+% Regression test for loading KKran before KKsymbols.
+% Compile with: latexmk -r .latexmkrc test-kkran-order.tex
+\documentclass{jlreq}
+\usepackage{KKran}
+\usepackage{KKsymbols}
+
+\makeatletter
+\newcommand{\KKSordersmall}[1]{\typeout{KKS-ORDER-ROUTE:SMALL}}
+\newcommand{\KKSordernormal}[1]{\typeout{KKS-ORDER-ROUTE:NORMAL}}
+\kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{\Rrnum{8}}% SMALL
+\kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{\Rrnum*{8}}% NORMAL
+\kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{\alphabetarray{2}}% SMALL
+\kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{\alphabetarray*{2}}% NORMAL
+\kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{\alphabetarray{27}}% NORMAL (empty in KKran)
+\makeatother
+
+\begin{document}
+\fbox{\maru{\Rrnum{8}}}\fbox{\maru*{\Rrnum{8}}}\quad
+\fbox{\maru{\alphabetarray{2}}}\fbox{\maru*{\alphabetarray{2}}}
+\end{document}

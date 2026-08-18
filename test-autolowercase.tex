@@ -1,0 +1,83 @@
+% Regression and visual test for autolowercase=1 (the default).
+% Compile with: latexmk -r .latexmkrc test-autolowercase.tex
+\documentclass{jlreq}
+\usepackage[autolowercase=1]{KKsymbols}
+\usepackage{KKran}
+\usepackage{lltjext}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+\newcommand{\lowerletter}{m}
+\newcommand{\lowerroman}{\Rrnum{8}}
+
+% Log-only route checks. These exercise full expansion without depending on
+% visual measurements or on a particular font.
+\makeatletter
+\newcommand{\KKSsmall}[1]{\typeout{KKS-ROUTE:SMALL}}
+\newcommand{\KKSnormal}[1]{\typeout{KKS-ROUTE:NORMAL}}
+\newcommand{\KKScheck}[1]{%
+  \kks@autolowercase@select{\KKSsmall}{\KKSnormal}{#1}}
+\KKScheck{m}% SMALL
+\KKScheck{abc}% SMALL
+\KKScheck{\lowerletter}% SMALL
+\KKScheck{\Rrnum{8}}% SMALL (fully expands to viii)
+\KKScheck{\alphabetarray{2}}% SMALL (fully expands to b)
+\KKScheck{\lowerroman}% SMALL (nested expansion reaches \Rrnum)
+\KKScheck{\Large m}% SMALL (font-size command is safely ignored for matching)
+\KKScheck{A}% NORMAL
+\KKScheck{1}% NORMAL
+\KKScheck{a1}% NORMAL
+\KKScheck{あ}% NORMAL
+\KKScheck{\Rrnum*{8}}% NORMAL (fully expands to VIII)
+\KKScheck{\alphabetarray*{2}}% NORMAL (fully expands to B)
+\KKScheck{\alphabetarray{27}}% NORMAL (KKran expands out-of-range input to empty)
+\KKScheck{}% NORMAL
+\makeatother
+
+\begin{document}
+\section*{Automatic lowercase sizing (On)}
+
+Each adjacent pair should have the same content size: automatic on the left,
+explicit star on the right.
+
+\noindent
+\fbox{\maru{m}}\fbox{\maru*{m}}\quad
+\fbox{\kuromaru{\lowerletter}}\fbox{\kuromaru*{\lowerletter}}\quad
+\fbox{\seihou{abc}}\fbox{\seihou*{abc}}\quad
+\fbox{\hishi{m}}\fbox{\hishi*{m}}\quad
+\fbox{\kakko{m}}\fbox{\kakko*{m}}
+
+\medskip
+\noindent Diamond lowercase paths must preserve aspect ratio and stay inside
+the diamond, including wide letters and white-on-black variants:\par
+\fbox{\hishi{m}}\fbox{\hishi{w}}\fbox{\maruhishi{m}}\fbox{\maruhishi{w}}\quad
+\fbox{\kurohishi{m}}\fbox{\kurohishi{w}}%
+\fbox{\kuromaruhishi{m}}\fbox{\kuromaruhishi{w}}
+
+\medskip
+\noindent KKran lowercase Roman numerals (automatic):\par
+\fbox{\maru{\Rrnum{1}}}\fbox{\maru{\Rrnum{4}}}%
+\fbox{\maru{\Rrnum{8}}}\quad
+\fbox{\maru{\alphabetarray{2}}}\quad
+\fbox{\kakko{\Rrnum{1}}}\fbox{\kakko{\Rrnum{4}}}%
+\fbox{\kakko{\Rrnum{8}}}
+
+\medskip
+\noindent Non-matches retain normal sizing:\par
+\fbox{\maru{A}}\fbox{\maru{1}}\fbox{\maru{a1}}\fbox{\maru{あ}}
+
+\medskip
+\noindent \texttt{\string\jegg}: lowercase sizing is automatic; the star
+still changes only the background style.\par
+\fbox{\jegg{m}}\fbox{\jegg*{m}}\quad
+\fbox{\jegg{\Rrnum{8}}}\fbox{\jegg*{\Rrnum{8}}}\quad
+\fbox{\jegg{1}}\fbox{\jegg*{1}}
+
+\medskip
+\noindent Nested/state-leak smoke test:\par
+\fbox{\maru{\kakko{a}}}\fbox{\jegg{m}}\fbox{\seihou{Qjg}}
+
+\medskip
+\noindent Vertical-writing smoke test:\par
+\parbox<t>{6\zw}{甲\maru{m}\kakko{\Rrnum{8}}\jegg{m}乙}
+\end{document}

@@ -1,0 +1,27 @@
+% Pixel-regression fixture for the historical default frame widths.
+% Lowercase auto-routing and the documented maruhishi miswiring fix are
+% intentionally excluded so the release archive and working tree can match.
+\documentclass{jlreq}
+\usepackage{KKsymbols}
+\pagestyle{empty}
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\noindent
+\fbox{\maru{A}}\fbox{\maru{12}}\fbox{\maru*{m}}\quad
+\fbox{\kuromaru{A}}\fbox{\kuromaru{12}}\fbox{\kuromaru*{m}}\quad
+\fbox{\nmaru{A}}\fbox{\nmaru{12}}\fbox{\nmaru*{m}}\quad
+\fbox{\jegg{A}}\fbox{\jegg{12}}\fbox{\jegg*{A}}\par
+
+\noindent
+\fbox{\seihou{A}}\fbox{\seihou{12}}\fbox{\seihou*{m}}\quad
+\fbox{\kuroseihou{A}}\fbox{\kuroseihou{12}}\fbox{\kuroseihou*{m}}\quad
+\fbox{\seimaru{A}}\fbox{\seimaru{12}}\fbox{\seimaru*{m}}\quad
+\fbox{\kuroseimaru{A}}\fbox{\kuroseimaru{12}}\fbox{\kuroseimaru*{m}}\par
+
+\noindent
+\fbox{\hishi{A}}\fbox{\hishi{12}}\quad
+\fbox{\kurohishi{A}}\fbox{\kurohishi{12}}\quad
+\fbox{\kuromaruhishi{A}}\fbox{\kuromaruhishi{12}}
+\end{document}

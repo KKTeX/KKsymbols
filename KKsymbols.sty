@@ -37,6 +37,22 @@
   prefix=kksymbols@%
 }
 \DeclareStringOption[1]{tsumesuji}
+\DeclareStringOption[1]{autolowercase}
+% `auto` preserves each command's historical line width.  A global value is
+% used by every TikZ-drawn frame unless a command-specific value overrides it.
+\DeclareStringOption[auto]{linewidth}
+\DeclareStringOption[auto]{marulinewidth}
+\DeclareStringOption[auto]{kuromarulinewidth}
+\DeclareStringOption[auto]{nmarulinewidth}
+\DeclareStringOption[auto]{jegglinewidth}
+\DeclareStringOption[auto]{seihoulinewidth}
+\DeclareStringOption[auto]{kuroseihoulinewidth}
+\DeclareStringOption[auto]{seimarulinewidth}
+\DeclareStringOption[auto]{kuroseimarulinewidth}
+\DeclareStringOption[auto]{hishilinewidth}
+\DeclareStringOption[auto]{kurohishilinewidth}
+\DeclareStringOption[auto]{maruhishilinewidth}
+\DeclareStringOption[auto]{kuromaruhishilinewidth}
 \ProcessKeyvalOptions*
 %%%
 
@@ -57,6 +73,131 @@
     \large \Large \LARGE \huge \Huge }
   { \text_declare_expand_equivalent:Nn #1 { } }
 \str_new:N \l_kks_tmp_str
+\bool_new:N \g_kks_autolowercase_bool
+
+\msg_new:nnn { KKsymbols } { invalid-autolowercase }
+  {
+    The~input~of~the~`autolowercase`~option~should~be~0~or~1.
+  }
+
+\str_case_e:nnF { \kksymbols@autolowercase }
+  {
+    { 0 } { \bool_gset_false:N \g_kks_autolowercase_bool }
+    { 1 } { \bool_gset_true:N  \g_kks_autolowercase_bool }
+  }
+  {
+    \bool_gset_true:N \g_kks_autolowercase_bool
+    \msg_error:nn { KKsymbols } { invalid-autolowercase }
+  }
+
+\msg_new:nnn { KKsymbols } { negative-linewidth }
+  {
+    The~`#1`~option~must~be~`auto`~or~a~non-negative~TeX~dimension.
+  }
+
+% Parse every explicit line-width value once at package load time.  The value
+% itself is not stored, so relative dimensions such as .04\zw remain dynamic
+% when a symbol is used at another font size or in another direction.
+\cs_new_protected:Npn \kks_linewidth_validate:nn #1#2
+  {
+    \str_if_eq:eeF { #2 } { auto }
+      {
+        \group_begin:
+          \dim_set:Nn \l_tmpa_dim { #2 }
+          \dim_compare:nNnT { \l_tmpa_dim } < { 0pt }
+            { \msg_error:nnn { KKsymbols } { negative-linewidth } { #1 } }
+        \group_end:
+      }
+  }
+\kks_linewidth_validate:nn { linewidth } { \kksymbols@linewidth }
+\kks_linewidth_validate:nn { marulinewidth } { \kksymbols@marulinewidth }
+\kks_linewidth_validate:nn { kuromarulinewidth } { \kksymbols@kuromarulinewidth }
+\kks_linewidth_validate:nn { nmarulinewidth } { \kksymbols@nmarulinewidth }
+\kks_linewidth_validate:nn { jegglinewidth } { \kksymbols@jegglinewidth }
+\kks_linewidth_validate:nn { seihoulinewidth } { \kksymbols@seihoulinewidth }
+\kks_linewidth_validate:nn { kuroseihoulinewidth } { \kksymbols@kuroseihoulinewidth }
+\kks_linewidth_validate:nn { seimarulinewidth } { \kksymbols@seimarulinewidth }
+\kks_linewidth_validate:nn { kuroseimarulinewidth } { \kksymbols@kuroseimarulinewidth }
+\kks_linewidth_validate:nn { hishilinewidth } { \kksymbols@hishilinewidth }
+\kks_linewidth_validate:nn { kurohishilinewidth } { \kksymbols@kurohishilinewidth }
+\kks_linewidth_validate:nn { maruhishilinewidth } { \kksymbols@maruhishilinewidth }
+\kks_linewidth_validate:nn { kuromaruhishilinewidth } { \kksymbols@kuromaruhishilinewidth }
+
+\prg_new_protected_conditional:Npnn \kks_if_lowercase:n #1 { T, F, TF }
+  {
+    % KKran's public commands are protected.  Replace them only inside this
+    % classification group, if present, so either package load order works and
+    % unrelated l3text expansion elsewhere in the document is not changed.
+    \group_begin:
+    \@ifpackageloaded { KKran }
+      {
+        \cs_if_exist:NT \Rrnum
+          { \cs_set_eq:NN \Rrnum \kks_Rrnum_expand: }
+        \cs_if_exist:NT \alphabetarray
+          { \cs_set_eq:NN \alphabetarray \kks_alphabetarray_expand: }
+      }
+      { }
+    \str_set:Nx \l_kks_tmp_str { \text_expand:n { #1 } }
+    \int_compare:nNnTF
+      {
+        \directlua{
+          tex.sprint(
+            KKsymbols.lowercase_ascii_flag(
+              "\luaescapestring{\l_kks_tmp_str}"
+            )
+          )
+        }
+      }
+      = { 1 }
+      { \group_end: \prg_return_true: }
+      { \group_end: \prg_return_false: }
+  }
+
+\cs_new_protected:Npn \kks_autolowercase_select:nnn #1#2#3
+  {
+    \bool_if:NTF \g_kks_autolowercase_bool
+      { \kks_if_lowercase:nTF { #3 } { #1 { #3 } } { #2 { #3 } } }
+      { #2 { #3 } }
+  }
+\cs_new_eq:NN \kks@autolowercase@select \kks_autolowercase_select:nnn
+
+% Resolve a command-specific line width, then the global line width, then the
+% command's historical default.  Keep this expandable so TikZ receives the
+% final dimension directly and nested enclosure commands cannot leak state.
+\cs_new:Npn \kks_linewidth_resolve:nnn #1#2#3
+  {
+    \str_if_eq:eeTF { #1 } { auto }
+      {
+        \str_if_eq:eeTF { #2 } { auto }
+          { #3 }
+          { #2 }
+      }
+      { #1 }
+  }
+\cs_new_eq:NN \kks@linewidth \kks_linewidth_resolve:nnn
+
+% Expandable, classification-only equivalents for KKran's protected commands.
+% They are installed locally by \kks_if_lowercase:n only when the corresponding
+% public command exists; neither KKran command is redefined globally.
+\NewExpandableDocumentCommand \kks_Rrnum_expand: { s m }
+  {
+    \IfBooleanTF { #1 }
+      { \int_to_Roman:n { #2 } }
+      { \int_to_roman:n { #2 } }
+  }
+\NewExpandableDocumentCommand \kks_alphabetarray_expand: { s m }
+  {
+    \int_compare:nNnF { #2 } < { 1 }
+      {
+        \int_compare:nNnF { #2 } > { 26 }
+          {
+            \IfBooleanTF { #1 }
+              { \int_to_Alph:n { #2 } }
+              { \int_to_alph:n { #2 } }
+          }
+      }
+  }
+
 \DeclareRobustCommand{\kks@ShrinkedNumber@internal}[1]{
   \str_set:Nx \l_kks_tmp_str { \text_expand:n { #1 } }
   \regex_match:nVTF { \A \d+ \Z } \l_kks_tmp_str
@@ -93,55 +234,57 @@
 
 %%% interface commands
 \DeclareRobustCommand{\maru}{%
-  \@ifstar{\maru@new@no}{\maru@new}%
+  \@ifstar{\maru@new@no}{\kks@autolowercase@select{\maru@new@no}{\maru@new}}%
 }
 
 \DeclareRobustCommand{\kuromaru}{%
-  \@ifstar{\kuromaru@new@no}{\kuromaru@new}%
+  \@ifstar{\kuromaru@new@no}{\kks@autolowercase@select{\kuromaru@new@no}{\kuromaru@new}}%
 }
 
 \DeclareRobustCommand{\nmaru}{%
-  \@ifstar{\nmaru@new@no}{\nmaru@new}%
+  \@ifstar{\nmaru@new@no}{\kks@autolowercase@select{\nmaru@new@no}{\nmaru@new}}%
 }
 
 \DeclareRobustCommand{\jegg}{%
-  \@ifstar{\jegg@new@black}{\jegg@new}%
+  \@ifstar
+    {\kks@autolowercase@select{\jegg@new@black@no}{\jegg@new@black}}
+    {\kks@autolowercase@select{\jegg@new@no}{\jegg@new}}%
 }
 
 \DeclareRobustCommand{\seihou}{%
-  \@ifstar{\seihou@new@no}{\seihou@new}%
+  \@ifstar{\seihou@new@no}{\kks@autolowercase@select{\seihou@new@no}{\seihou@new}}%
 }
 
 \DeclareRobustCommand{\kuroseihou}{%
-  \@ifstar{\kuroseihou@new@no}{\kuroseihou@new}%
+  \@ifstar{\kuroseihou@new@no}{\kks@autolowercase@select{\kuroseihou@new@no}{\kuroseihou@new}}%
 }
 
 \DeclareRobustCommand{\seimaru}{%
-  \@ifstar{\seimaru@new@no}{\seimaru@new}%
+  \@ifstar{\seimaru@new@no}{\kks@autolowercase@select{\seimaru@new@no}{\seimaru@new}}%
 }
 
 \DeclareRobustCommand{\kuroseimaru}{%
-  \@ifstar{\kuroseimaru@new@no}{\kuroseimaru@new}%
+  \@ifstar{\kuroseimaru@new@no}{\kks@autolowercase@select{\kuroseimaru@new@no}{\kuroseimaru@new}}%
 }
 
 \DeclareRobustCommand{\hishi}{%
-  \@ifstar{\hishi@new@no}{\hishi@new}%
+  \@ifstar{\hishi@new@no}{\kks@autolowercase@select{\hishi@new@no}{\hishi@new}}%
 }
 
 \DeclareRobustCommand{\kurohishi}{%
-  \@ifstar{\kurohishi@new@no}{\kurohishi@new}%
+  \@ifstar{\kurohishi@new@no}{\kks@autolowercase@select{\kurohishi@new@no}{\kurohishi@new}}%
 }
 
 \DeclareRobustCommand{\maruhishi}{%
-  \@ifstar{\kurohishi@new@no}{\kurohishi@new}%
+  \@ifstar{\maruhishi@new@no}{\kks@autolowercase@select{\maruhishi@new@no}{\maruhishi@new}}%
 }
 
 \DeclareRobustCommand{\kuromaruhishi}{%
-  \@ifstar{\kuromaruhishi@new@no}{\kuromaruhishi@new}%
+  \@ifstar{\kuromaruhishi@new@no}{\kks@autolowercase@select{\kuromaruhishi@new@no}{\kuromaruhishi@new}}%
 }
 
 \DeclareRobustCommand{\ichimoji}{%
-  \@ifstar{\ichimoji@new@no}{\ichimoji@new}%
+  \@ifstar{\ichimoji@new@no}{\kks@autolowercase@select{\ichimoji@new@no}{\ichimoji@new}}%
 }
 
 \DeclareRobustCommand{\kakko@y@internal}[1]{\kakko@byouga@internal{（}{）}{#1}}
@@ -149,7 +292,7 @@
 \DeclareRobustCommand{\kakko@t@internal}[1]{\kakko@byouga@internal@tate{（}{）}{#1}}
 \DeclareRobustCommand{\kakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{（}{）}{#1}}
 \DeclareRobustCommand{\kakko}{%
-  \@ifstar{\kakko@star}{\kakko@nostar}% 
+  \@ifstar{\kakko@star}{\kks@autolowercase@select{\kakko@star}{\kakko@nostar}}% 
 }
 \newcommand{\kakko@star}[1]{%
   \ifnum\ltjgetparameter{direction}=3\relax
@@ -171,7 +314,7 @@
 \DeclareRobustCommand{\sumikakko@t@internal}[1]{\kakko@byouga@internal@tate{【}{】}{#1}}
 \DeclareRobustCommand{\sumikakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{【}{】}{#1}}
 \DeclareRobustCommand{\sumikakko}{%
-  \@ifstar{\sumikakko@star}{\sumikakko@nostar}% 
+  \@ifstar{\sumikakko@star}{\kks@autolowercase@select{\sumikakko@star}{\sumikakko@nostar}}% 
 }
 \newcommand{\sumikakko@star}[1]{%
   \ifnum\ltjgetparameter{direction}=3\relax
@@ -193,7 +336,7 @@
 \DeclareRobustCommand{\kakukakko@t@internal}[1]{\kakko@byouga@internal@tate{［}{］}{#1}}
 \DeclareRobustCommand{\kakukakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{［}{］}{#1}}
 \DeclareRobustCommand{\kakukakko}{%
-  \@ifstar{\kakukakko@star}{\kakukakko@nostar}% 
+  \@ifstar{\kakukakko@star}{\kks@autolowercase@select{\kakukakko@star}{\kakukakko@nostar}}% 
 }
 \newcommand{\kakukakko@star}[1]{%
   \ifnum\ltjgetparameter{direction}=3\relax
@@ -215,7 +358,7 @@
 \DeclareRobustCommand{\kikakko@t@internal}[1]{\kakko@byouga@internal@tate{〔}{〕}{#1}}
 \DeclareRobustCommand{\kikakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{〔}{〕}{#1}}
 \DeclareRobustCommand{\kikakko}{%
-  \@ifstar{\kikakko@star}{\kikakko@nostar}% 
+  \@ifstar{\kikakko@star}{\kks@autolowercase@select{\kikakko@star}{\kikakko@nostar}}% 
 }
 \newcommand{\kikakko@star}[1]{%
   \ifnum\ltjgetparameter{direction}=3\relax
@@ -237,7 +380,7 @@
 \DeclareRobustCommand{\ykakko@t@internal}[1]{\kakko@byouga@internal@tate{〈}{〉}{#1}}
 \DeclareRobustCommand{\ykakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{〈}{〉}{#1}}
 \DeclareRobustCommand{\ykakko}{%
-  \@ifstar{\ykakko@star}{\ykakko@nostar}% 
+  \@ifstar{\ykakko@star}{\kks@autolowercase@select{\ykakko@star}{\ykakko@nostar}}% 
 }
 \newcommand{\ykakko@star}[1]{%
   \ifnum\ltjgetparameter{direction}=3\relax
@@ -259,7 +402,7 @@
 \DeclareRobustCommand{\nykakko@t@internal}[1]{\kakko@byouga@internal@tate{《}{》}{#1}}
 \DeclareRobustCommand{\nykakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{《}{》}{#1}}
 \DeclareRobustCommand{\nykakko}{%
-  \@ifstar{\nykakko@star}{\nykakko@nostar}% 
+  \@ifstar{\nykakko@star}{\kks@autolowercase@select{\nykakko@star}{\nykakko@nostar}}% 
 }
 \newcommand{\nykakko@star}[1]{%
   \ifnum\ltjgetparameter{direction}=3\relax
@@ -281,7 +424,7 @@
 \DeclareRobustCommand{\namikakko@t@internal}[1]{\kakko@byouga@internal@tate{｛}{｝}{#1}}
 \DeclareRobustCommand{\namikakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{｛}{｝}{#1}}
 \DeclareRobustCommand{\namikakko}{%
-  \@ifstar{\namikakko@star}{\namikakko@nostar}% 
+  \@ifstar{\namikakko@star}{\kks@autolowercase@select{\namikakko@star}{\namikakko@nostar}}% 
 }
 \newcommand{\namikakko@star}[1]{%
   \ifnum\ltjgetparameter{direction}=3\relax
@@ -303,7 +446,7 @@
 \DeclareRobustCommand{\kagikakko@t@internal}[1]{\kakko@byouga@internal@tate{「}{」}{#1}}
 \DeclareRobustCommand{\kagikakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{「}{」}{#1}}
 \DeclareRobustCommand{\kagikakko}{%
-  \@ifstar{\kagikakko@star}{\kagikakko@nostar}% 
+  \@ifstar{\kagikakko@star}{\kks@autolowercase@select{\kagikakko@star}{\kagikakko@nostar}}% 
 }
 \newcommand{\kagikakko@star}[1]{%
   \ifnum\ltjgetparameter{direction}=3\relax
@@ -325,7 +468,7 @@
 \DeclareRobustCommand{\nkagikakko@t@internal}[1]{\kakko@byouga@internal@tate{『}{』}{#1}}
 \DeclareRobustCommand{\nkagikakko@t@internal@no}[1]{\kakko@byouga@internal@tate@no{『}{』}{#1}}
 \DeclareRobustCommand{\nkagikakko}{%
-  \@ifstar{\nkagikakko@star}{\nkagikakko@nostar}% 
+  \@ifstar{\nkagikakko@star}{\kks@autolowercase@select{\nkagikakko@star}{\nkagikakko@nostar}}% 
 }
 \newcommand{\nkagikakko@star}[1]{%
   \ifnum\ltjgetparameter{direction}=3\relax
@@ -480,7 +623,7 @@
     \tikz[baseline=(char.base)]{%
       \node[
         shape=circle,
-        line width=.04\maru@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@marulinewidth}{\kksymbols@linewidth}{.04\maru@boxwidth@new},
         minimum size=.9\maru@boxwidth@new, 
         draw,
         inner sep=.02\maru@boxwidth@new,
@@ -529,7 +672,7 @@
     \tikz[baseline=(char.base)]{%
       \node[
         shape=circle,
-        line width=.04\maru@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@marulinewidth}{\kksymbols@linewidth}{.04\maru@boxwidth@new},
         minimum size=.9\maru@boxwidth@new, 
         draw,
         inner sep=.02\maru@boxwidth@new,
@@ -574,7 +717,7 @@
       \node[
         shape=circle,
         fill=black,%%%
-        line width=.04\maru@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@kuromarulinewidth}{\kksymbols@linewidth}{.04\maru@boxwidth@new},
         minimum size=.9\maru@boxwidth@new, 
         draw,
         inner sep=.02\maru@boxwidth@new,
@@ -624,7 +767,7 @@
       \node[
         shape=circle,
         fill=black,%%%
-        line width=.04\maru@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@kuromarulinewidth}{\kksymbols@linewidth}{.04\maru@boxwidth@new},
         minimum size=.9\maru@boxwidth@new, 
         draw,
         inner sep=.02\maru@boxwidth@new,
@@ -669,7 +812,7 @@
     \tikz[baseline=(char.base)]{%
       \node[
         shape=circle,
-        line width=.03\maru@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@nmarulinewidth}{\kksymbols@linewidth}{.03\maru@boxwidth@new},
         minimum size=.88\maru@boxwidth@new, 
         draw, double, double distance=.03\zw,%%%
         inner sep=.06\maru@boxwidth@new,
@@ -719,7 +862,7 @@
     \tikz[baseline=(char.base)]{%
       \node[
         shape=circle,
-        line width=.03\maru@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@nmarulinewidth}{\kksymbols@linewidth}{.03\maru@boxwidth@new},
         minimum size=.88\maru@boxwidth@new, 
         draw, double, double distance=.03\zw,%%%
         inner sep=.06\maru@boxwidth@new,
@@ -766,7 +909,7 @@
     \tikz[baseline=(char.base)]{%
       \node[
         shape=ellipse,
-        line width=.04\maru@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@jegglinewidth}{\kksymbols@linewidth}{.04\maru@boxwidth@new},
         minimum height=.9\maru@boxwidth@new, 
         minimum width=.7\maru@boxwidth@new, 
         draw,
@@ -797,6 +940,7 @@
   \ltjghostafterjachar%
 }
 \DeclareRobustCommand{\jegg@new@black}[1]{%
+  \kks@chech@maru@onedigit{#1}%
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
   \settowidth{\maru@var@yokohaba}{#1}%
@@ -813,7 +957,7 @@
     \tikz[baseline=(char.base)]{%
       \node[
         shape=ellipse,
-        line width=.04\maru@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@jegglinewidth}{\kksymbols@linewidth}{.04\maru@boxwidth@new},
         minimum height=.9\maru@boxwidth@new, 
         minimum width=.7\maru@boxwidth@new, 
         draw,
@@ -843,6 +987,39 @@
   }%
   }%
   \ltjghostafterjachar%
+}
+
+% \jegg reserves its public star for the gray background, so the lowercase
+% sizing path needs private wrappers instead of another user-visible star.
+% The wrappers locally replace only the generic scaler used by \jegg; the
+% drawing code and the starred background remain exactly the same.
+\NewDocumentCommand{\kks@jegg@lowercase@scale}{ m m m }{%
+  \shukushou@adj@new@no@maru
+    {\maru@var@zenkou}{#2}{\maru@var@yokohaba@cal}{#3}%
+}
+\DeclareRobustCommand{\jegg@new@no}[1]{%
+  \leavevmode
+  \begingroup
+    \settoheight{\maru@var@tate}{\kks@withref{#1}}%
+    \settodepth{\maru@var@fuka}{\kks@withref{#1}}%
+    \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
+    \settowidth{\maru@var@yokohaba}{#1}%
+    \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
+    \let\shukushou@adj@new\kks@jegg@lowercase@scale
+    \jegg@new{#1}%
+  \endgroup
+}
+\DeclareRobustCommand{\jegg@new@black@no}[1]{%
+  \leavevmode
+  \begingroup
+    \settoheight{\maru@var@tate}{\kks@withref{#1}}%
+    \settodepth{\maru@var@fuka}{\kks@withref{#1}}%
+    \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
+    \settowidth{\maru@var@yokohaba}{#1}%
+    \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
+    \let\shukushou@adj@new\kks@jegg@lowercase@scale
+    \jegg@new@black{#1}%
+  \endgroup
 }
 %%%
 
@@ -875,6 +1052,25 @@
   \fi%
 }
 
+% The diamond's usable square is much narrower than the square/circle inner
+% boxes.  Preserve the lowercase glyph's aspect ratio while constraining both
+% its natural width (#3) and total height (#1) to that square (#2).
+\NewDocumentCommand{\shukushou@adj@new@no@hishi}{ m m m m }{%
+  \ifdim #3 > #2%
+    \ifdim #1 > #3%
+      \resizebox*{!}{#2}{#4}%
+    \else%
+      \resizebox*{#2}{!}{#4}%
+    \fi%
+  \else%
+    \ifdim #1 > #2%
+      \resizebox*{!}{#2}{#4}%
+    \else%
+      \scalebox{.9}{#4}%
+    \fi%
+  \fi%
+}
+
 \DeclareRobustCommand{\seihou@new}[1]{%
   \kks@chech@maru@onedigit{#1}%
   \rot@or@not@kksym%
@@ -891,7 +1087,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@seihoulinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.85\seihou@boxwidth@new, 
         draw,
         inner sep=.1\seihou@boxwidth@new,
@@ -939,7 +1135,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@seihoulinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.85\seihou@boxwidth@new, 
         draw,
         inner sep=.1\seihou@boxwidth@new,
@@ -982,7 +1178,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@kuroseihoulinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.85\seihou@boxwidth@new, 
         draw,
         fill=black,%%%
@@ -1031,7 +1227,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@kuroseihoulinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.85\seihou@boxwidth@new, 
         draw,
         fill=black,%%%
@@ -1076,7 +1272,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@seimarulinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.85\seihou@boxwidth@new, 
         draw,
         rounded corners=.13\zw,%%%
@@ -1125,7 +1321,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@seimarulinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.85\seihou@boxwidth@new, 
         draw,
         rounded corners=.13\zw,%%%
@@ -1169,7 +1365,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@kuroseimarulinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.85\seihou@boxwidth@new, 
         draw,
         fill=black,%%%
@@ -1219,7 +1415,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@kuroseimarulinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.85\seihou@boxwidth@new, 
         draw,
         fill=black,%%%
@@ -1264,7 +1460,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@hishilinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.5\seihou@boxwidth@new, 
         draw,
         shape=diamond,
@@ -1296,7 +1492,7 @@
   \settowidth{\seihou@var@yokohaba}{#1}%
   \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
   \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
+  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
   \leavevmode%
   \ltjghostbeforejachar%
@@ -1308,7 +1504,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@hishilinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.5\seihou@boxwidth@new, 
         draw,
         shape=diamond,
@@ -1319,8 +1515,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          % これだけ他のやつと違うので注意！
-          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
+          \shukushou@adj@new@no@hishi{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1352,7 +1547,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@maruhishilinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.5\seihou@boxwidth@new, 
         draw,
         rounded corners=.06\zw,%%%
@@ -1385,7 +1580,7 @@
   \settowidth{\seihou@var@yokohaba}{#1}%
   \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
   \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
+  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
   \leavevmode%
   \ltjghostbeforejachar%
@@ -1397,7 +1592,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@maruhishilinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.5\seihou@boxwidth@new, 
         draw,
         rounded corners=.06\zw,%%%
@@ -1409,8 +1604,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          % これだけ他のやつと違うので注意！
-          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
+          \shukushou@adj@new@no@hishi{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1442,7 +1636,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@kurohishilinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.5\seihou@boxwidth@new, 
         draw,
         fill=black,%%%
@@ -1476,7 +1670,7 @@
   \settowidth{\seihou@var@yokohaba}{#1}%
   \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
   \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
+  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
   \leavevmode%
   \ltjghostbeforejachar%
@@ -1488,7 +1682,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@kurohishilinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.5\seihou@boxwidth@new, 
         draw,
         fill=black,%%%
@@ -1500,8 +1694,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          % これだけ他のやつと違うので注意！
-          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{%
+          \shukushou@adj@new@no@hishi{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba}{%
             \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
@@ -1534,7 +1727,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@kuromaruhishilinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.5\seihou@boxwidth@new, 
         draw,
         fill=black,%%%
@@ -1569,7 +1762,7 @@
   \settowidth{\seihou@var@yokohaba}{#1}%
   \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
   \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{(\seihou@var@tate + \seihou@var@fuka)*99}%
+  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
   \leavevmode%
   \ltjghostbeforejachar%
@@ -1581,7 +1774,7 @@
     \hss%
     \tikz[baseline=(char.base)]{%
       \node[
-        line width=.04\seihou@boxwidth@new,  
+        line width=\kks@linewidth{\kksymbols@kuromaruhishilinewidth}{\kksymbols@linewidth}{.04\seihou@boxwidth@new},
         minimum size=.5\seihou@boxwidth@new, 
         draw,
         fill=black,%%%
@@ -1594,8 +1787,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          % これだけ他のやつと違うので注意！
-          \shukushou@adj@new{\seihou@var@yokohaba}{\seihou@boxwidth@inner}{%
+          \shukushou@adj@new@no@hishi{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba}{%
             \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%

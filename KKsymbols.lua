@@ -25,4 +25,15 @@ function KKS.narrow_ones(s)
   end
 end
 
+-- Return true only when the fully expanded TeX argument consists entirely of
+-- lowercase ASCII letters.  TeX performs the expansion; Lua deliberately keeps
+-- the classification small and predictable (not locale dependent).
+function KKS.is_lowercase_ascii(s)
+  return s:match("^[a-z]+$") ~= nil
+end
+
+function KKS.lowercase_ascii_flag(s)
+  return KKS.is_lowercase_ascii(s) and 1 or 0
+end
+
 _G.KKsymbols = KKS

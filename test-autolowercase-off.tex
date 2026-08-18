@@ -1,0 +1,46 @@
+% Regression and visual test for the compatibility switch.
+% Compile with: latexmk -r .latexmkrc test-autolowercase-off.tex
+\documentclass{jlreq}
+\usepackage[autolowercase=0]{KKsymbols}
+\usepackage{KKran}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\makeatletter
+\newcommand{\KKSsmall}[1]{\typeout{KKS-OFF-ROUTE:SMALL}}
+\newcommand{\KKSnormal}[1]{\typeout{KKS-OFF-ROUTE:NORMAL}}
+\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{m}% NORMAL
+\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{\Rrnum{8}}% NORMAL
+\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{abc}% NORMAL
+\makeatother
+
+\begin{document}
+\section*{Automatic lowercase sizing (Off)}
+
+The left side of each pair uses the legacy non-starred path; the right side
+uses the explicit lowercase path.
+
+\noindent
+\fbox{\maru{m}}\fbox{\maru*{m}}\quad
+\fbox{\seihou{m}}\fbox{\seihou*{m}}\quad
+\fbox{\hishi{m}}\fbox{\hishi*{m}}\quad
+\fbox{\kakko{\Rrnum{8}}}\fbox{\kakko*{\Rrnum{8}}}
+
+\medskip
+\noindent Explicit diamond lowercase paths must stay inside their frames:\par
+\fbox{\hishi*{m}}\fbox{\hishi*{w}}\fbox{\maruhishi*{m}}\fbox{\maruhishi*{w}}\quad
+\fbox{\kurohishi*{m}}\fbox{\kurohishi*{w}}%
+\fbox{\kuromaruhishi*{m}}\fbox{\kuromaruhishi*{w}}
+
+\medskip
+\noindent \texttt{\string\jegg} also returns to its legacy sizing, while its
+star continues to select the gray background:\par
+\fbox{\jegg{m}}\fbox{\jegg*{m}}
+
+\medskip
+\noindent One-digit gray eggs must no longer depend on preceding state:\par
+\fbox{\jegg*{5}}\quad
+\maru{あ}\fbox{\jegg*{5}}\quad
+\maru{5}\fbox{\jegg*{5}}
+\end{document}

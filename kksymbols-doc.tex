@@ -418,7 +418,7 @@ This package depends on the following packages.
 \subsection{Loading and Options}
 Load the package: \KKverb|\usepackage[<options>]{KKsymbols}|
 
-Currently, the following package option is provided.
+The following package options are provided.
 
 \begin{description}
   \item[tsumesuji] To specify whether or not to ``shrink'' the box width occupied by ``1''. By default, \KKverb|tsumesuji=1| is specified, and the effect is activated. If you deactivate it, \KKverb|tsumesuji=0| will do.
@@ -438,6 +438,95 @@ Currently, the following package option is provided.
     % APLIED
     \kakko{12}
   \end{OutPut}
+
+  \item[autolowercase] Enables automatic lowercase sizing. The default is
+  \KKverb|autolowercase=1|. If the fully expanded argument consists only of
+  lowercase ASCII letters (\texttt{a--z}), a non-starred enclosure command
+  automatically uses the same sizing path as its starred form. This also
+  recognizes lowercase Roman numerals and letters produced by \texttt{KKran},
+  such as \KKverb|\Rrnum{8}| (which expands to \texttt{viii}) and
+  \KKverb|\alphabetarray{2}| (which expands to \texttt{b}). Digits, uppercase
+  letters, Japanese text, and mixed strings keep the normal sizing path.
+
+  \KKverb|\jegg| is included in the same option. Its star continues to select
+  the gray background; automatic lowercase sizing is applied independently to
+  both \KKverb|\jegg{...}| and \KKverb|\jegg*{...}|. Set
+  \KKverb|autolowercase=0| to disable both automatic behaviors and use manual
+  star selection.
+
+  \item[linewidth and command-specific line widths] The thickness of every
+  TikZ-drawn enclosure can be set with \KKverb|linewidth=<dimension>|. A
+  command-specific option takes precedence over this common value:
+
+  \begin{center}
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    Option & Command \\
+    \midrule
+    \texttt{marulinewidth} & \KKverb|\maru| \\
+    \texttt{kuromarulinewidth} & \KKverb|\kuromaru| \\
+    \texttt{nmarulinewidth} & \KKverb|\nmaru| \\
+    \texttt{jegglinewidth} & \KKverb|\jegg| \\
+    \texttt{seihoulinewidth} & \KKverb|\seihou| \\
+    \texttt{kuroseihoulinewidth} & \KKverb|\kuroseihou| \\
+    \texttt{seimarulinewidth} & \KKverb|\seimaru| \\
+    \texttt{kuroseimarulinewidth} & \KKverb|\kuroseimaru| \\
+    \texttt{hishilinewidth} & \KKverb|\hishi| \\
+    \texttt{kurohishilinewidth} & \KKverb|\kurohishi| \\
+    \texttt{maruhishilinewidth} & \KKverb|\maruhishi| \\
+    \texttt{kuromaruhishilinewidth} & \KKverb|\kuromaruhishi| \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  All of these options default to \KKverb|auto|. The effective order is the
+  command-specific value, then \KKverb|linewidth|, then that command's
+  historical default. Values other than \KKverb|auto| must be TeX dimensions,
+  for example \KKverb|.6pt| or \KKverb|.04\zw|.
+  Explicit values are parsed when the package loads. Absolute dimensions such
+  as \KKverb|.6pt| do not follow later font-size changes; use a relative value
+  such as \KKverb|.04\zw| when proportional scaling is wanted. A malformed
+  value produces a TeX dimension error while the package is loading. For
+  \KKverb|\nmaru|, the distance between its double rules remains
+  \KKverb|.03\zw|, so very large line widths can close that gap.
+
+  \begin{SourceCode}{Input}{TeX}
+    \usepackage[
+      linewidth=.6pt,
+      marulinewidth=.3pt,
+      hishilinewidth=1pt
+    ]{KKsymbols}
+  \end{SourceCode}
+
+  The bracket commands such as \KKverb|\kakko| use font glyphs rather than
+  TikZ frame paths, so these options do not affect them. The commands
+  \KKverb|\ichimoji| and \KKverb|\zenkakuhabafixer| do not draw frames and are
+  likewise unaffected.
+
+  枠線の太さは \KKverb|linewidth=<寸法>| で一括指定できます。上表の個別
+  オプションを指定したコマンドでは、その値が一括指定より優先されます。
+  すべて \KKverb|auto| の場合は従来の太さを維持します。括弧グリフを使う
+  コマンドと、枠線を描画しないコマンドは対象外です。
+
+  \item[Compatibility notices] A pre-existing interface miswiring made
+  \KKverb|\maruhishi| call the filled \KKverb|\kurohishi| implementation.
+  This has been corrected, so \KKverb|\maruhishi| now draws its intended
+  unfilled rounded diamond and its output intentionally changes. Explicit
+  stars on \KKverb|\hishi|, \KKverb|\kurohishi|, \KKverb|\maruhishi|, and
+  \KKverb|\kuromaruhishi| now select an aspect-ratio-preserving lowercase
+  path which constrains both glyph width and height to the diamond's inner
+  square. A separate
+  pre-existing state leak made one-digit \KKverb|\jegg*| sizing depend on the
+  preceding enclosure command. That leak is also fixed; because this is an
+  unconditional correctness fix, \KKverb|autolowercase=0| disables automatic
+  lowercase selection but does not recreate the old context-dependent bug.
+
+  従来の \KKverb|\maruhishi| は誤って \KKverb|\kurohishi| の実装へ接続されて
+  いました。この接続を修正したため、出力は本来の白抜き角丸菱形へ変わります。
+  また、菱形4コマンドの明示スターは、字形の縦横比を保ちつつ幅と高さの両方を
+  菱形の内接正方形へ収める小文字向け経路を選ぶようになりました。
+  また、1桁数字の \KKverb|\jegg*| の大きさが直前の囲みコマンドに依存する不具合も
+  修正しています。この修正は \KKverb|autolowercase=0| でも有効です。
 \end{description}
 
 \section{Caution}
@@ -447,22 +536,34 @@ Currently, the following package option is provided.
 \subsection{The maru series}
 This package provides \verb|\maru|, \verb|\kuromaru|, and \verb|\nmaru|. Each of them takes one mandatory argument and no optional arguments. You can pass strings of any length and in any font as arguments.
 
-In most cases, \verb|\maru{argument}| will meet your demands. However, only when you take lowercase alphabet in these commands, you must use star-command just like \verb|\maru*{m}|\footnote{\KKverb|\jegg| is an exception of this rule. When you use \KKverb|\jegg|, you don't have to put the star option no matter the argument is lowercase or not. If you do it, the background color of the \KKverb|\jegg| changes into gray. Only in this case, the effect of the option is different.}.
+With the default \KKverb|autolowercase=1| setting, fully expanded lowercase
+ASCII arguments automatically use the lowercase-safe sizing path, so
+\verb|\maru{m}| is normally sufficient. The explicit form \verb|\maru*{m}|
+still forces that sizing path. With \KKverb|autolowercase=0|, use the star
+manually as in earlier versions. For \KKverb|\jegg|, the star remains reserved
+for changing the background to gray; lowercase sizing is detected
+independently.
 
-\begin{SourceCode}{Input}{TeX}[Mind the star option!]
+\begin{SourceCode}{Input}{TeX}[Automatic lowercase sizing]
   % Normal Characters
   \maru{A}\maru{あ}\maru{QED.}
 
-  % Lowercase Alphabetic Characters
-  \maru*{a}\maru*{j}\maru*{z}
+  % Lowercase ASCII is detected automatically.
+  \maru{a}\maru{j}\maru{z}
+
+  % The star remains available as an explicit override.
+  \maru*{a}
 \end{SourceCode}
 
 \begin{OutPut}{Output}
   % Normal Characters
   \maru{A}\maru{あ}\maru{QED.}
 
-  % Lowercase Alphabetic Characters
-  \maru*{a}\maru*{j}\maru*{z}
+  % Lowercase ASCII is detected automatically.
+  \maru{a}\maru{j}\maru{z}
+
+  % The star remains available as an explicit override.
+  \maru*{a}
 \end{OutPut}
 
 They are used as follows.
@@ -478,7 +579,7 @@ argument & \texttt{\textbackslash maru} & \texttt{\textbackslash kuromaru} & \te
 97    & \maru{97}    & \kuromaru{97}    & \nmaru{97} & \jegg{97} & \jegg*{97} \\
 だ    & \maru{だ}    & \kuromaru{だ}    & \nmaru{だ} & \jegg{だ} & \jegg*{だ} \\
 ばばば & \maru{ばばば} & \kuromaru{ばばば} & \nmaru{ばばば} & \jegg{ばばば} & \jegg*{ばばば} \\
-m & \maru*{m} & \kuromaru*{m} & \nmaru*{m} & \jegg{m} & \jegg*{m} \\
+m & \maru{m} & \kuromaru{m} & \nmaru{m} & \jegg{m} & \jegg*{m} \\
 Qjg & \maru{Qjg} & \kuromaru{Qjg} & \nmaru{Qjg} & \jegg{Qjg} & \jegg*{Qjg} \\
 \hline
 \end{tabular}
@@ -643,7 +744,10 @@ As described in the previous subsection, the effect of \verb|\RotTate| lasts, wh
 
 \section{The seihou series}
 The commands introduced below are used in exactly the same way as the maru series.
-In most cases, \verb|\seihou{argument}| will meet your demands. However, only when you take lowercase alphabet in these commands, you must use star-command just like \verb|\seihou*{m}|.
+With \KKverb|autolowercase=1| (the default), lowercase ASCII arguments are
+detected automatically, so \verb|\seihou{m}| uses the lowercase-safe sizing
+path. The explicit \verb|\seihou*{m}| form remains available; with
+\KKverb|autolowercase=0| it is required for the legacy manual behavior.
 
 \bigskip{%
 \centering
@@ -656,7 +760,7 @@ argument & \texttt{\textbackslash seihou} & \texttt{\textbackslash kuroseihou} &
 97      & \seihou{97}       & \kuroseihou{97}     & \seimaru{97}      & \kuroseimaru{97} \\
 だ      & \seihou{だ}       & \kuroseihou{だ}     & \seimaru{だ}      & \kuroseimaru{だ} \\
 ばばば  & \seihou{ばばば}   & \kuroseihou{ばばば} & \seimaru{ばばば}  & \kuroseimaru{ばばば} \\
-m       & \seihou*{m}       & \kuroseihou*{m}     & \seimaru*{m}      & \kuroseimaru*{m} \\
+m       & \seihou{m}       & \kuroseihou{m}     & \seimaru{m}      & \kuroseimaru{m} \\
 Qjg     & \seihou{Qjg}      & \kuroseihou{Qjg}    & \seimaru{Qjg}     & \kuroseimaru{Qjg} \\
 \hline
 \end{tabular}
@@ -673,34 +777,39 @@ argument & \texttt{\textbackslash hishi} & \texttt{\textbackslash kurohishi} & \
 97    & \hishi{97}    & \kurohishi{97}    & \maruhishi{97}    & \kuromaruhishi{97} \\
 だ    & \hishi{だ}    & \kurohishi{だ}    & \maruhishi{だ}    & \kuromaruhishi{だ} \\
 ばばば & \hishi{ばばば} & \kurohishi{ばばば} & \maruhishi{ばばば} & \kuromaruhishi{ばばば} \\
-m & \hishi*{m} & \kurohishi*{m} & \maruhishi*{m} & \kuromaruhishi*{m} \\
+m & \hishi{m} & \kurohishi{m} & \maruhishi{m} & \kuromaruhishi{m} \\
 Qjg & \hishi{Qjg} & \kurohishi{Qjg} & \maruhishi{Qjg} & \kuromaruhishi{Qjg} \\
 \hline
 \end{tabular}
 }\bigskip
 
 
-\begin{SourceCode}{Input}{TeX}[Mind the star option!]
+\begin{SourceCode}{Input}{TeX}[Automatic lowercase sizing]
   % Normal Characters
   \seihou{A}\seihou{あ}\seihou{QED.}
 
-  % Lowercase Alphabetic Characters
-  \seihou*{a}\seihou*{j}\seihou*{z}
+  % Lowercase ASCII is detected automatically.
+  \seihou{a}\seihou{j}\seihou{z}
 \end{SourceCode}
 
 \begin{OutPut}{Output}
   % Normal Characters
   \seihou{A}\seihou{あ}\seihou{QED.}
 
-  % Lowercase Alphabetic Characters
-  \seihou*{a}\seihou*{j}\seihou*{z}
+  % Lowercase ASCII is detected automatically.
+  \seihou{a}\seihou{j}\seihou{z}
 \end{OutPut}
 
 
 \section{The kakko series}
 The commands introduced below are used in exactly the same way as the maru series.
 
-In most cases, \verb|\kakko{argument}| will meet your demands. However, only when you take lowercase alphabet in these commands, you must use star-command just like \verb|\kakko*{m}|\footnote{\KKverb|\zenkakuhabafixer| is an exception of this rule. It does not take a star option.}.
+With \KKverb|autolowercase=1| (the default), lowercase ASCII arguments are
+detected automatically, so \verb|\kakko{m}| uses the lowercase-safe sizing
+path. The explicit \verb|\kakko*{m}| form remains available; with
+\KKverb|autolowercase=0| it is required for the legacy manual behavior.
+\KKverb|\zenkakuhabafixer| does not take a star and is not affected by this
+option.
 
 \bigskip{%
 \centering
@@ -713,7 +822,7 @@ argument & \texttt{\textbackslash kakko} & \texttt{\textbackslash sumikakko} & \
 97    & \kakko{97}    & \sumikakko{97}    & \kakukakko{97}    & \kikakko{97}    & \ykakko{97} \\
 だ    & \kakko{だ}    & \sumikakko{だ}    & \kakukakko{だ}    & \kikakko{だ}    & \ykakko{だ} \\
 ばばば & \kakko{ばばば} & \sumikakko{ばばば} & \kakukakko{ばばば} & \kikakko{ばばば} & \ykakko{ばばば} \\
-m & \kakko*{m} & \sumikakko*{m} & \kakukakko*{m} & \kikakko*{m} & \ykakko*{m} \\
+m & \kakko{m} & \sumikakko{m} & \kakukakko{m} & \kikakko{m} & \ykakko{m} \\
 Qjg & \kakko{Qjg} & \sumikakko{Qjg} & \kakukakko{Qjg} & \kikakko{Qjg} & \ykakko{Qjg} \\
 \hline
 \end{tabular}
@@ -730,26 +839,26 @@ argument & \texttt{\textbackslash nykakko} & \texttt{\textbackslash namikakko} &
 97    & \nykakko{97}    & \namikakko{97}    & \kagikakko{97}    & \nkagikakko{97}    & \ichimoji{97} & \zenkakuhabafixer{97} \\
 だ    & \nykakko{だ}    & \namikakko{だ}    & \kagikakko{だ}    & \nkagikakko{だ}    & \ichimoji{だ} & \zenkakuhabafixer{だ} \\
 ばばば & \nykakko{ばばば} & \namikakko{ばばば} & \kagikakko{ばばば} & \nkagikakko{ばばば} & \ichimoji{ばばば} & \zenkakuhabafixer{ばばば} \\
-m & \nykakko*{m} & \namikakko*{m} & \kagikakko*{m} & \nkagikakko*{m} & \ichimoji*{m} & \zenkakuhabafixer{m} \\
+m & \nykakko{m} & \namikakko{m} & \kagikakko{m} & \nkagikakko{m} & \ichimoji{m} & \zenkakuhabafixer{m} \\
 Qjg & \nykakko{Qjg} & \namikakko{Qjg} & \kagikakko{Qjg} & \nkagikakko{Qjg} & \ichimoji{Qjg} & \zenkakuhabafixer{Qjg} \\
 \hline
 \end{tabular}
 }\bigskip
 
-\begin{SourceCode}{Input}{TeX}[Mind the star option!]
+\begin{SourceCode}{Input}{TeX}[Automatic lowercase sizing]
   % Normal Characters
   \kakko{A}\kakko{あ}\kakko{QED.}
 
-  % Lowercase Alphabetic Characters
-  \kakko*{a}\kakko*{j}\kakko*{z}
+  % Lowercase ASCII is detected automatically.
+  \kakko{a}\kakko{j}\kakko{z}
 \end{SourceCode}
 
 \begin{OutPut}{Output}
   % Normal Characters
   \kakko{A}\kakko{あ}\kakko{QED.}
 
-  % Lowercase Alphabetic Characters
-  \kakko*{a}\kakko*{j}\kakko*{z}
+  % Lowercase ASCII is detected automatically.
+  \kakko{a}\kakko{j}\kakko{z}
 \end{OutPut}
 
 \subsection{Additional Description: \KKverb|\ichimoji| and \KKverb|\zenkakuhabafixer|}
@@ -767,6 +876,7 @@ Released under the MIT License.
 \section{Version History}
 
 \begin{itemize}
+  \item \textbf{Unreleased} --- Added automatic lowercase sizing, configurable frame line widths, and the compatibility fixes described above. Version and release date are intentionally left undecided pending release confirmation.
   \item \textbf{v1.0.0 (2025/10/03)} --- Initial public release.
   \item \textbf{v1.0.1--1.0.4} --- Added \verb|\ichimoji|; fixed various bugs.
   \item \textbf{v1.1.0 (2025/10/28)} --- Unified all commands to \textit{zenkaku} (full-width).
