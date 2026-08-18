@@ -8,11 +8,13 @@
 \fboxrule=.1pt
 
 \makeatletter
-\newcommand{\KKSsmall}[1]{\typeout{KKS-OFF-ROUTE:SMALL}}
+\newcommand{\KKSsmall}[1]{\PackageError{test-autolowercase-off}{Unexpected SMALL route}{}}
 \newcommand{\KKSnormal}[1]{\typeout{KKS-OFF-ROUTE:NORMAL}}
-\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{m}% NORMAL
-\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{\Rrnum{8}}% NORMAL
-\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{abc}% NORMAL
+\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{m}%
+\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{\Rrnum{1}}%
+\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{\Rrnum{8}}%
+\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{\alphabetarray{2}}%
+\kks@autolowercase@select{\KKSsmall}{\KKSnormal}{abc}%
 \makeatother
 
 \begin{document}

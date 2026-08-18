@@ -1,7 +1,7 @@
 # ----- setting ------
 SAMPLE_TARGET = kksymbols-sample
 DOC_TARGET = kksymbols-doc
-TEST_TARGET = test
+TEST_TARGETS = $(basename $(wildcard test*.tex))
 RC     = .latexmkrc
 
 
@@ -15,7 +15,10 @@ doc:
 
 # compile
 test:
-	latexmk -r $(RC) $(TEST_TARGET).tex
+	@set -e; for target in $(TEST_TARGETS); do \
+		echo "==> $$target.tex"; \
+		latexmk -r $(RC) $$target.tex; \
+	done
 	$(MAKE) clean
 
 # cleaning except for PDF

@@ -440,19 +440,23 @@ The following package options are provided.
   \end{OutPut}
 
   \item[autolowercase] Enables automatic lowercase sizing. The default is
-  \KKverb|autolowercase=1|. If the fully expanded argument consists only of
-  lowercase ASCII letters (\texttt{a--z}), a non-starred enclosure command
+  \KKverb|autolowercase=1|. If the fully expanded argument is exactly one
+  lowercase ASCII letter (\texttt{a--z}), a non-starred enclosure command
   automatically uses the same sizing path as its starred form. This also
-  recognizes lowercase Roman numerals and letters produced by \texttt{KKran},
-  such as \KKverb|\Rrnum{8}| (which expands to \texttt{viii}) and
-  \KKverb|\alphabetarray{2}| (which expands to \texttt{b}). Digits, uppercase
-  letters, Japanese text, and mixed strings keep the normal sizing path.
+  recognizes one-letter results produced by \texttt{KKran}, such as
+  \KKverb|\alphabetarray{2}| (which expands to \texttt{b}) and
+  \KKverb|\Rrnum{1}| (which expands to \texttt{i}). Multi-letter results such
+  as \KKverb|\Rrnum{8}| (\texttt{viii}), as well as digits, uppercase letters,
+  Japanese text, and mixed strings, keep the normal sizing path. An explicit
+  star remains available for multi-letter material.
 
   \KKverb|\jegg| is included in the same option. Its star continues to select
   the gray background; automatic lowercase sizing is applied independently to
-  both \KKverb|\jegg{...}| and \KKverb|\jegg*{...}|. Set
-  \KKverb|autolowercase=0| to disable both automatic behaviors and use manual
-  star selection.
+  both \KKverb|\jegg{...}| and \KKverb|\jegg*{...}| while
+  \KKverb|autolowercase=1|. Set \KKverb|autolowercase=0| to disable automatic
+  selection. Because \KKverb|\jegg*| selects the gray background rather than a
+  sizing path, \KKverb|\jegg| has no manual lowercase-sizing star when the
+  option is off.
 
   \item[linewidth and command-specific line widths] The thickness of every
   TikZ-drawn enclosure can be set with \KKverb|linewidth=<dimension>|. A
@@ -536,13 +540,18 @@ The following package options are provided.
 \subsection{The maru series}
 This package provides \verb|\maru|, \verb|\kuromaru|, and \verb|\nmaru|. Each of them takes one mandatory argument and no optional arguments. You can pass strings of any length and in any font as arguments.
 
-With the default \KKverb|autolowercase=1| setting, fully expanded lowercase
-ASCII arguments automatically use the lowercase-safe sizing path, so
+With the default \KKverb|autolowercase=1| setting, an argument that fully
+expands to exactly one lowercase ASCII letter automatically uses the
+lowercase-safe sizing path, so
 \verb|\maru{m}| is normally sufficient. The explicit form \verb|\maru*{m}|
 still forces that sizing path. With \KKverb|autolowercase=0|, use the star
 manually as in earlier versions. For \KKverb|\jegg|, the star remains reserved
 for changing the background to gray; lowercase sizing is detected
-independently.
+independently only while \KKverb|autolowercase=1|. With
+\KKverb|autolowercase=0|, \KKverb|\jegg| has no manual lowercase-sizing star.
+Protected formatting commands are not removed by this classification. If an
+argument such as \KKverb|\textbf{m}| does not expand to the bare letter, use an
+explicit star on commands whose star selects the lowercase-sizing path.
 
 \begin{SourceCode}{Input}{TeX}[Automatic lowercase sizing]
   % Normal Characters
@@ -744,7 +753,7 @@ As described in the previous subsection, the effect of \verb|\RotTate| lasts, wh
 
 \section{The seihou series}
 The commands introduced below are used in exactly the same way as the maru series.
-With \KKverb|autolowercase=1| (the default), lowercase ASCII arguments are
+With \KKverb|autolowercase=1| (the default), single lowercase ASCII-letter arguments are
 detected automatically, so \verb|\seihou{m}| uses the lowercase-safe sizing
 path. The explicit \verb|\seihou*{m}| form remains available; with
 \KKverb|autolowercase=0| it is required for the legacy manual behavior.
@@ -804,7 +813,7 @@ Qjg & \hishi{Qjg} & \kurohishi{Qjg} & \maruhishi{Qjg} & \kuromaruhishi{Qjg} \\
 \section{The kakko series}
 The commands introduced below are used in exactly the same way as the maru series.
 
-With \KKverb|autolowercase=1| (the default), lowercase ASCII arguments are
+With \KKverb|autolowercase=1| (the default), single lowercase ASCII-letter arguments are
 detected automatically, so \verb|\kakko{m}| uses the lowercase-safe sizing
 path. The explicit \verb|\kakko*{m}| form remains available; with
 \KKverb|autolowercase=0| it is required for the legacy manual behavior.

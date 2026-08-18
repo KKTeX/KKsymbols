@@ -13,25 +13,34 @@
 % Log-only route checks. These exercise full expansion without depending on
 % visual measurements or on a particular font.
 \makeatletter
-\newcommand{\KKSsmall}[1]{\typeout{KKS-ROUTE:SMALL}}
-\newcommand{\KKSnormal}[1]{\typeout{KKS-ROUTE:NORMAL}}
-\newcommand{\KKScheck}[1]{%
-  \kks@autolowercase@select{\KKSsmall}{\KKSnormal}{#1}}
-\KKScheck{m}% SMALL
-\KKScheck{abc}% SMALL
-\KKScheck{\lowerletter}% SMALL
-\KKScheck{\Rrnum{8}}% SMALL (fully expands to viii)
-\KKScheck{\alphabetarray{2}}% SMALL (fully expands to b)
-\KKScheck{\lowerroman}% SMALL (nested expansion reaches \Rrnum)
-\KKScheck{\Large m}% SMALL (font-size command is safely ignored for matching)
-\KKScheck{A}% NORMAL
-\KKScheck{1}% NORMAL
-\KKScheck{a1}% NORMAL
-\KKScheck{あ}% NORMAL
-\KKScheck{\Rrnum*{8}}% NORMAL (fully expands to VIII)
-\KKScheck{\alphabetarray*{2}}% NORMAL (fully expands to B)
-\KKScheck{\alphabetarray{27}}% NORMAL (KKran expands out-of-range input to empty)
-\KKScheck{}% NORMAL
+\newcommand{\KKSsmall}[1]{\def\KKSactual{SMALL}\typeout{KKS-ROUTE:SMALL}}
+\newcommand{\KKSnormal}[1]{\def\KKSactual{NORMAL}\typeout{KKS-ROUTE:NORMAL}}
+\newcommand{\KKSexpect}[2]{%
+  \def\KKSactual{UNSET}%
+  \kks@autolowercase@select{\KKSsmall}{\KKSnormal}{#2}%
+  \def\KKSexpected{#1}%
+  \ifx\KKSactual\KKSexpected\else
+    \PackageError{test-autolowercase}{Expected #1 route, got \KKSactual}{}%
+  \fi}
+\KKSexpect{SMALL}{m}%
+\KKSexpect{NORMAL}{abc}% automatic routing is for one letter only
+\KKSexpect{NORMAL}{viii}% multi-letter lowercase remains on the normal path
+\KKSexpect{SMALL}{\lowerletter}%
+\KKSexpect{NORMAL}{\Rrnum{8}}% fully expands to viii
+\KKSexpect{SMALL}{\Rrnum{1}}% fully expands to i
+\KKSexpect{NORMAL}{\Rrnum{2-1}}% real KKran expands this to the multi-token ii-1
+\KKSexpect{SMALL}{\alphabetarray{2}}% fully expands to b
+\KKSexpect{SMALL}{\alphabetarray{-1}}% KKran negative index expands to z
+\KKSexpect{NORMAL}{\lowerroman}% nested expansion reaches multi-letter \Rrnum
+\KKSexpect{SMALL}{\Large m}% font-size command is safely ignored for matching
+\KKSexpect{NORMAL}{A}%
+\KKSexpect{NORMAL}{1}%
+\KKSexpect{NORMAL}{a1}%
+\KKSexpect{NORMAL}{あ}%
+\KKSexpect{NORMAL}{\Rrnum*{8}}% fully expands to VIII
+\KKSexpect{NORMAL}{\alphabetarray*{2}}% fully expands to B
+\KKSexpect{NORMAL}{\alphabetarray{27}}% expands to empty
+\KKSexpect{NORMAL}{}%
 \makeatother
 
 \begin{document}
@@ -43,7 +52,7 @@ explicit star on the right.
 \noindent
 \fbox{\maru{m}}\fbox{\maru*{m}}\quad
 \fbox{\kuromaru{\lowerletter}}\fbox{\kuromaru*{\lowerletter}}\quad
-\fbox{\seihou{abc}}\fbox{\seihou*{abc}}\quad
+\fbox{\seihou{w}}\fbox{\seihou*{w}}\quad
 \fbox{\hishi{m}}\fbox{\hishi*{m}}\quad
 \fbox{\kakko{m}}\fbox{\kakko*{m}}
 
@@ -55,12 +64,12 @@ the diamond, including wide letters and white-on-black variants:\par
 \fbox{\kuromaruhishi{m}}\fbox{\kuromaruhishi{w}}
 
 \medskip
-\noindent KKran lowercase Roman numerals (automatic):\par
-\fbox{\maru{\Rrnum{1}}}\fbox{\maru{\Rrnum{4}}}%
-\fbox{\maru{\Rrnum{8}}}\quad
-\fbox{\maru{\alphabetarray{2}}}\quad
-\fbox{\kakko{\Rrnum{1}}}\fbox{\kakko{\Rrnum{4}}}%
-\fbox{\kakko{\Rrnum{8}}}
+\noindent KKran expansion: one-letter results are automatic; multi-letter
+Roman numerals retain normal sizing unless explicitly starred:\par
+\fbox{\maru{\Rrnum{1}}}\fbox{\maru*{\Rrnum{1}}}\quad
+\fbox{\maru{\Rrnum{8}}}\fbox{\maru*{\Rrnum{8}}}\quad
+\fbox{\maru{\alphabetarray{2}}}\fbox{\maru*{\alphabetarray{2}}}\quad
+\fbox{\kakko{\Rrnum{1}}}\fbox{\kakko*{\Rrnum{1}}}
 
 \medskip
 \noindent Non-matches retain normal sizing:\par
@@ -70,7 +79,7 @@ the diamond, including wide letters and white-on-black variants:\par
 \noindent \texttt{\string\jegg}: lowercase sizing is automatic; the star
 still changes only the background style.\par
 \fbox{\jegg{m}}\fbox{\jegg*{m}}\quad
-\fbox{\jegg{\Rrnum{8}}}\fbox{\jegg*{\Rrnum{8}}}\quad
+\fbox{\jegg{\alphabetarray{2}}}\fbox{\jegg*{\alphabetarray{2}}}\quad
 \fbox{\jegg{1}}\fbox{\jegg*{1}}
 
 \medskip

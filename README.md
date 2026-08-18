@@ -39,8 +39,8 @@ I recommend you to refer to his article when you develop new-type symbols on LaT
   - 文字サイズに合わせた自動スケーリングと、ベースラインの自動補正機能を搭載しています。
 
 - **Automatic Lowercase Detection / 小文字の自動判定**
-  - Fully expanded lowercase ASCII arguments, including lowercase Roman numerals and letters from `KKran`, automatically use the lowercase-safe sizing path. Set `autolowercase=0` to disable automatic selection and use stars manually.
-  - 完全展開後が小文字ASCIIだけの引数（`KKran` の小文字ローマ数字・英字を含む）は、小文字向けサイズに自動調整されます。自動選択を無効にして手動でスターを指定する場合は `autolowercase=0` を指定します。
+  - An argument that fully expands to exactly one lowercase ASCII letter, including one-letter results from `KKran`, automatically uses the lowercase-safe sizing path. Multi-letter strings such as `abc` and `\Rrnum{8}` keep the normal path unless an explicit star is used. Set `autolowercase=0` to disable automatic selection and use stars manually.
+  - 完全展開後が小文字ASCIIちょうど1字の引数（`KKran` の展開結果が1字の場合を含む）は、小文字向けサイズに自動調整されます。`abc` や `\Rrnum{8}` のような複数文字は通常経路のままで、必要なら明示的にスターを使用できます。自動選択を無効にする場合は `autolowercase=0` を指定します。
 
 - **Configurable Frame Line Width / 枠線の太さ指定**
   - Set a common frame thickness with `linewidth=<dimension>`, or override it for each TikZ-drawn enclosure with options such as `marulinewidth=<dimension>` and `hishilinewidth=<dimension>`. The default `auto` value preserves the historical appearance.

@@ -5,13 +5,23 @@
 \usepackage{KKsymbols}
 
 \makeatletter
-\newcommand{\KKSordersmall}[1]{\typeout{KKS-ORDER-ROUTE:SMALL}}
-\newcommand{\KKSordernormal}[1]{\typeout{KKS-ORDER-ROUTE:NORMAL}}
-\kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{\Rrnum{8}}% SMALL
-\kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{\Rrnum*{8}}% NORMAL
-\kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{\alphabetarray{2}}% SMALL
-\kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{\alphabetarray*{2}}% NORMAL
-\kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{\alphabetarray{27}}% NORMAL (empty in KKran)
+\newcommand{\KKSordersmall}[1]{\def\KKSorderactual{SMALL}\typeout{KKS-ORDER-ROUTE:SMALL}}
+\newcommand{\KKSordernormal}[1]{\def\KKSorderactual{NORMAL}\typeout{KKS-ORDER-ROUTE:NORMAL}}
+\newcommand{\KKSorderexpect}[2]{%
+  \def\KKSorderactual{UNSET}%
+  \kks@autolowercase@select{\KKSordersmall}{\KKSordernormal}{#2}%
+  \def\KKSorderexpected{#1}%
+  \ifx\KKSorderactual\KKSorderexpected\else
+    \PackageError{test-kkran-order}{Expected #1 route, got \KKSorderactual}{}%
+  \fi}
+\KKSorderexpect{NORMAL}{\Rrnum{8}}% multi-letter
+\KKSorderexpect{SMALL}{\Rrnum{1}}% single-letter result
+\KKSorderexpect{NORMAL}{\Rrnum{2-1}}% expands exactly as KKran: ii-1
+\KKSorderexpect{NORMAL}{\Rrnum*{8}}%
+\KKSorderexpect{SMALL}{\alphabetarray{2}}%
+\KKSorderexpect{SMALL}{\alphabetarray{-1}}% KKran indexes from the end
+\KKSorderexpect{NORMAL}{\alphabetarray*{2}}%
+\KKSorderexpect{NORMAL}{\alphabetarray{27}}% empty in KKran
 \makeatother
 
 \begin{document}

@@ -182,20 +182,14 @@
 \NewExpandableDocumentCommand \kks_Rrnum_expand: { s m }
   {
     \IfBooleanTF { #1 }
-      { \int_to_Roman:n { #2 } }
-      { \int_to_roman:n { #2 } }
+      { \uppercase \expandafter { \romannumeral #2 } }
+      { \romannumeral #2 }
   }
 \NewExpandableDocumentCommand \kks_alphabetarray_expand: { s m }
   {
-    \int_compare:nNnF { #2 } < { 1 }
-      {
-        \int_compare:nNnF { #2 } > { 26 }
-          {
-            \IfBooleanTF { #1 }
-              { \int_to_Alph:n { #2 } }
-              { \int_to_alph:n { #2 } }
-          }
-      }
+    \IfBooleanTF { #1 }
+      { \seq_item:Nn \g_alphabet_upper_seq { #2 } }
+      { \seq_item:Nn \g_alphabet_lower_seq { #2 } }
   }
 
 \DeclareRobustCommand{\kks@ShrinkedNumber@internal}[1]{
@@ -604,6 +598,66 @@
   \fi%
 }
 
+% Shrink-only visual overflow guard.  The raw material and the exact legacy
+% star-path result are measured in dedicated local boxes.  When the actual
+% glyph ink is already inside the visible frame, #5 is emitted verbatim with no
+% graphic wrapper; only an overflow receives one additional uniform scale.
+\newbox\kks@visual@rawbox
+\newbox\kks@visual@legacybox
+\newbox\kks@visual@leftbox
+\newbox\kks@visual@rightbox
+\newlength{\kks@visual@radius}
+\newcommand{\kks@bracket@xscale}{.63}
+\newcommand{\kks@bracket@overlap}{.1\zw}
+\NewDocumentCommand{\kks@visual@guard@circle}{ m m m m m m }{%
+  \begingroup
+    \pgfmathsetlength{\kks@visual@radius}{%
+      max(0.5 * (#3), sqrt(2) * (0.5 * (#1) + (#2))) + 0.5 * (#4)}%
+    \setbox\kks@visual@rawbox=\hbox{#6}%
+    \def\kks@visual@material{\copy\kks@visual@rawbox}%
+    \setbox\kks@visual@legacybox=\hbox{#5}%
+    \edef\kks@visual@scale{%
+      \directlua{tex.sprint(KKsymbols.visual_scale(
+        \number\kks@visual@rawbox,
+        \number\kks@visual@legacybox,
+        "circle",
+        \number\kks@visual@radius,
+        0))}}%
+    \ifx\kks@visual@scale\@empty
+      \copy\kks@visual@legacybox
+    \else
+      \scalebox{\kks@visual@scale}{\copy\kks@visual@legacybox}%
+    \fi
+  \endgroup
+}
+
+\NewDocumentCommand{\kks@visual@guard@bracket}{ m m m m m m }{%
+  \begingroup
+    \setbox\kks@visual@leftbox=\hbox{#1}%
+    \setbox\kks@visual@rightbox=\hbox{#2}%
+    \setbox\kks@visual@rawbox=\hbox{#6}%
+    \def\kks@visual@material{\copy\kks@visual@rawbox}%
+    \setbox\kks@visual@legacybox=\hbox{#5}%
+    \pgfmathparse{#4}%
+    \edef\kks@visual@angle{\pgfmathresult}%
+    \edef\kks@visual@scale{%
+      \directlua{tex.sprint(KKsymbols.visual_bracket_scale(
+        \number\kks@visual@rawbox,
+        \number\kks@visual@legacybox,
+        \number\kks@visual@leftbox,
+        \number\kks@visual@rightbox,
+        \number#3,
+        \number\dimexpr\kks@bracket@overlap\relax,
+        \kks@bracket@xscale,
+        \kks@visual@angle))}}%
+    \ifx\kks@visual@scale\@empty
+      \copy\kks@visual@legacybox
+    \else
+      \scalebox{\kks@visual@scale}{\copy\kks@visual@legacybox}%
+    \fi
+  \endgroup
+}
+
 \newif\ifkksdigit@maru@new
 
 \DeclareRobustCommand{\maru@new}[1]{%
@@ -682,7 +736,11 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
+          \kks@visual@guard@circle
+            {\maru@boxwidth@inner}{.02\maru@boxwidth@new}{.9\maru@boxwidth@new}
+            {-\kks@linewidth{\kksymbols@marulinewidth}{\kksymbols@linewidth}{.04\maru@boxwidth@new}}
+            {\shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{\kks@visual@material}}
+            {\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -777,8 +835,11 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{%
-            \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
+          \kks@visual@guard@circle
+            {\maru@boxwidth@inner}{.02\maru@boxwidth@new}{.9\maru@boxwidth@new}
+            {\kks@linewidth{\kksymbols@kuromarulinewidth}{\kksymbols@linewidth}{.04\maru@boxwidth@new}}
+            {\shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{\kks@visual@material}}
+            {\textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
         \vss%
@@ -1835,7 +1896,7 @@
   \leavevmode%
   \ltjghostbeforejachar%
     \hbox to \zw{\hss%
-      \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
+      \scalebox{\kks@bracket@xscale}[1]{#1}\hspace*{-\kks@bracket@overlap}%
       \raisebox{-.03\zw}{%
         \vbox to \kakko@boxwidth@inner{%
           \vss%
@@ -1848,7 +1909,7 @@
           \vss%
         }%
       }%
-      \hspace*{-.1\zw}\scalebox{.63}[1]{#2}%
+      \hspace*{-\kks@bracket@overlap}\scalebox{\kks@bracket@xscale}[1]{#2}%
     \hss}%
   \ltjghostafterjachar%
 }
@@ -1864,20 +1925,22 @@
   \leavevmode%
   \ltjghostbeforejachar%
     \hbox to \zw{\hss%
-      \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
+      \scalebox{\kks@bracket@xscale}[1]{#1}\hspace*{-\kks@bracket@overlap}%
       \raisebox{-.03\zw}{%
         \vbox to \kakko@boxwidth@inner{%
           \vss%
           \hbox to \kakko@boxwidth@inner{%
           \hss%
             \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
-              \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#3}}}}%
+              \kks@visual@guard@bracket{#1}{#2}{\kakko@boxwidth@inner}{\rot@kksym@tateyoko}{%
+                \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{\kks@visual@material}}{%
+                \kks@withref{\kks@ShrinkedNumber{#3}}}}%
           \hss%
           }%
           \vss%
         }%
       }%
-      \hspace*{-.1\zw}\scalebox{.63}[1]{#2}%
+      \hspace*{-\kks@bracket@overlap}\scalebox{\kks@bracket@xscale}[1]{#2}%
     \hss}%
   \ltjghostafterjachar%
 }
@@ -1895,7 +1958,7 @@
     \hbox to \zw{\hss%
     \vbox to \zw{\vss%
       \hbox to \zw{\hss%
-      \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
+      \scalebox{\kks@bracket@xscale}[1]{#1}\hspace*{-\kks@bracket@overlap}%
         \vbox to \kakko@boxwidth@inner{%
         \vss%
         \hbox to \kakko@boxwidth@inner{%
@@ -1909,7 +1972,7 @@
         }%
         \vss%
       }%
-      \hspace*{-.1\zw}\scalebox{.63}[1]{#2}\vspace*{.3\zw}%
+      \hspace*{-\kks@bracket@overlap}\scalebox{\kks@bracket@xscale}[1]{#2}\vspace*{.3\zw}%
     \hss}%
     \vss}%
     \hss}%
@@ -1934,7 +1997,7 @@
     \hbox to \zw{\hss%
     \vbox to \zw{\vss%
       \hbox to \zw{\hss%
-      \scalebox{.63}[1]{#1}\hspace*{-.1\zw}%
+      \scalebox{\kks@bracket@xscale}[1]{#1}\hspace*{-\kks@bracket@overlap}%
         \vbox to \kakko@boxwidth@inner{%
         \vss%
         \hbox to \kakko@boxwidth@inner{%
@@ -1945,14 +2008,16 @@
             \hbox to \kakko@boxwidth@inner{%
             \hss%
             \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
-              \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#3}}}%
+              \kks@visual@guard@bracket{#1}{#2}{\kakko@boxwidth@inner}{\rot@kksym@tateyoko}{%
+                \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{\kks@visual@material}}{%
+                \kks@withref{\kks@ShrinkedNumber{#3}}}%
             }\hss}\vss}%
           }%
         \hss%
         }%
         \vss%
       }%
-      \hspace*{-.1\zw}\scalebox{.63}[1]{#2}\vspace*{.3\zw}%
+      \hspace*{-\kks@bracket@overlap}\scalebox{\kks@bracket@xscale}[1]{#2}\vspace*{.3\zw}%
     \hss}%
     \vss}%
     \hss}%

@@ -7,6 +7,23 @@
 \fboxsep=0pt
 \fboxrule=.1pt
 
+% Exercise automatic routing without KKran loaded. These assertions have no
+% typeset output, so the fixture remains usable for pixel regression.
+\makeatletter
+\newcommand{\KKSbareactual}{}
+\newcommand{\KKSbaresmall}[1]{\def\KKSbareactual{SMALL}}
+\newcommand{\KKSbarenormal}[1]{\def\KKSbareactual{NORMAL}}
+\newcommand{\KKSbareexpect}[2]{%
+  \def\KKSbareactual{UNSET}%
+  \kks@autolowercase@select{\KKSbaresmall}{\KKSbarenormal}{#2}%
+  \def\KKSbareexpected{#1}%
+  \ifx\KKSbareactual\KKSbareexpected\else
+    \PackageError{test-default-regression}{Expected #1 route, got \KKSbareactual}{}%
+  \fi}
+\KKSbareexpect{SMALL}{m}%
+\KKSbareexpect{NORMAL}{abc}%
+\makeatother
+
 \begin{document}
 \noindent
 \fbox{\maru{A}}\fbox{\maru{12}}\fbox{\maru*{m}}\quad

@@ -1,0 +1,47 @@
+% Visual regression test for the shrink-only glyph-ink overflow guard.
+% Compile with: latexmk -r .latexmkrc test-visual-overflow.tex
+\documentclass{jlreq}
+\usepackage[autolowercase=1]{KKsymbols}
+\usepackage{lltjext}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+\newcommand{\KKSbracketrow}[1]{%
+  \fbox{\kakko*{#1}}\fbox{\sumikakko*{#1}}%
+  \fbox{\kakukakko*{#1}}\fbox{\kikakko*{#1}}%
+  \fbox{\ykakko*{#1}}\fbox{\nykakko*{#1}}%
+  \fbox{\namikakko*{#1}}\fbox{\kagikakko*{#1}}%
+  \fbox{\nkagikakko*{#1}}}
+
+\begin{document}
+\section*{Single lowercase letters}
+
+Narrow, wide, overhanging, ascender, and descender cases. Only glyphs whose
+actual ink crosses a bracket's inner ink edge should be uniformly reduced.
+
+\KKSbracketrow{i}\par
+\KKSbracketrow{m}\par
+\KKSbracketrow{w}\par
+\KKSbracketrow{f}\par
+\KKSbracketrow{j}\par
+\KKSbracketrow{g}\par
+\KKSbracketrow{y}
+
+\medskip
+\noindent Circle and filled-circle sentinels:\par
+\fbox{\maru*{i}}\fbox{\maru*{m}}\fbox{\maru*{w}}%
+\fbox{\kuromaru*{i}}\fbox{\kuromaru*{m}}\fbox{\kuromaru*{w}}
+
+\medskip
+\noindent Rotation sentinels:\par
+{\RotYoko[45]\fbox{\kakko*{m}}\fbox{\kakko*{w}}}%
+{\RotYoko[90]\fbox{\kakko*{m}}\fbox{\kakko*{w}}}
+
+\medskip
+\noindent Explicit stars remain available for multi-letter material:\par
+\fbox{\maru*{abc}}\fbox{\kakko*{abc}}
+
+\medskip
+\noindent Vertical-writing smoke test:\par
+\parbox<t>{6\zw}{甲\kakko*{i}\kakko*{m}\kakko*{w}乙}
+\end{document}
