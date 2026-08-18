@@ -72,8 +72,8 @@
   { \tiny \scriptsize \footnotesize \small \normalsize
     \large \Large \LARGE \huge \Huge }
   { \text_declare_expand_equivalent:Nn #1 { } }
-\str_new:N \l_kks_tmp_str
-\bool_new:N \g_kks_autolowercase_bool
+\str_new:N \kks@tmp@str
+\bool_new:N \kks@autolowercase@bool
 
 \msg_new:nnn { KKsymbols } { invalid-autolowercase }
   {
@@ -82,11 +82,11 @@
 
 \str_case_e:nnF { \kksymbols@autolowercase }
   {
-    { 0 } { \bool_gset_false:N \g_kks_autolowercase_bool }
-    { 1 } { \bool_gset_true:N  \g_kks_autolowercase_bool }
+    { 0 } { \bool_gset_false:N \kks@autolowercase@bool }
+    { 1 } { \bool_gset_true:N  \kks@autolowercase@bool }
   }
   {
-    \bool_gset_true:N \g_kks_autolowercase_bool
+    \bool_gset_true:N \kks@autolowercase@bool
     \msg_error:nn { KKsymbols } { invalid-autolowercase }
   }
 
@@ -137,13 +137,13 @@
           { \cs_set_eq:NN \alphabetarray \kks_alphabetarray_expand: }
       }
       { }
-    \str_set:Nx \l_kks_tmp_str { \text_expand:n { #1 } }
+    \str_set:Nx \kks@tmp@str { \text_expand:n { #1 } }
     \int_compare:nNnTF
       {
         \directlua{
           tex.sprint(
             KKsymbols.lowercase_ascii_flag(
-              "\luaescapestring{\l_kks_tmp_str}"
+              "\luaescapestring{\kks@tmp@str}"
             )
           )
         }
@@ -155,7 +155,7 @@
 
 \cs_new_protected:Npn \kks_autolowercase_select:nnn #1#2#3
   {
-    \bool_if:NTF \g_kks_autolowercase_bool
+    \bool_if:NTF \kks@autolowercase@bool
       { \kks_if_lowercase:nTF { #3 } { #1 { #3 } } { #2 { #3 } } }
       { #2 { #3 } }
   }
@@ -193,11 +193,11 @@
   }
 
 \DeclareRobustCommand{\kks@ShrinkedNumber@internal}[1]{
-  \str_set:Nx \l_kks_tmp_str { \text_expand:n { #1 } }
-  \regex_match:nVTF { \A \d+ \Z } \l_kks_tmp_str
+  \str_set:Nx \kks@tmp@str { \text_expand:n { #1 } }
+  \regex_match:nVTF { \A \d+ \Z } \kks@tmp@str
     % 先頭・末尾が数字かつ1桁以上
     {
-      \directlua{KKsymbols.narrow_ones("\luaescapestring{\l_kks_tmp_str}")}
+      \directlua{KKsymbols.narrow_ones("\luaescapestring{\kks@tmp@str}")}
     }
     {
       #1
