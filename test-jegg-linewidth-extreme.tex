@@ -1,0 +1,22 @@
+% Guard regression: a line width wide enough to swallow the ellipse leaves no
+% interior at all.  The scaler must keep the plain lowercase size instead of
+% dividing by a non-positive half-axis.  Compile with:
+%   latexmk -r .latexmkrc test-jegg-linewidth-extreme.tex
+\documentclass{jlreq}
+\usepackage[jegglinewidth=12pt]{KKsymbols}
+
+\newcommand{\KKSeggexpectedlw}{12pt}
+\input{egg-linewidth-checks}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\section*{Egg lowercase sizing (degenerate \texttt{jegglinewidth=12pt})}
+
+\KKSeggbasesuite
+
+\noindent The eggs below are solid on purpose; only the absence of an error
+and the unchanged glyph size are being checked.\par
+\fbox{\jegg{c}}\fbox{\jegg{m}}\fbox{\jegg{w}}\fbox{\jegg{g}}
+\end{document}

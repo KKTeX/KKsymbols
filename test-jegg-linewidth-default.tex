@@ -1,0 +1,19 @@
+% Regression test: the egg's lowercase scaler must keep aiming at the interior
+% the historical .04\zw outline leaves free, now that the half-axes are derived
+% instead of hard-coded.  Compile with:
+%   latexmk -r .latexmkrc test-jegg-linewidth-default.tex
+\documentclass{jlreq}
+\usepackage[autolowercase=1]{KKsymbols}
+
+\newcommand{\KKSeggexpectedlw}{.04\zw}
+\input{egg-linewidth-checks}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\section*{Egg lowercase sizing (default outline)}
+
+\KKSeggsuite
+\KKSeggshowcase
+\end{document}

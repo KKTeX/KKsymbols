@@ -1,0 +1,689 @@
+% Shared assertions for the star (safe-sizing) routes of every enclosure.
+%
+% A fixture inputs this file in its preamble and calls \KKSfitsuite in the
+% document body.  The suite drives the *public* commands, records what the
+% package actually did to their material, and compares that with an interior
+% measured from a rendered outline, so that neither the fit code's own limits
+% nor a constant copied out of KKsymbols.sty can make a check pass by itself.
+%
+% How the interior is measured.  PGF adds the stroke to a picture's bounding
+% box, and `outer sep' -- which it initialises to half the line width -- is
+% added to a node's own box.  Drawing the same node three times therefore
+% yields everything the geometry needs without asking the package:
+%
+%   draw=none, outer sep=0pt : the shape's box, i.e. its half-extent
+%   draw,      outer sep=0pt : the same plus half the stroke on either side
+%   draw                     : the background path plus half the stroke
+%
+% The first two differ by exactly the stroke that is really used, and taking
+% half of that back off the third gives the path that is really drawn.  The
+% usable interior is that path taken in by half the stroke.
+\makeatletter
+\newsavebox{\KKSfitprobe}
+\newsavebox{\KKSfitprobedraw}
+\newsavebox{\KKSfitprobepath}
+\newsavebox{\KKSfitout}
+\newlength{\KKSfitstroke}
+\newlength{\KKSfitpath}
+\newlength{\KKSfittmp}
+\newlength{\KKSfitgotw}
+\newlength{\KKSfitgoth}
+\newlength{\KKSfitnatw}
+\newlength{\KKSfitnath}
+\newlength{\KKSfitlima}
+\newlength{\KKSfitlimrc}
+\newlength{\KKSfitlimcc}
+\newlength{\KKSfitlimband}
+\newlength{\KKSfitlimwide}
+\newif\ifKKSfitwideheld
+\def\KKSfittaken{0}
+% How far the recorded box reaches on the axes rather than at its
+% corner.  This is the test the ink guard applies, and it is the one a
+% shape applies to a lone glyph, whose ink stops short of its corners.
+\newcommand{\KKSfitsetreachaxis}[1]{%
+  \setlength{\KKSfittmp}{.5\KKSfitrw}%
+  \ifdim.5\KKSfitrh>\KKSfittmp\setlength{\KKSfittmp}{.5\KKSfitrh}\fi
+  \KKSfitsetratio{\KKSfitreach}{\KKSfittmp}{#1}}
+\newlength{\KKSfitbandreach}
+\newlength{\KKSfitinner}
+\newlength{\KKSfitcap}
+\newlength{\KKSfitusedlw}
+\newlength{\KKSfitdeclw}
+\newsavebox{\KKSfitfinal}
+\newlength{\KKSfitfinw}
+\newlength{\KKSfitfinh}
+\newlength{\KKSfitrw}
+\newlength{\KKSfitrh}
+\newlength{\KKSfitaspect}
+\newlength{\KKSfitgotaspect}
+\newlength{\KKSfitnataspect}
+\newlength{\KKSfitfinaspect}
+\newlength{\KKSfitratio}
+\newlength{\KKSfitshrunk}
+\newcommand{\KKSfitfail}[2]{\PackageError{\jobname}{Star fit `#1': #2}{}}
+% pgf rounds a circle's radius through low-precision integer arithmetic, and
+% every dimension here is rounded to scaled points twice over, so comparisons
+% carry a tolerance far below anything that could be seen.
+\newcommand{\KKSfitslack}{0.02pt}
+% The tolerance for the two-sided comparison of the limit a command aimed at
+% with the one its own outline really offers.  These are the same quantity
+% reached by two different routes -- pgf's shape arithmetic and the package's
+% closed form -- and over the fixtures here the two never disagree by as much
+% as half a thousandth of a point, so ten times that is left for a font or a
+% frame width that rounds less kindly.  It has to stay this tight: the whole
+% point of the comparison is that it is far smaller than the shift a swapped
+% line-width key or a swapped corner model causes.
+\newcommand{\KKSfitexactslack}{0.005pt}
+
+% ---------------------------------------------------------------------------
+% Record what the package really applied.  \kks@fit@emit is the single point
+% every star route funnels through, so wrapping it captures the natural size,
+% the limits the command computed, and the box the reader finally sees.
+% ---------------------------------------------------------------------------
+% The line width the command resolved for its own setup.  A wrapper that
+% reads another command's key is invisible in the finished page whenever the
+% two keys happen to agree, so it is recorded here and compared with the width
+% the drawing node is declared to use.
+\let\KKSfit@linewidth\kks@fit@linewidth
+\renewcommand{\kks@fit@linewidth}[1]{%
+  \KKSfit@linewidth{#1}%
+  \global\KKSfitusedlw=\kks@fit@lw
+  \global\let\KKSfitlwseen\@empty}
+
+% The final, public size of the material.  \kks@fit@emit sees only what the
+% uniform fit produced; the shrink-only visual guard may take that box in
+% further before the reader gets it, so the guarded routes are wrapped too and
+% the box they really emit is measured.
+\NewCommandCopy\KKSfit@guardcircle\kks@visual@guard@circle
+\RenewDocumentCommand{\kks@visual@guard@circle}{ m m m m m m }{%
+  \sbox{\KKSfitfinal}{\KKSfit@guardcircle{#1}{#2}{#3}{#4}{#5}{#6}}%
+  \global\KKSfitfinw=\wd\KKSfitfinal
+  \global\KKSfitfinh=\dimexpr\ht\KKSfitfinal+\dp\KKSfitfinal\relax
+  \usebox{\KKSfitfinal}}
+\NewCommandCopy\KKSfit@guardbracket\kks@visual@guard@bracket
+\RenewDocumentCommand{\kks@visual@guard@bracket}{ m m m m m m }{%
+  \sbox{\KKSfitfinal}{\KKSfit@guardbracket{#1}{#2}{#3}{#4}{#5}{#6}}%
+  \global\KKSfitfinw=\wd\KKSfitfinal
+  \global\KKSfitfinh=\dimexpr\ht\KKSfitfinal+\dp\KKSfitfinal\relax
+  \usebox{\KKSfitfinal}}
+
+\let\KKSfit@emit\kks@fit@emit
+\renewcommand{\kks@fit@emit}[2]{%
+  \sbox{\KKSfitout}{\KKSfit@emit{#1}{#2}}%
+  \global\KKSfitgotw=\wd\KKSfitout
+  \global\KKSfitgoth=\dimexpr\ht\KKSfitout+\dp\KKSfitout\relax
+  \global\KKSfitnatw=\kks@fit@wd
+  \global\KKSfitnath=\kks@fit@ht
+  \global\KKSfitlima=\kks@fit@a
+  \global\KKSfitlimrc=\kks@fit@rc
+  \global\KKSfitlimcc=\kks@fit@cx
+  % The band as the fit captured it, not the live register: a nested
+  % enclosure has already overwritten the register by the time we get here.
+  \global\KKSfitlimband=\kks@fit@bband\relax
+  \global\KKSfitlimwide=\kks@fit@wwide\relax
+  \global\let\KKSfittaken\kks@fit@widetaken
+  \global\let\KKSfitseen\@empty
+  \usebox{\KKSfitout}}
+
+% ---------------------------------------------------------------------------
+% Measure one enclosure's drawn outline.
+%
+%   #1 name          #2 kind (circle, rect or diamond)
+%   #3 node options, exactly as the enclosure states them, but with sharp
+%      corners on a diamond: pgf tracks a rounded path through its control
+%      points and would report a tip the pen never reaches, so a rounded
+%      diamond tip is accounted for by #6 instead
+%   #4 side of the square text box the enclosure hands the node
+%   #5 the node's own `scale' (the doubled circle carries one; pgf transforms
+%      the path but not the stroke, so the interior is converted back into the
+%      unscaled units the material is laid out in)
+%   #6 corner radius of the drawn path, 0pt for a sharp corner
+%   #7 the line width the drawing node is declared with, so that the width the
+%      command resolved for its own setup can be compared with it
+% ---------------------------------------------------------------------------
+\newcommand{\KKSfitnode}[3]{%
+  \tikz{\node[#1,#2] (probe) {%
+    \vbox to #3{\vss\hbox to #3{\hss}\vss}};}}
+\newcommand{\KKSfitshape}[7]{%
+  \begingroup
+    \pgfmathsetlength{\KKSfitinner}{#4}%
+    \sbox{\KKSfitprobe}{\KKSfitnode{#3}{draw=none,outer sep=0pt}{\KKSfitinner}}%
+    \sbox{\KKSfitprobedraw}{\KKSfitnode{#3}{draw,outer sep=0pt}{\KKSfitinner}}%
+    \sbox{\KKSfitprobepath}{\KKSfitnode{#3}{draw}{\KKSfitinner}}%
+    \setlength{\KKSfitstroke}{%
+      \dimexpr\wd\KKSfitprobedraw-\wd\KKSfitprobe\relax}%
+    \setlength{\KKSfitpath}{%
+      \dimexpr.5\wd\KKSfitprobepath-.5\KKSfitstroke\relax}%
+    \ifdim\KKSfitstroke<\z@\KKSfitfail{#1}{measured a negative stroke}\fi
+    \ifdim\KKSfitpath<\z@\KKSfitfail{#1}{measured a negative outline}\fi
+    % The interior: the drawn path taken in by half the stroke.  A slanted
+    % diamond edge moves .707 of a whole stroke along its diagonal, and a
+    % rounded tip costs a further .414 of the radius the inner edge keeps.
+    \edef\KKSfitkind{#2}%
+    \def\KKSfitkinddiamond{diamond}%
+    \ifx\KKSfitkind\KKSfitkinddiamond
+      \pgfmathsetlength{\KKSfittmp}{%
+        (\KKSfitpath - 0.7071068*\KKSfitstroke
+           - 0.4142136*max(0, (#6) - .5*\KKSfitstroke)) / (#5)}%
+    \else
+      \pgfmathsetlength{\KKSfittmp}{(\KKSfitpath - .5*\KKSfitstroke) / (#5)}%
+    \fi
+    \global\expandafter\let\csname KKSfit@kind@#1\endcsname\KKSfitkind
+    \expandafter\xdef\csname KKSfit@usable@#1\endcsname{\the\KKSfittmp}%
+    % Centre and radius of the drawn corner arc, in the same units.
+    \pgfmathsetlength{\KKSfittmp}{max(0, (#6) - .5*\KKSfitstroke) / (#5)}%
+    \expandafter\xdef\csname KKSfit@rc@#1\endcsname{\the\KKSfittmp}%
+    \pgfmathsetlength{\KKSfittmp}{(\KKSfitpath - (#6)) / (#5)}%
+    \expandafter\xdef\csname KKSfit@cc@#1\endcsname{\the\KKSfittmp}%
+    % The historical limit: the largest half-extent of the shape's own metric
+    % that the inner box the node is handed can stand for.  A square of side s
+    % has half-diagonal s/sqrt(2) on a circle, half-extent s/2 in a rectangle,
+    % and is inscribed exactly in a diamond of half-diagonal s.
+    \ifx\KKSfitkind\KKSfitkinddiamond
+      \setlength{\KKSfitcap}{\KKSfitinner}%
+    \else
+      \def\KKSfitkindcircle{circle}%
+      \ifx\KKSfitkind\KKSfitkindcircle
+        \pgfmathsetlength{\KKSfitcap}{0.5*sqrt(2)*\KKSfitinner}%
+      \else
+        \setlength{\KKSfitcap}{.5\KKSfitinner}%
+      \fi
+    \fi
+    \expandafter\xdef\csname KKSfit@cap@#1\endcsname{\the\KKSfitcap}%
+    \pgfmathsetlength{\KKSfittmp}{max(0, #7)}%
+    \expandafter\xdef\csname KKSfit@lw@#1\endcsname{\the\KKSfittmp}%
+    \expandafter\xdef\csname KKSfit@stroke@#1\endcsname{\the\KKSfitstroke}%
+    \pgfmathsetlength{\KKSfittmp}{#6}%
+    \expandafter\xdef\csname KKSfit@rcdecl@#1\endcsname{\the\KKSfittmp}%
+    \typeout{KKS-FIT-REF:#1 kind=#2 stroke=\the\KKSfitstroke\space
+      path=\the\KKSfitpath\space
+      usable=\csname KKSfit@usable@#1\endcsname\space
+      cap=\csname KKSfit@cap@#1\endcsname\space
+      lw=\csname KKSfit@lw@#1\endcsname}%
+  \endgroup}
+
+% Every ratio in this file is formed here rather than by pgfmath.  pgfmath's
+% division collapses on operands whose quotient is close to one -- it answers
+% 3.57007/3.57011 with 1.1 -- and these assertions are made of exactly such
+% quotients, a box measured against the room it was fitted into.  TeX's own
+% scaling is exact instead: #1 is set to the quotient of #2 by #3 as a length
+% whose value in points *is* that quotient, to within one scaled point.  A
+% region with nothing left inside it can hold nothing, so it reads as an
+% unbounded reach rather than as a division by zero.
+\newlength{\KKSfitnum}
+\newlength{\KKSfitden}
+\newcommand{\KKSfitsetratio}[3]{%
+  \setlength{\KKSfitnum}{#2}%
+  \setlength{\KKSfitden}{#3}%
+  \ifdim\KKSfitden>\z@
+    \setlength{#1}{\numexpr\KKSfitnum*65536/\KKSfitden\relax sp}%
+  \else
+    \setlength{#1}{\maxdimen}%
+  \fi}
+\newcommand{\KKSfitabs}[1]{\ifdim#1<\z@\setlength{#1}{-#1}\fi}
+
+% How far the recorded box, centred on the shape, gets towards the boundary of
+% a region: 1pt is exactly on it.  A box on a circle of radius a reaches
+% sqrt(w^2+h^2)/2a; on a diamond with half-diagonals a it reaches w/2a + h/2a;
+% in a rounded rectangle the sides limit it unless its corner passes both arc
+% centres, and then the arc does.  #1 kind, #2 half-extent, #3 arc centre,
+% #4 arc radius.
+\newlength{\KKSfitreach}
+\newlength{\KKSfitcorner}
+\newcommand{\KKSfitsetreach}[4]{%
+  \edef\KKSfitkind{#1}%
+  \def\KKSfitkinddiamond{diamond}%
+  \def\KKSfitkindcircle{circle}%
+  \ifx\KKSfitkind\KKSfitkinddiamond
+    \KKSfitsetratio{\KKSfitreach}
+      {\dimexpr.5\KKSfitrw+.5\KKSfitrh\relax}{#2}%
+  \else
+    \ifx\KKSfitkind\KKSfitkindcircle
+      \pgfmathsetlength{\KKSfittmp}{%
+        .5*sqrt(\KKSfitrw*\KKSfitrw + \KKSfitrh*\KKSfitrh)}%
+      \KKSfitsetratio{\KKSfitreach}{\KKSfittmp}{#2}%
+    \else
+      \setlength{\KKSfittmp}{.5\KKSfitrw}%
+      \ifdim.5\KKSfitrh>\KKSfittmp\setlength{\KKSfittmp}{.5\KKSfitrh}\fi
+      \KKSfitsetratio{\KKSfitreach}{\KKSfittmp}{#2}%
+      \ifdim.5\KKSfitrw>#3\relax
+        \ifdim.5\KKSfitrh>#3\relax
+          \pgfmathsetlength{\KKSfittmp}{%
+            sqrt((.5*\KKSfitrw - (#3))*(.5*\KKSfitrw - (#3))
+                 + (.5*\KKSfitrh - (#3))*(.5*\KKSfitrh - (#3)))}%
+          \KKSfitsetratio{\KKSfitcorner}{\KKSfittmp}{#4}%
+          \ifdim\KKSfitcorner>\KKSfitreach
+            \setlength{\KKSfitreach}{\KKSfitcorner}%
+          \fi
+        \fi
+      \fi
+    \fi
+  \fi}
+% The box \KKSfitsetreach is to judge.
+\newcommand{\KKSfitjudgefit}{%
+  \setlength{\KKSfitrw}{\KKSfitgotw}\setlength{\KKSfitrh}{\KKSfitgoth}}
+\newcommand{\KKSfitjudgefinal}{%
+  \setlength{\KKSfitrw}{\KKSfitfinw}\setlength{\KKSfitrh}{\KKSfitfinh}}
+
+% ---------------------------------------------------------------------------
+% One check: run the public command on the material and judge the result.
+%   #1 name (as declared below)   #2 the public command, star included
+%   #3 the material               #4 the largest scale the route may apply
+% ---------------------------------------------------------------------------
+\newcommand{\KKSfitcheck}[4]{%
+  \begingroup
+    \global\let\KKSfitseen\relax
+    \global\let\KKSfitlwseen\relax
+    \global\KKSfitfinw=-\maxdimen
+    \setbox\z@=\hbox{#2{#3}}%
+    \ifx\KKSfitseen\relax
+      \KKSfitfail{#1/#3}{the star route never reached the uniform fit}%
+    \fi
+    % A route with no stroke of its own never resolves a line width; one that
+    % does must have resolved its own command's key, not a neighbour's.
+    \ifx\KKSfitlwseen\relax\global\KKSfitusedlw=\z@\fi
+    \setlength{\KKSfitdeclw}{\csname KKSfit@lw@#1\endcsname}%
+    \ifdim\KKSfitusedlw>\dimexpr\KKSfitdeclw+\KKSfitslack\relax
+      \KKSfitfail{#1/#3}{sized against a stroke of \the\KKSfitusedlw, but its
+        outline is drawn with \the\KKSfitdeclw}%
+    \fi
+    \ifdim\KKSfitdeclw>\dimexpr\KKSfitusedlw+\KKSfitslack\relax
+      \KKSfitfail{#1/#3}{sized against a stroke of \the\KKSfitusedlw, but its
+        outline is drawn with \the\KKSfitdeclw}%
+    \fi
+    % Routes without a visual guard hand the reader the fitted box itself.
+    \ifdim\KKSfitfinw<\z@
+      \global\KKSfitfinw=\KKSfitgotw \global\KKSfitfinh=\KKSfitgoth
+    \fi
+    % (1) One \scalebox, hence one factor for both directions: the box that
+    % comes out must have the aspect ratio the material went in with.
+    \KKSfitsetratio{\KKSfitgotaspect}{\KKSfitgotw}{\KKSfitgoth}%
+    \KKSfitsetratio{\KKSfitnataspect}{\KKSfitnatw}{\KKSfitnath}%
+    \setlength{\KKSfitaspect}{%
+      \dimexpr\KKSfitgotaspect-\KKSfitnataspect\relax}%
+    \KKSfitabs{\KKSfitaspect}%
+    \ifdim\KKSfitaspect>0.005\KKSfitnataspect
+      \KKSfitfail{#1/#3}{aspect ratio changed from \strip@pt\KKSfitnataspect
+        to \strip@pt\KKSfitgotaspect}%
+    \fi
+    % (2) The route may shrink, never enlarge past its own base size.
+    \KKSfitsetratio{\KKSfitratio}{\KKSfitgotw}{\KKSfitnatw}%
+    \setlength{\KKSfitshrunk}{\dimexpr#4pt-\KKSfitratio\relax}%
+    \ifdim\KKSfitshrunk<-0.001pt
+      \KKSfitfail{#1/#3}{scaled to \strip@pt\KKSfitratio, above the base #4}%
+    \fi
+    \ifdim\KKSfitratio<0.02pt
+      \KKSfitfail{#1/#3}{scaled away to \strip@pt\KKSfitratio}%
+    \fi
+    % (3) The limit the command aimed at may never claim more room than the
+    % outline that is actually drawn leaves free.
+    \ifdim\dimexpr\KKSfitlima-\csname KKSfit@usable@#1\endcsname\relax
+        >\KKSfitslack
+      \KKSfitfail{#1/#3}{aimed at \the\KKSfitlima, but the drawn outline
+        leaves only \csname KKSfit@usable@#1\endcsname}%
+    \fi
+    % (3b) Nor may it claim less.  Every setup is `the smaller of the
+    % historical limit and what the outline leaves', and both of those are
+    % measured here rather than taken from the package, so this is a two-sided
+    % identity: a wrapper that resolves a neighbour's line width, or that
+    % describes its corners by the wrong model, lands on the wrong side of it
+    % whichever of the two widths is the larger.
+    \pgfmathsetlength{\KKSfittmp}{%
+      min(\csname KKSfit@cap@#1\endcsname, \csname KKSfit@usable@#1\endcsname)}%
+    \ifdim\dimexpr\KKSfitlima-\KKSfittmp\relax>\KKSfitexactslack
+      \KKSfitfail{#1/#3}{aimed at \the\KKSfitlima, but its own outline and
+        inner box allow exactly \the\KKSfittmp}%
+    \fi
+    \ifdim\dimexpr\KKSfittmp-\KKSfitlima\relax>\KKSfitexactslack
+      \KKSfitfail{#1/#3}{aimed at \the\KKSfitlima, but its own outline and
+        inner box allow exactly \the\KKSfittmp}%
+    \fi
+    % (3c) The band is a shape constant, so it is checked the same way: the
+    % circle allots the side of the square inscribed in its usable radius, and
+    % every other shape allots nothing.  A setup that forgets to set the band,
+    % or one that forgets to clear a neighbour's, fails here rather than
+    % silently resizing that neighbour's material.
+    \edef\KKSfitthiskind{\csname KKSfit@kind@#1\endcsname}%
+    \def\KKSfitcirclekind{circle}%
+    \ifx\KKSfitthiskind\KKSfitcirclekind
+      \pgfmathsetlength{\KKSfittmp}{1.4142136*\KKSfitlima}%
+      \ifdim\dimexpr\KKSfitlimband-\KKSfittmp\relax>\KKSfitexactslack
+        \KKSfitfail{#1/#3}{banded at \the\KKSfitlimband, but the square
+          inscribed in its usable circle has side \the\KKSfittmp}%
+      \fi
+      \ifdim\dimexpr\KKSfittmp-\KKSfitlimband\relax>\KKSfitexactslack
+        \KKSfitfail{#1/#3}{banded at \the\KKSfitlimband, but the square
+          inscribed in its usable circle has side \the\KKSfittmp}%
+      \fi
+      \ifdim\dimexpr\KKSfitlimwide-\KKSfitlimband\relax>\KKSfitexactslack
+        \KKSfitfail{#1/#3}{takes \the\KKSfitlimwide\space as its wide width,
+          but its band is \the\KKSfitlimband}%
+      \fi
+      \ifdim\dimexpr\KKSfitlimband-\KKSfitlimwide\relax>\KKSfitexactslack
+        \KKSfitfail{#1/#3}{takes \the\KKSfitlimwide\space as its wide width,
+          but its band is \the\KKSfitlimband}%
+      \fi
+    \else
+      \ifdim\KKSfitlimband>\KKSfitslack
+        \KKSfitfail{#1/#3}{banded at \the\KKSfitlimband, but this shape
+          sets no band}%
+      \fi
+      \ifdim\KKSfitlimwide>\KKSfitslack
+        \KKSfitfail{#1/#3}{takes \the\KKSfitlimwide\space as its wide width,
+          but this shape has no wide width}%
+      \fi
+    \fi
+    % (4) No overflow: the scaled box, centred on the shape, stays inside the
+    % measured interior.
+    \KKSfitjudgefit
+    \ifnum\KKSfittaken=1
+      \KKSfitsetreachaxis{\csname KKSfit@usable@#1\endcsname}%
+    \else
+      \KKSfitsetreach{\csname KKSfit@kind@#1\endcsname}%
+        {\csname KKSfit@usable@#1\endcsname}{\csname KKSfit@cc@#1\endcsname}%
+        {\csname KKSfit@rc@#1\endcsname}%
+    \fi
+    \ifdim\KKSfitreach>1.002pt
+      \KKSfitfail{#1/#3}{reaches \strip@pt\KKSfitreach\space of the drawn interior
+        (aimed at \the\KKSfitlima, the outline leaves
+        \csname KKSfit@usable@#1\endcsname, and the box is
+        \the\KKSfitgotw\space by \the\KKSfitgoth)}%
+    \fi
+    \edef\KKSfitouter{\strip@pt\KKSfitreach}
+    % (4b) The same for the box the reader is actually handed.  On the routes
+    % that carry a visual guard that box is not the one the fit produced: the
+    % guard may take it in again after the fact.  It may only take it in --
+    % never enlarge it, and never in one direction alone -- and the result
+    % must still be inside the same measured interior, so that the check above
+    % keeps its meaning for the finished symbol and not merely for the fit.
+    \ifdim\dimexpr\KKSfitfinw-\KKSfitgotw\relax>\KKSfitslack
+      \KKSfitfail{#1/#3}{the guard widened the fitted box from
+        \the\KKSfitgotw\space to \the\KKSfitfinw}%
+    \fi
+    \ifdim\dimexpr\KKSfitfinh-\KKSfitgoth\relax>\KKSfitslack
+      \KKSfitfail{#1/#3}{the guard heightened the fitted box from
+        \the\KKSfitgoth\space to \the\KKSfitfinh}%
+    \fi
+    \KKSfitsetratio{\KKSfitfinaspect}{\KKSfitfinw}{\KKSfitfinh}%
+    \setlength{\KKSfitaspect}{%
+      \dimexpr\KKSfitfinaspect-\KKSfitgotaspect\relax}%
+    \KKSfitabs{\KKSfitaspect}%
+    \ifdim\KKSfitaspect>0.005\KKSfitgotaspect
+      \KKSfitfail{#1/#3}{the guard changed the aspect ratio from
+        \strip@pt\KKSfitgotaspect\space to \strip@pt\KKSfitfinaspect}%
+    \fi
+    \KKSfitjudgefinal
+    \ifnum\KKSfittaken=1
+      \KKSfitsetreachaxis{\csname KKSfit@usable@#1\endcsname}%
+    \else
+      \KKSfitsetreach{\csname KKSfit@kind@#1\endcsname}%
+        {\csname KKSfit@usable@#1\endcsname}{\csname KKSfit@cc@#1\endcsname}%
+        {\csname KKSfit@rc@#1\endcsname}%
+    \fi
+    \ifdim\KKSfitreach>1.002pt
+      \KKSfitfail{#1/#3}{the published box reaches \strip@pt\KKSfitreach\space
+        of the drawn interior}%
+    \fi
+    \edef\KKSfitpublic{\strip@pt\KKSfitreach}
+    % (5) Nothing is thrown away either: material that had to be shrunk must
+    % end up against the limit it was shrunk to, not somewhere below it.  This
+    % judges the fit's own box: a guard that shrinks further does so on
+    % purpose, and (4b) already holds it to shrinking only.
+    \KKSfitjudgefit
+    \ifnum\KKSfittaken=1
+      \KKSfitsetreachaxis{\KKSfitlima}%
+    \else
+      \KKSfitsetreach{\csname KKSfit@kind@#1\endcsname}{\KKSfitlima}%
+        {\KKSfitlimcc}{\KKSfitlimrc}%
+    \fi
+    % Material held by the band stops short of the region on purpose, and
+    % then it is the band it has to fill instead.
+    \setlength{\KKSfitbandreach}{\z@}%
+    \ifdim\KKSfitlimband>\z@
+      \KKSfitsetratio{\KKSfitbandreach}{\KKSfitgoth}{\KKSfitlimband}%
+      \ifdim\KKSfitbandreach>1.002pt
+        \KKSfitfail{#1/#3}{stands \strip@pt\KKSfitbandreach\space of the
+          band \the\KKSfitlimband\space its shape allots}%
+      \fi
+    \fi
+    % Material wider than its shape's wide width settles for the wide base;
+    % that is the size it aimed at, so it is not holding back either.
+    \KKSfitwideheldfalse
+    \ifdim\KKSfitlimwide>\z@
+      \ifdim\kks@fit@widebase\KKSfitnatw>\KKSfitlimwide\relax
+        \ifdim\dimexpr\KKSfitratio-\kks@fit@widebase pt\relax<\KKSfitslack
+          \ifdim\dimexpr\kks@fit@widebase pt-\KKSfitratio\relax<\KKSfitslack
+            \KKSfitwideheldtrue
+          \fi
+        \fi
+      \fi
+    \fi
+    \ifdim\KKSfitshrunk>0.001pt
+      \ifdim\KKSfitreach<0.97pt
+        \ifdim\KKSfitbandreach<0.97pt
+          \ifKKSfitwideheld\else
+            \KKSfitfail{#1/#3}{shrunk to \strip@pt\KKSfitratio, yet fills only
+              \strip@pt\KKSfitreach\space of the room it aimed at and
+              \strip@pt\KKSfitbandreach\space of its band}%
+          \fi
+        \fi
+      \fi
+    \fi
+    \typeout{KKS-FIT:#1/#3 scale=\strip@pt\KKSfitratio\space
+      interior=\KKSfitouter\space public=\KKSfitpublic\space
+      limit=\strip@pt\KKSfitreach\space
+      band=\strip@pt\KKSfitbandreach}%
+  \endgroup}
+
+% ---------------------------------------------------------------------------
+% The enclosures, with the geometry their drawing nodes state.
+% ---------------------------------------------------------------------------
+% The line width the options really resolve to, so that a fixture which sets
+% `linewidth' or a per-command key measures the outline it asked for.
+\newcommand{\KKSfitlw}[2]{%
+  \kks@linewidth{\csname kksymbols@#1\endcsname}{\kksymbols@linewidth}{#2}}
+\newcommand{\KKSfitshapes}{%
+  \KKSfitshape{maru}{circle}{shape=circle,%
+      line width=\KKSfitlw{marulinewidth}{.04\zw},minimum size=.9\zw,%
+      inner sep=.02\zw}{0.87\zw/sqrt(2)}{1}{0pt}%
+    {\KKSfitlw{marulinewidth}{.04\zw}}%
+  \KKSfitshape{kuromaru}{circle}{shape=circle,%
+      line width=\KKSfitlw{kuromarulinewidth}{.04\zw},minimum size=.9\zw,%
+      inner sep=.02\zw}{0.87\zw/sqrt(2)}{1}{0pt}%
+    {\KKSfitlw{kuromarulinewidth}{.04\zw}}%
+  \KKSfitshape{nmaru}{circle}{shape=circle,%
+      line width=\KKSfitlw{nmarulinewidth}{.03\zw},minimum size=.88\zw,%
+      double,double distance=.03\zw,inner sep=.06\zw,scale=.9}%
+    {0.82\zw/sqrt(2)}{0.9}{0pt}{\KKSfitlw{nmarulinewidth}{.03\zw}}%
+  \KKSfitshape{seihou}{rect}{line width=\KKSfitlw{seihoulinewidth}{.04\zw},%
+      minimum size=.85\zw,inner sep=.1\zw}{0.68\zw}{1}{0pt}%
+    {\KKSfitlw{seihoulinewidth}{.04\zw}}%
+  \KKSfitshape{kuroseihou}{rect}{%
+      line width=\KKSfitlw{kuroseihoulinewidth}{.04\zw},minimum size=.85\zw,%
+      inner sep=.1\zw}{0.68\zw}{1}{0pt}%
+    {\KKSfitlw{kuroseihoulinewidth}{.04\zw}}%
+  \KKSfitshape{seimaru}{rect}{line width=\KKSfitlw{seimarulinewidth}{.04\zw},%
+      minimum size=.85\zw,inner sep=.1\zw,rounded corners=.13\zw}%
+    {0.68\zw}{1}{.13\zw}{\KKSfitlw{seimarulinewidth}{.04\zw}}%
+  \KKSfitshape{kuroseimaru}{rect}{%
+      line width=\KKSfitlw{kuroseimarulinewidth}{.04\zw},minimum size=.85\zw,%
+      inner sep=.1\zw,rounded corners=.13\zw}{0.68\zw}{1}{.13\zw}%
+    {\KKSfitlw{kuroseimarulinewidth}{.04\zw}}%
+  \KKSfitshape{hishi}{diamond}{shape=diamond,%
+      line width=\KKSfitlw{hishilinewidth}{.04\zw},minimum size=.5\zw,%
+      inner sep=.03\zw}{0.85\zw/2}{1}{0pt}%
+    {\KKSfitlw{hishilinewidth}{.04\zw}}%
+  \KKSfitshape{kurohishi}{diamond}{shape=diamond,%
+      line width=\KKSfitlw{kurohishilinewidth}{.04\zw},minimum size=.5\zw,%
+      inner sep=.03\zw}{0.85\zw/2}{1}{0pt}%
+    {\KKSfitlw{kurohishilinewidth}{.04\zw}}%
+  \KKSfitshape{maruhishi}{diamond}{shape=diamond,%
+      line width=\KKSfitlw{maruhishilinewidth}{.04\zw},minimum size=.5\zw,%
+      inner sep=.03\zw}{0.85\zw/2}{1}{.06\zw}%
+    {\KKSfitlw{maruhishilinewidth}{.04\zw}}%
+  \KKSfitshape{kuromaruhishi}{diamond}{shape=diamond,%
+      line width=\KKSfitlw{kuromaruhishilinewidth}{.04\zw},%
+      minimum size=.5\zw,inner sep=.03\zw}{0.85\zw/2}{1}{.06\zw}%
+    {\KKSfitlw{kuromaruhishilinewidth}{.04\zw}}%
+  % The brackets and \ichimoji draw no frame, so their opening is exactly the
+  % box the enclosure reserves: a stroke-free rectangle of that size.
+  \KKSfitshape{kakko}{rect}{line width=0pt,minimum size=0pt,inner sep=0pt}%
+    {0.8\zw}{1}{0pt}{0pt}%
+  \KKSfitshape{ichimoji}{rect}{line width=0pt,minimum size=0pt,inner sep=0pt}%
+    {\zw}{1}{0pt}{0pt}%
+}
+
+% Two enclosures really are drawn with different strokes.  A fixture that sets
+% out to tell one command's line-width key from another's is worthless if the
+% widths it chose happen to land on the same outline, so it says so here and
+% the suite refuses to pretend otherwise.
+\newcommand{\KKSfitdistinct}[2]{%
+  \begingroup
+    \pgfmathsetlength{\KKSfittmp}{%
+      abs(\csname KKSfit@stroke@#1\endcsname
+          - \csname KKSfit@stroke@#2\endcsname)}%
+    \ifdim\KKSfittmp<0.15pt
+      \KKSfitfail{#1/#2}{are drawn with strokes only \the\KKSfittmp\space
+        apart, which is too little to tell their keys apart}%
+    \fi
+  \endgroup}
+% A corner arc of radius #2 would really be visible on enclosure #1.  A tip
+% rounded on an arc the pen is wider than is a tip the pen has already
+% squared off: the two corner models then genuinely coincide, and a fixture
+% that meant to tell them apart has to be drawn with a thinner stroke.  The
+% .414 is the share of the arc a diamond's tip loses along its diagonal.
+\newcommand{\KKSfitcorneractive}[2]{%
+  \begingroup
+    \pgfmathsetlength{\KKSfittmp}{%
+      0.4142136*max(0, (#2) - .5*\csname KKSfit@stroke@#1\endcsname)}%
+    \ifdim\KKSfittmp<0.05pt
+      \KKSfitfail{#1}{a corner radius of #2 would move its interior by only
+        \the\KKSfittmp\space against the stroke it is drawn with, which is
+        too little to tell a rounded tip from a sharp one}%
+    \fi
+  \endgroup}
+
+% ---------------------------------------------------------------------------
+% The suite.  \KKSfitrow runs one piece of material through every star route
+% whose star selects the safe-sizing path; \jegg is deliberately absent
+% because its star selects a gray background, not a size.
+% ---------------------------------------------------------------------------
+\newcommand{\KKSfitrow}[1]{%
+  \KKSfitcheck{maru}{\maru*}{#1}{.9}%
+  \KKSfitcheck{kuromaru}{\kuromaru*}{#1}{.9}%
+  \KKSfitcheck{nmaru}{\nmaru*}{#1}{.9}%
+  \KKSfitcheck{seihou}{\seihou*}{#1}{.9}%
+  \KKSfitcheck{kuroseihou}{\kuroseihou*}{#1}{.9}%
+  \KKSfitcheck{seimaru}{\seimaru*}{#1}{.9}%
+  \KKSfitcheck{kuroseimaru}{\kuroseimaru*}{#1}{.9}%
+  \KKSfitcheck{hishi}{\hishi*}{#1}{.9}%
+  \KKSfitcheck{kurohishi}{\kurohishi*}{#1}{.9}%
+  \KKSfitcheck{maruhishi}{\maruhishi*}{#1}{.9}%
+  \KKSfitcheck{kuromaruhishi}{\kuromaruhishi*}{#1}{.9}%
+  \KKSfitcheck{kakko}{\kakko*}{#1}{.9}%
+  \KKSfitcheck{kakko}{\sumikakko*}{#1}{.9}%
+  \KKSfitcheck{kakko}{\kakukakko*}{#1}{.9}%
+  \KKSfitcheck{kakko}{\kikakko*}{#1}{.9}%
+  \KKSfitcheck{kakko}{\ykakko*}{#1}{.9}%
+  \KKSfitcheck{kakko}{\nykakko*}{#1}{.9}%
+  \KKSfitcheck{kakko}{\namikakko*}{#1}{.9}%
+  \KKSfitcheck{kakko}{\kagikakko*}{#1}{.9}%
+  \KKSfitcheck{kakko}{\nkagikakko*}{#1}{.9}%
+  \KKSfitcheck{ichimoji}{\ichimoji*}{#1}{1}%
+}
+\newcommand{\KKSfitsuite}{%
+  \begingroup
+    \KKSfitshapes
+    % The reported case, then a wider string, a tall one, one that is both,
+    % a wide single letter, a narrow one, and a full-width character.
+    \KKSfitrow{abc}%
+    \KKSfitrow{mmmm}%
+    \KKSfitrow{Qjgy}%
+    \KKSfitrow{Wgabcdef}%
+    \KKSfitrow{m}%
+    \KKSfitrow{i}%
+    \KKSfitrow{漢}%
+    % The three letters called out as critical, each on its own and then in
+    % combinations that put their different metrics against one another: `c'
+    % is short and sits wholly on the baseline, `m' is the widest of the three
+    % and equally short, and `j' is the only one with a descender and with ink
+    % above the x-height, so a route that measured height without depth would
+    % size `j' as if it were `c'.  The height recorded throughout is the box's
+    % height plus its depth, which is what makes these rows bite.
+    \KKSfitrow{c}%
+    \KKSfitrow{j}%
+    \KKSfitrow{cmj}%
+    \KKSfitrow{mjm}%
+    \KKSfitrow{cjc}%
+    \KKSfitrow{jjj}%
+    \typeout{KKS-STAR-FIT:OK}%
+  \endgroup}
+
+% With a stroke heavy enough to swallow an interior there is nothing left to
+% fit into, so the routes must fall back to their plain base size instead of
+% dividing by a non-positive limit.  Only the properties that still make sense
+% are asserted: the scale is the base one, and it is still uniform.
+\newcommand{\KKSfitbasecheck}[4]{%
+  \begingroup
+    \global\let\KKSfitseen\relax
+    \setbox\z@=\hbox{#2{#3}}%
+    \ifx\KKSfitseen\relax
+      \KKSfitfail{#1/#3}{the star route never reached the uniform fit}%
+    \fi
+    \KKSfitsetratio{\KKSfitgotaspect}{\KKSfitgotw}{\KKSfitgoth}%
+    \KKSfitsetratio{\KKSfitnataspect}{\KKSfitnatw}{\KKSfitnath}%
+    \setlength{\KKSfitaspect}{%
+      \dimexpr\KKSfitgotaspect-\KKSfitnataspect\relax}%
+    \KKSfitabs{\KKSfitaspect}%
+    \ifdim\KKSfitaspect>0.005\KKSfitnataspect
+      \KKSfitfail{#1/#3}{aspect ratio changed from \strip@pt\KKSfitnataspect
+        to \strip@pt\KKSfitgotaspect}%
+    \fi
+    \KKSfitsetratio{\KKSfitratio}{\KKSfitgotw}{\KKSfitnatw}%
+    \setlength{\KKSfitshrunk}{\dimexpr\KKSfitratio-#4pt\relax}%
+    \KKSfitabs{\KKSfitshrunk}%
+    \ifdim\KKSfitshrunk>0.001pt
+      \KKSfitfail{#1/#3}{fell back to \strip@pt\KKSfitratio, not to the base
+        size #4}%
+    \fi
+  \endgroup}
+\newcommand{\KKSfitbaserow}[1]{%
+  \KKSfitbasecheck{maru}{\maru*}{#1}{.9}%
+  \KKSfitbasecheck{kuromaru}{\kuromaru*}{#1}{.9}%
+  \KKSfitbasecheck{nmaru}{\nmaru*}{#1}{.9}%
+  \KKSfitbasecheck{seihou}{\seihou*}{#1}{.9}%
+  \KKSfitbasecheck{kuroseihou}{\kuroseihou*}{#1}{.9}%
+  \KKSfitbasecheck{seimaru}{\seimaru*}{#1}{.9}%
+  \KKSfitbasecheck{kuroseimaru}{\kuroseimaru*}{#1}{.9}%
+  \KKSfitbasecheck{hishi}{\hishi*}{#1}{.9}%
+  \KKSfitbasecheck{kurohishi}{\kurohishi*}{#1}{.9}%
+  \KKSfitbasecheck{maruhishi}{\maruhishi*}{#1}{.9}%
+  \KKSfitbasecheck{kuromaruhishi}{\kuromaruhishi*}{#1}{.9}%
+}
+\newcommand{\KKSfitbasesuite}{%
+  \begingroup
+    \KKSfitbaserow{abc}%
+    \KKSfitbaserow{c}%
+    \KKSfitbaserow{m}%
+    \KKSfitbaserow{j}%
+    \KKSfitbaserow{cmj}%
+    \KKSfitbaserow{漢}%
+    \typeout{KKS-STAR-FIT-GUARD:OK}%
+  \endgroup}
+
+% Visual counterpart: one column per enclosure, in the order of the bug
+% report, so that a rendered page can be compared with it directly.
+\newcommand{\KKSfitshowrow}[1]{%
+  \fbox{\maru*{#1}}\fbox{\kuromaru*{#1}}\fbox{\nmaru*{#1}}\fbox{\jegg*{#1}}%
+  \fbox{\seihou*{#1}}\fbox{\kuroseihou*{#1}}%
+  \fbox{\seimaru*{#1}}\fbox{\kuroseimaru*{#1}}%
+  \fbox{\hishi*{#1}}\fbox{\kurohishi*{#1}}%
+  \fbox{\maruhishi*{#1}}\fbox{\kuromaruhishi*{#1}}%
+  \fbox{\kakko*{#1}}\fbox{\ichimoji*{#1}}}
+\newcommand{\KKSfitshowcolumn}[1]{%
+  \fbox{\maru*{#1}}\par\fbox{\kuromaru*{#1}}\par\fbox{\nmaru*{#1}}\par
+  \fbox{\jegg*{#1}}\par\fbox{\seihou*{#1}}\par\fbox{\kuroseihou*{#1}}\par
+  \fbox{\seimaru*{#1}}\par\fbox{\kuroseimaru*{#1}}\par
+  \fbox{\hishi*{#1}}\par\fbox{\kurohishi*{#1}}\par
+  \fbox{\maruhishi*{#1}}\par\fbox{\kuromaruhishi*{#1}}\par}
+\makeatother

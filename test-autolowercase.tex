@@ -41,6 +41,81 @@
 \KKSexpect{NORMAL}{\alphabetarray*{2}}% fully expands to B
 \KKSexpect{NORMAL}{\alphabetarray{27}}% expands to empty
 \KKSexpect{NORMAL}{}%
+
+% Sizing checks for \jegg's dedicated lowercase scaler.  They reproduce
+% \jegg@new's own measurements, call the scaler through the same hook the
+% lowercase route uses, and then assert the three properties the drawn egg
+% depends on.  Only ratios are compared, so the checks hold for any font.
+\newlength{\KKSeggw}\newlength{\KKSeggh}
+\newlength{\KKSeggnw}\newlength{\KKSeggnh}\newlength{\KKSeggtmp}
+\newsavebox{\KKSeggbox}
+\newcommand{\KKSeggfail}[2]{%
+  \PackageError{test-autolowercase}{Egg lowercase `#1': #2}{}}
+\newcommand{\KKSeggcheck}[1]{%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+  \pgfmathsetlength{\jegg@boxwidth@inner@cal}{0.77 * \maru@boxwidth@inner}%
+  \settowidth{\maru@var@yokohaba}{#1}%
+  \kks@jegg@lower@setup
+  \settowidth{\KKSeggnw}{\kks@withref{#1}}%
+  \settoheight{\KKSeggnh}{\kks@withref{#1}}%
+  \settodepth{\KKSeggtmp}{\kks@withref{#1}}%
+  \addtolength{\KKSeggnh}{\KKSeggtmp}%
+  \sbox{\KKSeggbox}{%
+    \shukushou@adj@new
+      {\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{\kks@withref{#1}}}%
+  \setlength{\KKSeggw}{\wd\KKSeggbox}%
+  \setlength{\KKSeggh}{\dimexpr\ht\KKSeggbox+\dp\KKSeggbox\relax}%
+  % (1) The scaled box must sit inside the drawn ellipse with room to spare.
+  % A box centred on an ellipse touches it when (w/2a)^2 + (h/2b)^2 = 1, i.e.
+  % when the reach below is 2; ascenders and descenders are covered because
+  % the height is measured with the depth included.
+  \pgfmathsetmacro{\KKSeggreach}{%
+    sqrt((\KKSeggw / \kks@jegg@lower@hradius)^2
+       + (\KKSeggh / \kks@jegg@lower@vradius)^2)}%
+  \ifdim\KKSeggreach pt>1.9pt
+    \KKSeggfail{#1}{reach \KKSeggreach\space leaves no padding inside the
+      ellipse (2 touches the outline)}%
+  \fi
+  \ifdim\KKSeggreach pt<0.1pt
+    \KKSeggfail{#1}{scaled away to nothing}%
+  \fi
+  % (2) The scaling must stay uniform.
+  \pgfmathsetmacro{\KKSeggaspect}{%
+    abs((\KKSeggw / \KKSeggh) - (\KKSeggnw / \KKSeggnh))
+      / (\KKSeggnw / \KKSeggnh)}%
+  \ifdim\KKSeggaspect pt>0.01pt
+    \KKSeggfail{#1}{aspect ratio changed by \KKSeggaspect}%
+  \fi
+}
+% (3) A letter without ascender or descender must stay clearly below the
+% cap-height size the normal path gives (\jegg@boxwidth@inner@cal), otherwise
+% \jegg{c} stops reading as lowercase next to \jegg{C}.
+\newcommand{\KKSeggxheight}[1]{%
+  \KKSeggcheck{#1}%
+  \pgfmathsetmacro{\KKSeggratio}{\KKSeggh / \jegg@boxwidth@inner@cal}%
+  \ifdim\KKSeggratio pt>0.85pt
+    \KKSeggfail{#1}{is \KKSeggratio\space of the uppercase egg size}%
+  \fi
+  \ifdim\KKSeggratio pt<0.45pt
+    \KKSeggfail{#1}{is only \KKSeggratio\space of the uppercase egg size}%
+  \fi
+}
+\newcommand{\KKSeggsuite}{%
+  \begingroup
+    \KKSeggcheck{a}\KKSeggcheck{b}\KKSeggcheck{c}\KKSeggcheck{d}%
+    \KKSeggcheck{e}\KKSeggcheck{f}\KKSeggcheck{g}\KKSeggcheck{h}%
+    \KKSeggcheck{i}\KKSeggcheck{j}\KKSeggcheck{k}\KKSeggcheck{l}%
+    \KKSeggcheck{m}\KKSeggcheck{n}\KKSeggcheck{o}\KKSeggcheck{p}%
+    \KKSeggcheck{q}\KKSeggcheck{r}\KKSeggcheck{s}\KKSeggcheck{t}%
+    \KKSeggcheck{u}\KKSeggcheck{v}\KKSeggcheck{w}\KKSeggcheck{x}%
+    \KKSeggcheck{y}\KKSeggcheck{z}%
+    \KKSeggxheight{c}\KKSeggxheight{e}\KKSeggxheight{m}\KKSeggxheight{n}%
+    \KKSeggxheight{o}\KKSeggxheight{r}\KKSeggxheight{s}\KKSeggxheight{u}%
+    \KKSeggxheight{v}\KKSeggxheight{w}\KKSeggxheight{x}\KKSeggxheight{z}%
+    \typeout{KKS-EGG-SIZING:OK}%
+  \endgroup
+}
 \makeatother
 
 \begin{document}
@@ -81,6 +156,23 @@ still changes only the background style.\par
 \fbox{\jegg{m}}\fbox{\jegg*{m}}\quad
 \fbox{\jegg{\alphabetarray{2}}}\fbox{\jegg*{\alphabetarray{2}}}\quad
 \fbox{\jegg{1}}\fbox{\jegg*{1}}
+
+\medskip
+\noindent The egg's own lowercase scaler: every letter must keep its shape,
+stay inside the ellipse with a visible gap, and remain clearly smaller than
+the uppercase egg next to it.\par
+\KKSeggsuite
+\fbox{\jegg{a}}\fbox{\jegg{b}}\fbox{\jegg{c}}\fbox{\jegg{d}}\fbox{\jegg{e}}%
+\fbox{\jegg{f}}\fbox{\jegg{g}}\fbox{\jegg{h}}\fbox{\jegg{i}}\fbox{\jegg{j}}%
+\fbox{\jegg{k}}\fbox{\jegg{l}}\fbox{\jegg{m}}\fbox{\jegg{n}}\fbox{\jegg{o}}%
+\fbox{\jegg{p}}\fbox{\jegg{q}}\fbox{\jegg{r}}\fbox{\jegg{s}}\fbox{\jegg{t}}%
+\fbox{\jegg{u}}\fbox{\jegg{v}}\fbox{\jegg{w}}\fbox{\jegg{x}}\fbox{\jegg{y}}%
+\fbox{\jegg{z}}\par
+\fbox{\jegg*{a}}\fbox{\jegg*{c}}\fbox{\jegg*{g}}\fbox{\jegg*{j}}%
+\fbox{\jegg*{m}}\fbox{\jegg*{w}}\fbox{\jegg*{y}}\quad
+\fbox{\jegg{c}}\fbox{\jegg{C}}\fbox{\jegg*{c}}\fbox{\jegg*{C}}\quad
+\fbox{\jegg{m}}\fbox{\jegg{M}}\quad
+\fbox{\maru{c}}\fbox{\maru{C}}
 
 \medskip
 \noindent Nested/state-leak smoke test:\par

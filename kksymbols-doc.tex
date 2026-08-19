@@ -78,9 +78,36 @@
   after title=\IfNoValueTF{#2}{}{{\hfill\tcbox[on line, arc=.5mm, boxsep=0pt, boxrule=0pt, top=1mm, bottom=0.8mm, left=2mm, right=2.2mm, colback=white!80!black, coltext=#3]{\raisebox{-0.1ex}{\vphantom{羅}\vphantom{j}#2}}}}, bottom=2mm, top=2mm, 
 }
 
+%%% Macros used only by the corner-case test sheet in "Roman numerals".
+%%% They measure the reference box each enclosure builds internally, so the
+%%% figures printed there are produced by this document at compile time.
+\makeatletter
+\newsavebox{\KKStbx}
+\newdimen\KKStmaxht \newdimen\KKStminht
+\newcommand{\KKStstart}{\global\KKStmaxht=-16000pt \global\KKStminht=16000pt}
+\newcommand{\KKStmeas}[1]{%
+  \sbox{\KKStbx}{\kks@withref{#1}}%
+  \ifdim\ht\KKStbx>\KKStmaxht \global\KKStmaxht=\ht\KKStbx\fi
+  \ifdim\ht\KKStbx<\KKStminht \global\KKStminht=\ht\KKStbx\fi}
+\newcommand{\KKStstore}[1]{%
+  \expandafter\xdef\csname KKStd#1\endcsname
+    {\the\dimexpr\KKStmaxht-\KKStminht\relax}}
+\newcommand{\KKStval}[1]{{\ttfamily\csname KKStd#1\endcsname}}
+\newcommand{\KKStprobe}[2]{%
+  \sbox{\KKStbx}{#1\kks@withref{#2}}{\ttfamily\the\ht\KKStbx}}
+% Same measurement, but only stored: usable where the result must be measured
+% (for example inside a vertical box) and printed somewhere else.
+\newcommand{\KKStprobestore}[3]{%
+  \sbox{\KKStbx}{#2\kks@withref{#3}}%
+  \expandafter\xdef\csname KKStd#1\endcsname{\the\ht\KKStbx}}
+\newcommand{\KKStb}[1]{%
+  \leavevmode{\fboxsep=0pt\fboxrule=.1pt\fbox{#1}}\hskip1pt plus 2pt\relax}
+\newcommand{\KKStlab}[1]{\par\smallskip\noindent{\footnotesize\gtfamily #1}\par\nopagebreak}
+\makeatother
+
 \title{\texttt{KKsymbols} Package Documentation}
 \author{Kosei Kawaguchi a.k.a. KKTeX}
-\date{Version 2.2.2 (2026/06/26)}
+\date{Version 2.3.0 (2026/08/20)}
 \begin{document}
 
 \begin{titlepage}
@@ -458,6 +485,33 @@ The following package options are provided.
   sizing path, \KKverb|\jegg| has no manual lowercase-sizing star when the
   option is off.
 
+  For lowercase roman numerals produced by \KKverb|\Rrnum{n}|, note that
+  \KKverb|\Rrnum{1}|, \KKverb|\Rrnum{5}| and \KKverb|\Rrnum{10}| expand to a
+  single letter and therefore take the lowercase path, while \KKverb|\Rrnum{2}|
+  and \KKverb|\Rrnum{8}| do not. Do not try to even this out with explicit
+  stars: keep \KKverb|autolowercase=1|, use the non-starred commands, and add
+  one group-wide \KKverb|\kksref{\Rrnum{6}}|. See the ``Roman numerals''
+  section for the recommended usage and the verified corner cases.
+
+  Because its outline is an ellipse rather than a square, \KKverb|\jegg| sizes
+  lowercase letters by a rule of its own. The glyph is scaled uniformly, so
+  \KKverb|\jegg{c}| keeps a visibly lowercase x-height beside
+  \KKverb|\jegg{C}| instead of being stretched to cap height, and wide letters
+  such as \KKverb|\jegg{m}| and \KKverb|\jegg{w}| are reduced only as far as
+  the ellipse requires. The height is measured with the depth included, so
+  ascenders and descenders such as \KKverb|\jegg{f}| and \KKverb|\jegg{g}|
+  stay inside the outline as well. This rule applies to the egg alone; the
+  other enclosures are unchanged, and the gray background of \KKverb|\jegg*|
+  is not affected by it.
+
+  \KKverb|\jegg| の囲みは正方形ではなく楕円のため、小文字の大きさは専用の規則で
+  決めています。縦横比を保ったまま縮小するので、\KKverb|\jegg{c}| は
+  \KKverb|\jegg{C}| の隣でも小文字らしい高さを保ち、\KKverb|\jegg{m}| や
+  \KKverb|\jegg{w}| のような幅の広い字も楕円に収まる範囲でのみ小さくなります。
+  高さは深さ込みで測るため、\KKverb|\jegg{f}| や \KKverb|\jegg{g}| の上下の
+  はみ出しも防がれます。この規則は \KKverb|\jegg| のみに適用され、他の囲み
+  コマンドの挙動は変わりません。\KKverb|\jegg*| の網掛けにも影響しません。
+
   \item[linewidth and command-specific line widths] The thickness of every
   TikZ-drawn enclosure can be set with \KKverb|linewidth=<dimension>|. A
   command-specific option takes precedence over this common value:
@@ -494,6 +548,19 @@ The following package options are provided.
   \KKverb|\nmaru|, the distance between its double rules remains
   \KKverb|.03\zw|, so very large line widths can close that gap.
 
+  For \KKverb|\jegg|, the interior its lowercase sizing aims at follows the
+  effective line width. The stroke is centred on the same ellipse path
+  whatever its width, so a thicker egg outline eats into the interior and
+  lowercase letters are reduced a little further to stay clear of it. A line
+  width wide enough to leave no interior at all draws a solid egg; the
+  lowercase glyph then keeps its plain size rather than being scaled against a
+  shape that no longer has an inside.
+
+  \KKverb|\jegg| の小文字サイズが基準とする内側の領域は、実際に描画される線幅に
+  追従します。線幅によらず線は楕円の経路の中心に描かれるため、線が太いほど内側は
+  狭くなり、小文字はその分だけ小さくなります。内側が残らないほど太い線幅を指定
+  した場合は塗り潰した楕円になり、そのときは縮小せず通常の小文字サイズを保ちます。
+
   \begin{SourceCode}{Input}{TeX}
     \usepackage[
       linewidth=.6pt,
@@ -516,10 +583,12 @@ The following package options are provided.
   \KKverb|\maruhishi| call the filled \KKverb|\kurohishi| implementation.
   This has been corrected, so \KKverb|\maruhishi| now draws its intended
   unfilled rounded diamond and its output intentionally changes. Explicit
-  stars on \KKverb|\hishi|, \KKverb|\kurohishi|, \KKverb|\maruhishi|, and
-  \KKverb|\kuromaruhishi| now select an aspect-ratio-preserving lowercase
-  path which constrains both glyph width and height to the diamond's inner
-  square. A separate
+  stars whose public meaning is safe sizing now accept arbitrary material and
+  use one common horizontal/vertical scale factor to keep it inside the
+  outline actually drawn. This applies throughout the maru, seihou, hishi,
+  bracket, and \KKverb|\ichimoji| families, and follows each TikZ enclosure's
+  configured line width. The \KKverb|\jegg| star is the exception: it keeps
+  selecting a gray background only. A separate
   pre-existing state leak made one-digit \KKverb|\jegg*| sizing depend on the
   preceding enclosure command. That leak is also fixed; because this is an
   unconditional correctness fix, \KKverb|autolowercase=0| disables automatic
@@ -527,8 +596,10 @@ The following package options are provided.
 
   従来の \KKverb|\maruhishi| は誤って \KKverb|\kurohishi| の実装へ接続されて
   いました。この接続を修正したため、出力は本来の白抜き角丸菱形へ変わります。
-  また、菱形4コマンドの明示スターは、字形の縦横比を保ちつつ幅と高さの両方を
-  菱形の内接正方形へ収める小文字向け経路を選ぶようになりました。
+  また、安全サイズを意味する明示スターは任意の内容を受け取り、縦横共通の倍率で
+  縮小して実際に描かれる枠内へ収めます。これは maru・seihou・hishi・括弧・
+  \KKverb|\ichimoji| の各系列に適用され、TikZで描く枠では指定線幅にも追従します。
+  例外として、\KKverb|\jegg| のスターは従来どおり網掛けだけを選びます。
   また、1桁数字の \KKverb|\jegg*| の大きさが直前の囲みコマンドに依存する不具合も
   修正しています。この修正は \KKverb|autolowercase=0| でも有効です。
 \end{description}
@@ -552,6 +623,18 @@ independently only while \KKverb|autolowercase=1|. With
 Protected formatting commands are not removed by this classification. If an
 argument such as \KKverb|\textbf{m}| does not expand to the bare letter, use an
 explicit star on commands whose star selects the lowercase-sizing path.
+That explicit star is not restricted to one letter: material such as
+\KKverb|abc| or \KKverb|cmj| is uniformly shrunk in both directions until it
+fits the actual outline, without changing the glyphs' aspect ratio. The fit
+also follows the configured frame line width.
+
+The egg keeps lowercase letters uniformly scaled inside the ellipse it draws,
+including wide letters and letters with ascenders or descenders:
+
+\begin{quotation}
+  \jegg{c}\jegg{C}\quad\jegg{m}\jegg{M}\quad\jegg{w}\jegg{W}\quad
+  \jegg{f}\jegg{g}\quad\jegg*{c}\jegg*{m}\jegg*{w}\jegg*{g}
+\end{quotation}
 
 \begin{SourceCode}{Input}{TeX}[Automatic lowercase sizing]
   % Normal Characters
@@ -629,7 +712,7 @@ KKsymbols 自体はローマ数字を生成しません。ローマ数字の生�
 
 小文字ローマ数字は注意が必要です。小文字の \verb|i|、\verb|v|、\verb|x| は字ごとに高さが違うため、単に \KKverb|\kakko{\Rrnum{1}}| から \KKverb|\kakko{\Rrnum{10}}| までを並べると、囲み内部での縦方向の見え方が完全には揃わないことがあります。これはバグではなく、引数の実際の高さが異なるためです。
 
-小文字ローマ数字をリストラベルなどで厳密に揃えたい場合は、\KKverb|\kksref{\Rrnum{6}}| をグループ内で指定してください。これは各囲みコマンドの内部に \KKverb|\vphantom{\Rrnum{6}}| 相当の基準を加えるためのフックです。
+そのため小文字ローマ数字については、\textbf{明示スターを使わない非スター版のコマンドに、グループ内で一括指定した} \KKverb|\kksref{\Rrnum{6}}| \textbf{を組み合わせる書き方を推奨します}。\KKverb|\kksref| は各囲みコマンドの内部に \KKverb|\vphantom{\Rrnum{6}}| 相当の基準を加えるためのフックで、グループ内のすべての囲みに同じ基準を与えます。理由と検証結果は次の二つの小節にまとめます。
 
 \paragraph{English}
 KKsymbols itself does not generate roman numerals. In ordinary use, roman numerals are supplied by the \texttt{KKran} package through \KKverb|\Rrnum|. \KKverb|\Rrnum{8}| gives a lowercase roman numeral, while \KKverb|\Rrnum*{8}| gives an uppercase roman numeral.
@@ -638,14 +721,14 @@ Uppercase roman numerals behave like uppercase Latin letters. They should normal
 
 Lowercase roman numerals require more care. The letters \verb|i|, \verb|v|, and \verb|x| have different heights, so a sequence from \KKverb|\kakko{\Rrnum{1}}| to \KKverb|\kakko{\Rrnum{10}}| may not look vertically identical inside the enclosures. This is not a bug; it follows from the actual glyph metrics of the arguments.
 
-If lowercase roman numerals must be strictly aligned, for example in list labels, set \KKverb|\kksref{\Rrnum{6}}| inside a group. It works as a hook that adds a reference equivalent to \KKverb|\vphantom{\Rrnum{6}}| inside each enclosure command.
+For lowercase roman numerals, therefore, the \textbf{recommended} way to write a sequence is to use the \textbf{non-starred} enclosure commands together with a \textbf{single group-wide} \KKverb|\kksref{\Rrnum{6}}|. \KKverb|\kksref| is a hook that adds a reference equivalent to \KKverb|\vphantom{\Rrnum{6}}| inside each enclosure command, so every enclosure in that group is built against the same reference. The reasons and the verification results are given in the two subsections below.
 
 \begin{SourceCode}{Input}{TeX}[Roman numerals]
   % Uppercase roman numerals: use the non-starred enclosure command.
   \kakko{\Rrnum*{1}}\kakko{\Rrnum*{2}}\kakko{\Rrnum*{3}}
 
   % Lowercase roman numerals: automatic reference only.
-  \kakko{\Rrnum{1}}\kakko{\Rrnum{2}}\kakko{\Rrnum{3}}\kakko{\Rrnum{6}}
+  \kakko{\Rrnum{1}}\kakko{\Rrnum{5}}
 
   % Lowercase roman numerals: force a common reference.
   {\kksref{\Rrnum{6}}%
@@ -653,23 +736,520 @@ If lowercase roman numerals must be strictly aligned, for example in list labels
 \end{SourceCode}
 \begin{OutPut}{Output}
   \kakko{\Rrnum*{1}}\kakko{\Rrnum*{2}}\kakko{\Rrnum*{3}}\quad
-  \kakko{\Rrnum{1}}\kakko{\Rrnum{2}}\kakko{\Rrnum{3}}\kakko{\Rrnum{6}}\quad
+  \kakko{\Rrnum{1}}\kakko{\Rrnum{5}}\quad
   {\kksref{\Rrnum{6}}%
     \kakko{\Rrnum{1}}\kakko{\Rrnum{2}}\kakko{\Rrnum{3}}\kakko{\Rrnum{6}}}
 \end{OutPut}
+
+\subsection{Recommended usage: non-starred commands and one group-wide phantom}
+\paragraph{Japanese}
+小文字ローマ数字を並べるときは、次の二点を守る書き方を推奨します。
+
+\begin{enumerate}
+  \item 明示スターを使わず、非スター版の囲みコマンドを使う。
+  \item グループの先頭で \KKverb|\kksref{\Rrnum{6}}| を一度だけ書き、そのグループ全体に一括で効かせる。
+\end{enumerate}
+
+理由は三つあります。
+
+第一に、既定の自動基準は現在フォントの x ハイト相当で、これは \verb|v| や \verb|x| 自身の高さとほぼ一致します。つまり小文字ローマ数字に対しては自動基準が実質的に働かず、\verb|i| を含む字（i, ii, iii, iv, vi, vii, viii, ix）と \verb|v|・\verb|x| とで基準がずれたままになります。ヒラギノ明朝 Pro W3 の 10\,pt では、前者の基準高さが 7.61\,pt、後者が 5.38\,pt で、2.23\,pt の差が残ります。
+
+第二に、\KKverb|\kksref{\Rrnum{6}}| をグループ内に一度書けば、そのグループ内のすべての囲みが同じ基準（\verb|vi| の高さと深さ）で組まれます。同じ条件では 10 個すべてが 7.61\,pt となり、差は 0 になります。基準は現在のフォントサイズから決まるので、\KKverb|\tiny| から \KKverb|\Huge| までどのサイズでも差は 0 のままです。
+
+なお、\verb|l| や \verb|d| を含むローマ数字（50, 500, 1888 など）まで扱う場合は、それらが \verb|vi| よりわずかに背が高いため、基準を \KKverb|\kksref{\Rrnum{50}}|（\verb|l|）にしてください。
+
+第三に、明示スターは「揃えるための指定」ではありません。スターは小文字向けの安全サイズ経路を選ぶもので、内容ごとに縮小率が決まります。全体が一段小さくなるうえ、\verb|i| 系と \verb|v|・\verb|x| の見え方の差は残るため、一括 phantom の代わりにはなりません。
+
+\paragraph{English}
+When you typeset a sequence of lowercase roman numerals, the recommended style is:
+
+\begin{enumerate}
+  \item use the non-starred enclosure commands, without an explicit star, and
+  \item write \KKverb|\kksref{\Rrnum{6}}| once at the beginning of the group, so that it applies to the whole group at once.
+\end{enumerate}
+
+There are three reasons.
+
+First, the default automatic reference is the x-height of the current font, which is essentially the height of \verb|v| and \verb|x| themselves. For lowercase roman numerals the automatic reference therefore does almost nothing, and the numerals that contain \verb|i| (i, ii, iii, iv, vi, vii, viii, ix) keep a different reference from \verb|v| and \verb|x|. With Hiragino Mincho Pro W3 at 10\,pt the former are measured at 7.61\,pt and the latter at 5.38\,pt, a residual difference of 2.23\,pt.
+
+Second, one \KKverb|\kksref{\Rrnum{6}}| inside the group makes every enclosure in that group use the same reference, namely the height and depth of \verb|vi|. Under the same conditions all ten become 7.61\,pt and the difference is 0. The reference follows the current font size, so the difference stays 0 from \KKverb|\tiny| to \KKverb|\Huge|.
+
+If the range you typeset includes numerals containing \verb|l| or \verb|d| (50, 500, 1888, \dots), use \KKverb|\kksref{\Rrnum{50}}| (\verb|l|) as the reference instead, since those letters are slightly taller than \verb|vi|.
+
+Third, an explicit star is not an alignment control. The star selects the lowercase-safe sizing path, whose shrink factor is decided per argument. It makes the whole sequence one step smaller while the difference between the \verb|i| group and \verb|v|/\verb|x| remains, so it is not a substitute for the group-wide phantom.
+
+\begin{SourceCode}{Input}{TeX}[Recommended]
+  % Recommended: non-starred commands + one \kksref for the whole group.
+  {\kksref{\Rrnum{6}}%
+    \maru{\Rrnum{1}}\maru{\Rrnum{2}}\maru{\Rrnum{3}}\maru{\Rrnum{4}}\maru{\Rrnum{5}}%
+    \maru{\Rrnum{6}}\maru{\Rrnum{7}}\maru{\Rrnum{8}}\maru{\Rrnum{9}}\maru{\Rrnum{10}}}
+
+  % Not recommended: the automatic reference alone.
+  \maru{\Rrnum{1}}\maru{\Rrnum{2}}...\maru{\Rrnum{10}}
+
+  % Not recommended: an explicit star does not align the sequence.
+  \maru*{\Rrnum{1}}\maru*{\Rrnum{2}}...\maru*{\Rrnum{10}}
+\end{SourceCode}
+\begin{OutPut}{Output}
+  Recommended:\quad{\kksref{\Rrnum{6}}\maru{\Rrnum{1}}\maru{\Rrnum{2}}\maru{\Rrnum{3}}\maru{\Rrnum{4}}\maru{\Rrnum{5}}\maru{\Rrnum{6}}\maru{\Rrnum{7}}\maru{\Rrnum{8}}\maru{\Rrnum{9}}\maru{\Rrnum{10}}}
+
+  Automatic reference only:\quad\maru{\Rrnum{1}}\maru{\Rrnum{2}}\maru{\Rrnum{3}}\maru{\Rrnum{4}}\maru{\Rrnum{5}}\maru{\Rrnum{6}}\maru{\Rrnum{7}}\maru{\Rrnum{8}}\maru{\Rrnum{9}}\maru{\Rrnum{10}}
+
+  Explicit star:\quad\maru*{\Rrnum{1}}\maru*{\Rrnum{2}}\maru*{\Rrnum{3}}\maru*{\Rrnum{4}}\maru*{\Rrnum{5}}\maru*{\Rrnum{6}}\maru*{\Rrnum{7}}\maru*{\Rrnum{8}}\maru*{\Rrnum{9}}\maru*{\Rrnum{10}}
+\end{OutPut}
+
+\subsection{Corner-case test sheet}
+\paragraph{Japanese}
+以下は、推奨の書き方（非スター版のコマンド ＋ グループ内で一括指定した
+\KKverb|\kksref{\Rrnum{6}}|）を、条件を変えて確かめたものです。
+表の数値はこのドキュメント自身がコンパイル時に実測した値で、各囲みコマンドが
+内部で使う基準ボックスの高さの、\KKverb|\Rrnum{1}| から \KKverb|\Rrnum{10}| まで
+（C2 では各集合内）の最大と最小の差です。0 なら、その集合のすべてが同じ基準で
+組まれていることを意味します。各記号を囲む細い枠は \KKverb|\fbox|（0.1\,pt）で、
+記号の一部ではなく出力ボックスの実寸を示します。
+
+\paragraph{English}
+The following sheet checks the recommended style---non-starred commands with one
+group-wide \KKverb|\kksref{\Rrnum{6}}|---under varying conditions. Every figure in
+the tables is measured by this document at compile time: it is the difference
+between the largest and the smallest height of the reference box that the
+enclosure commands build internally, taken over \KKverb|\Rrnum{1}| to
+\KKverb|\Rrnum{10}| (or over each set in C2). Zero means that every member of the
+set is built against the same reference. The thin frame around each symbol is an
+\KKverb|\fbox| (0.1\,pt) showing the real size of the output box, not part of the
+symbol.
+
+\subsubsection*{C1. Font size / フォントサイズ}
+{\tiny \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Aa}}%
+{\scriptsize \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ab}}%
+{\footnotesize \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ac}}%
+{\small \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ad}}%
+{\normalsize \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ae}}%
+{\large \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Af}}%
+{\Large \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ag}}%
+{\LARGE \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ah}}%
+{\huge \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ai}}%
+{\Huge \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Aj}}%
+{\fontsize{10}{12}\selectfont \kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Az}}%
+{\tiny \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ba}}%
+{\scriptsize \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Bb}}%
+{\footnotesize \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Bc}}%
+{\small \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Bd}}%
+{\normalsize \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Be}}%
+{\large \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Bf}}%
+{\Large \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Bg}}%
+{\LARGE \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Bh}}%
+{\huge \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Bi}}%
+{\Huge \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Bj}}%
+{\fontsize{10}{12}\selectfont \kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Bz}}%
+{\tiny \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ca}}%
+{\scriptsize \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Cb}}%
+{\footnotesize \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Cc}}%
+{\small \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Cd}}%
+{\normalsize \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ce}}%
+{\large \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Cf}}%
+{\Large \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Cg}}%
+{\LARGE \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ch}}%
+{\huge \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Ci}}%
+{\Huge \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Cj}}%
+{\fontsize{10}{12}\selectfont \kksrefoff\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{2}}\KKStmeas{\Rrnum{3}}\KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{6}}\KKStmeas{\Rrnum{7}}\KKStmeas{\Rrnum{8}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{10}}\KKStstore{Cz}}%
+\noindent 本文フォント（このドキュメントは 8\,pt 基準）でサイズを変えたときの差。
+最下行だけは 10\,pt を明示指定しており、これが前小節の本文で挙げた値です。\par
+\noindent The spread at each size of the running font (this document is set at
+8\,pt), plus one row at an explicit 10\,pt, which is the value quoted in the
+previous subsection.
+\par\medskip
+{\centering\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+size & auto & \verb|\kksref{\Rrnum{6}}| & \verb|\kksrefoff| \\
+\midrule
+\verb|\tiny| & \KKStval{Aa} & \KKStval{Ba} & \KKStval{Ca} \\
+\verb|\scriptsize| & \KKStval{Ab} & \KKStval{Bb} & \KKStval{Cb} \\
+\verb|\footnotesize| & \KKStval{Ac} & \KKStval{Bc} & \KKStval{Cc} \\
+\verb|\small| & \KKStval{Ad} & \KKStval{Bd} & \KKStval{Cd} \\
+\verb|\normalsize| & \KKStval{Ae} & \KKStval{Be} & \KKStval{Ce} \\
+\verb|\large| & \KKStval{Af} & \KKStval{Bf} & \KKStval{Cf} \\
+\verb|\Large| & \KKStval{Ag} & \KKStval{Bg} & \KKStval{Cg} \\
+\verb|\LARGE| & \KKStval{Ah} & \KKStval{Bh} & \KKStval{Ch} \\
+\verb|\huge| & \KKStval{Ai} & \KKStval{Bi} & \KKStval{Ci} \\
+\verb|\Huge| & \KKStval{Aj} & \KKStval{Bj} & \KKStval{Cj} \\
+\verb|\fontsize{10}{12}| & \KKStval{Az} & \KKStval{Bz} & \KKStval{Cz} \\
+\bottomrule
+\end{tabular}\par}
+\medskip
+\noindent 見た目（\verb|\kksref{\Rrnum{6}}|、\verb|\maru|、i〜x）:\par
+{\footnotesize\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par\smallskip
+{\small\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par\smallskip
+{\normalsize\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par\smallskip
+{\large\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par\smallskip
+{\Large\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par\smallskip
+
+\subsubsection*{C2. Range of the argument / 引数の範囲}
+{\kksrefauto\KKStstart \KKStmeas{\Rrnum{11}}\KKStmeas{\Rrnum{12}}\KKStmeas{\Rrnum{13}}\KKStmeas{\Rrnum{14}}\KKStmeas{\Rrnum{15}}\KKStmeas{\Rrnum{16}}\KKStmeas{\Rrnum{17}}\KKStmeas{\Rrnum{18}}\KKStmeas{\Rrnum{19}}\KKStmeas{\Rrnum{20}}\KKStstore{D}}%
+{\kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{11}}\KKStmeas{\Rrnum{12}}\KKStmeas{\Rrnum{13}}\KKStmeas{\Rrnum{14}}\KKStmeas{\Rrnum{15}}\KKStmeas{\Rrnum{16}}\KKStmeas{\Rrnum{17}}\KKStmeas{\Rrnum{18}}\KKStmeas{\Rrnum{19}}\KKStmeas{\Rrnum{20}}\KKStstore{E}}%
+{\kksref{\Rrnum{50}}\KKStstart \KKStmeas{\Rrnum{11}}\KKStmeas{\Rrnum{12}}\KKStmeas{\Rrnum{13}}\KKStmeas{\Rrnum{14}}\KKStmeas{\Rrnum{15}}\KKStmeas{\Rrnum{16}}\KKStmeas{\Rrnum{17}}\KKStmeas{\Rrnum{18}}\KKStmeas{\Rrnum{19}}\KKStmeas{\Rrnum{20}}\KKStstore{F}}%
+{\kksrefauto\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{10}}\KKStmeas{\Rrnum{50}}\KKStmeas{\Rrnum{100}}\KKStmeas{\Rrnum{500}}\KKStmeas{\Rrnum{1000}}\KKStstore{G}}%
+{\kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{10}}\KKStmeas{\Rrnum{50}}\KKStmeas{\Rrnum{100}}\KKStmeas{\Rrnum{500}}\KKStmeas{\Rrnum{1000}}\KKStstore{H}}%
+{\kksref{\Rrnum{50}}\KKStstart \KKStmeas{\Rrnum{1}}\KKStmeas{\Rrnum{5}}\KKStmeas{\Rrnum{10}}\KKStmeas{\Rrnum{50}}\KKStmeas{\Rrnum{100}}\KKStmeas{\Rrnum{500}}\KKStmeas{\Rrnum{1000}}\KKStstore{I}}%
+{\kksrefauto\KKStstart \KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{40}}\KKStmeas{\Rrnum{49}}\KKStmeas{\Rrnum{90}}\KKStmeas{\Rrnum{400}}\KKStmeas{\Rrnum{900}}\KKStmeas{\Rrnum{1000}}\KKStmeas{\Rrnum{1888}}\KKStmeas{\Rrnum{3888}}\KKStstore{J}}%
+{\kksref{\Rrnum{6}}\KKStstart \KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{40}}\KKStmeas{\Rrnum{49}}\KKStmeas{\Rrnum{90}}\KKStmeas{\Rrnum{400}}\KKStmeas{\Rrnum{900}}\KKStmeas{\Rrnum{1000}}\KKStmeas{\Rrnum{1888}}\KKStmeas{\Rrnum{3888}}\KKStstore{K}}%
+{\kksref{\Rrnum{50}}\KKStstart \KKStmeas{\Rrnum{4}}\KKStmeas{\Rrnum{9}}\KKStmeas{\Rrnum{40}}\KKStmeas{\Rrnum{49}}\KKStmeas{\Rrnum{90}}\KKStmeas{\Rrnum{400}}\KKStmeas{\Rrnum{900}}\KKStmeas{\Rrnum{1000}}\KKStmeas{\Rrnum{1888}}\KKStmeas{\Rrnum{3888}}\KKStstore{L}}%
+\noindent \verb|l| と \verb|d| は \verb|vi| よりわずかに背が高く、基準より高い
+内容は引数自身の寸法が優先されるため、それらを含む集合だけは
+\verb|\kksref{\Rrnum{6}}| でも差が残ります。\verb|\kksref{\Rrnum{50}}|（\verb|l|）を
+基準にすれば 0 になります。\par
+\noindent \verb|l| and \verb|d| are slightly taller than \verb|vi|, and material
+taller than the reference keeps its own metrics, so sets containing them keep a
+small spread under \verb|\kksref{\Rrnum{6}}|. Using \verb|\kksref{\Rrnum{50}}|
+(\verb|l|) as the reference brings them to 0 as well.
+\par\medskip
+{\centering\small
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+set & values & auto & \verb|\Rrnum{6}| & \verb|\Rrnum{50}| \\
+\midrule
+xi--xx & 11--20 & \KKStval{D} & \KKStval{E} & \KKStval{F} \\
+i, v, x, l, c, d, m & 1, 5, 10, 50, 100, 500, 1000 & \KKStval{G} & \KKStval{H} & \KKStval{I} \\
+iv--mmmdccclxxxviii & 4, 9, 40, 49, 90, 400, 900, 1000, 1888, 3888 & \KKStval{J} & \KKStval{K} & \KKStval{L} \\
+\bottomrule
+\end{tabular}\par}
+\medskip
+\KKStlab{xi〜xx (11--20)}
+\KKStlab{\texttt{\textbackslash maru} --- auto}
+{\large{\kksrefauto%
+\KKStb{\maru{\Rrnum{11}}}\KKStb{\maru{\Rrnum{12}}}\KKStb{\maru{\Rrnum{13}}}\KKStb{\maru{\Rrnum{14}}}\KKStb{\maru{\Rrnum{15}}}\KKStb{\maru{\Rrnum{16}}}\KKStb{\maru{\Rrnum{17}}}\KKStb{\maru{\Rrnum{18}}}\KKStb{\maru{\Rrnum{19}}}\KKStb{\maru{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash maru} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{11}}}\KKStb{\maru{\Rrnum{12}}}\KKStb{\maru{\Rrnum{13}}}\KKStb{\maru{\Rrnum{14}}}\KKStb{\maru{\Rrnum{15}}}\KKStb{\maru{\Rrnum{16}}}\KKStb{\maru{\Rrnum{17}}}\KKStb{\maru{\Rrnum{18}}}\KKStb{\maru{\Rrnum{19}}}\KKStb{\maru{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash kakko} --- auto}
+{\large{\kksrefauto%
+\KKStb{\kakko{\Rrnum{11}}}\KKStb{\kakko{\Rrnum{12}}}\KKStb{\kakko{\Rrnum{13}}}\KKStb{\kakko{\Rrnum{14}}}\KKStb{\kakko{\Rrnum{15}}}\KKStb{\kakko{\Rrnum{16}}}\KKStb{\kakko{\Rrnum{17}}}\KKStb{\kakko{\Rrnum{18}}}\KKStb{\kakko{\Rrnum{19}}}\KKStb{\kakko{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash kakko} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\kakko{\Rrnum{11}}}\KKStb{\kakko{\Rrnum{12}}}\KKStb{\kakko{\Rrnum{13}}}\KKStb{\kakko{\Rrnum{14}}}\KKStb{\kakko{\Rrnum{15}}}\KKStb{\kakko{\Rrnum{16}}}\KKStb{\kakko{\Rrnum{17}}}\KKStb{\kakko{\Rrnum{18}}}\KKStb{\kakko{\Rrnum{19}}}\KKStb{\kakko{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash seihou} --- auto}
+{\large{\kksrefauto%
+\KKStb{\seihou{\Rrnum{11}}}\KKStb{\seihou{\Rrnum{12}}}\KKStb{\seihou{\Rrnum{13}}}\KKStb{\seihou{\Rrnum{14}}}\KKStb{\seihou{\Rrnum{15}}}\KKStb{\seihou{\Rrnum{16}}}\KKStb{\seihou{\Rrnum{17}}}\KKStb{\seihou{\Rrnum{18}}}\KKStb{\seihou{\Rrnum{19}}}\KKStb{\seihou{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash seihou} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\seihou{\Rrnum{11}}}\KKStb{\seihou{\Rrnum{12}}}\KKStb{\seihou{\Rrnum{13}}}\KKStb{\seihou{\Rrnum{14}}}\KKStb{\seihou{\Rrnum{15}}}\KKStb{\seihou{\Rrnum{16}}}\KKStb{\seihou{\Rrnum{17}}}\KKStb{\seihou{\Rrnum{18}}}\KKStb{\seihou{\Rrnum{19}}}\KKStb{\seihou{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash hishi} --- auto}
+{\large{\kksrefauto%
+\KKStb{\hishi{\Rrnum{11}}}\KKStb{\hishi{\Rrnum{12}}}\KKStb{\hishi{\Rrnum{13}}}\KKStb{\hishi{\Rrnum{14}}}\KKStb{\hishi{\Rrnum{15}}}\KKStb{\hishi{\Rrnum{16}}}\KKStb{\hishi{\Rrnum{17}}}\KKStb{\hishi{\Rrnum{18}}}\KKStb{\hishi{\Rrnum{19}}}\KKStb{\hishi{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash hishi} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\hishi{\Rrnum{11}}}\KKStb{\hishi{\Rrnum{12}}}\KKStb{\hishi{\Rrnum{13}}}\KKStb{\hishi{\Rrnum{14}}}\KKStb{\hishi{\Rrnum{15}}}\KKStb{\hishi{\Rrnum{16}}}\KKStb{\hishi{\Rrnum{17}}}\KKStb{\hishi{\Rrnum{18}}}\KKStb{\hishi{\Rrnum{19}}}\KKStb{\hishi{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash jegg} --- auto}
+{\large{\kksrefauto%
+\KKStb{\jegg{\Rrnum{11}}}\KKStb{\jegg{\Rrnum{12}}}\KKStb{\jegg{\Rrnum{13}}}\KKStb{\jegg{\Rrnum{14}}}\KKStb{\jegg{\Rrnum{15}}}\KKStb{\jegg{\Rrnum{16}}}\KKStb{\jegg{\Rrnum{17}}}\KKStb{\jegg{\Rrnum{18}}}\KKStb{\jegg{\Rrnum{19}}}\KKStb{\jegg{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash jegg} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\jegg{\Rrnum{11}}}\KKStb{\jegg{\Rrnum{12}}}\KKStb{\jegg{\Rrnum{13}}}\KKStb{\jegg{\Rrnum{14}}}\KKStb{\jegg{\Rrnum{15}}}\KKStb{\jegg{\Rrnum{16}}}\KKStb{\jegg{\Rrnum{17}}}\KKStb{\jegg{\Rrnum{18}}}\KKStb{\jegg{\Rrnum{19}}}\KKStb{\jegg{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash ichimoji} --- auto}
+{\large{\kksrefauto%
+\KKStb{\ichimoji{\Rrnum{11}}}\KKStb{\ichimoji{\Rrnum{12}}}\KKStb{\ichimoji{\Rrnum{13}}}\KKStb{\ichimoji{\Rrnum{14}}}\KKStb{\ichimoji{\Rrnum{15}}}\KKStb{\ichimoji{\Rrnum{16}}}\KKStb{\ichimoji{\Rrnum{17}}}\KKStb{\ichimoji{\Rrnum{18}}}\KKStb{\ichimoji{\Rrnum{19}}}\KKStb{\ichimoji{\Rrnum{20}}}}\par
+}\KKStlab{\texttt{\textbackslash ichimoji} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\ichimoji{\Rrnum{11}}}\KKStb{\ichimoji{\Rrnum{12}}}\KKStb{\ichimoji{\Rrnum{13}}}\KKStb{\ichimoji{\Rrnum{14}}}\KKStb{\ichimoji{\Rrnum{15}}}\KKStb{\ichimoji{\Rrnum{16}}}\KKStb{\ichimoji{\Rrnum{17}}}\KKStb{\ichimoji{\Rrnum{18}}}\KKStb{\ichimoji{\Rrnum{19}}}\KKStb{\ichimoji{\Rrnum{20}}}}\par
+}\medskip
+\KKStlab{i, v, x, l, c, d, m}
+\KKStlab{\texttt{\textbackslash maru} --- auto}
+{\large{\kksrefauto%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{10}}}\KKStb{\maru{\Rrnum{50}}}\KKStb{\maru{\Rrnum{100}}}\KKStb{\maru{\Rrnum{500}}}\KKStb{\maru{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash maru} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{10}}}\KKStb{\maru{\Rrnum{50}}}\KKStb{\maru{\Rrnum{100}}}\KKStb{\maru{\Rrnum{500}}}\KKStb{\maru{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash kakko} --- auto}
+{\large{\kksrefauto%
+\KKStb{\kakko{\Rrnum{1}}}\KKStb{\kakko{\Rrnum{5}}}\KKStb{\kakko{\Rrnum{10}}}\KKStb{\kakko{\Rrnum{50}}}\KKStb{\kakko{\Rrnum{100}}}\KKStb{\kakko{\Rrnum{500}}}\KKStb{\kakko{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash kakko} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\kakko{\Rrnum{1}}}\KKStb{\kakko{\Rrnum{5}}}\KKStb{\kakko{\Rrnum{10}}}\KKStb{\kakko{\Rrnum{50}}}\KKStb{\kakko{\Rrnum{100}}}\KKStb{\kakko{\Rrnum{500}}}\KKStb{\kakko{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash seihou} --- auto}
+{\large{\kksrefauto%
+\KKStb{\seihou{\Rrnum{1}}}\KKStb{\seihou{\Rrnum{5}}}\KKStb{\seihou{\Rrnum{10}}}\KKStb{\seihou{\Rrnum{50}}}\KKStb{\seihou{\Rrnum{100}}}\KKStb{\seihou{\Rrnum{500}}}\KKStb{\seihou{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash seihou} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\seihou{\Rrnum{1}}}\KKStb{\seihou{\Rrnum{5}}}\KKStb{\seihou{\Rrnum{10}}}\KKStb{\seihou{\Rrnum{50}}}\KKStb{\seihou{\Rrnum{100}}}\KKStb{\seihou{\Rrnum{500}}}\KKStb{\seihou{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash hishi} --- auto}
+{\large{\kksrefauto%
+\KKStb{\hishi{\Rrnum{1}}}\KKStb{\hishi{\Rrnum{5}}}\KKStb{\hishi{\Rrnum{10}}}\KKStb{\hishi{\Rrnum{50}}}\KKStb{\hishi{\Rrnum{100}}}\KKStb{\hishi{\Rrnum{500}}}\KKStb{\hishi{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash hishi} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\hishi{\Rrnum{1}}}\KKStb{\hishi{\Rrnum{5}}}\KKStb{\hishi{\Rrnum{10}}}\KKStb{\hishi{\Rrnum{50}}}\KKStb{\hishi{\Rrnum{100}}}\KKStb{\hishi{\Rrnum{500}}}\KKStb{\hishi{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash jegg} --- auto}
+{\large{\kksrefauto%
+\KKStb{\jegg{\Rrnum{1}}}\KKStb{\jegg{\Rrnum{5}}}\KKStb{\jegg{\Rrnum{10}}}\KKStb{\jegg{\Rrnum{50}}}\KKStb{\jegg{\Rrnum{100}}}\KKStb{\jegg{\Rrnum{500}}}\KKStb{\jegg{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash jegg} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\jegg{\Rrnum{1}}}\KKStb{\jegg{\Rrnum{5}}}\KKStb{\jegg{\Rrnum{10}}}\KKStb{\jegg{\Rrnum{50}}}\KKStb{\jegg{\Rrnum{100}}}\KKStb{\jegg{\Rrnum{500}}}\KKStb{\jegg{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash ichimoji} --- auto}
+{\large{\kksrefauto%
+\KKStb{\ichimoji{\Rrnum{1}}}\KKStb{\ichimoji{\Rrnum{5}}}\KKStb{\ichimoji{\Rrnum{10}}}\KKStb{\ichimoji{\Rrnum{50}}}\KKStb{\ichimoji{\Rrnum{100}}}\KKStb{\ichimoji{\Rrnum{500}}}\KKStb{\ichimoji{\Rrnum{1000}}}}\par
+}\KKStlab{\texttt{\textbackslash ichimoji} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\ichimoji{\Rrnum{1}}}\KKStb{\ichimoji{\Rrnum{5}}}\KKStb{\ichimoji{\Rrnum{10}}}\KKStb{\ichimoji{\Rrnum{50}}}\KKStb{\ichimoji{\Rrnum{100}}}\KKStb{\ichimoji{\Rrnum{500}}}\KKStb{\ichimoji{\Rrnum{1000}}}}\par
+}\medskip
+\KKStlab{iv, ix, xl, xlix, xc, cd, cm, m, mdccclxxxviii, mmmdccclxxxviii}
+\KKStlab{\texttt{\textbackslash maru} --- auto}
+{\large{\kksrefauto%
+\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{40}}}\KKStb{\maru{\Rrnum{49}}}\KKStb{\maru{\Rrnum{90}}}\KKStb{\maru{\Rrnum{400}}}\KKStb{\maru{\Rrnum{900}}}\KKStb{\maru{\Rrnum{1000}}}\KKStb{\maru{\Rrnum{1888}}}\KKStb{\maru{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash maru} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{40}}}\KKStb{\maru{\Rrnum{49}}}\KKStb{\maru{\Rrnum{90}}}\KKStb{\maru{\Rrnum{400}}}\KKStb{\maru{\Rrnum{900}}}\KKStb{\maru{\Rrnum{1000}}}\KKStb{\maru{\Rrnum{1888}}}\KKStb{\maru{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash kakko} --- auto}
+{\large{\kksrefauto%
+\KKStb{\kakko{\Rrnum{4}}}\KKStb{\kakko{\Rrnum{9}}}\KKStb{\kakko{\Rrnum{40}}}\KKStb{\kakko{\Rrnum{49}}}\KKStb{\kakko{\Rrnum{90}}}\KKStb{\kakko{\Rrnum{400}}}\KKStb{\kakko{\Rrnum{900}}}\KKStb{\kakko{\Rrnum{1000}}}\KKStb{\kakko{\Rrnum{1888}}}\KKStb{\kakko{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash kakko} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\kakko{\Rrnum{4}}}\KKStb{\kakko{\Rrnum{9}}}\KKStb{\kakko{\Rrnum{40}}}\KKStb{\kakko{\Rrnum{49}}}\KKStb{\kakko{\Rrnum{90}}}\KKStb{\kakko{\Rrnum{400}}}\KKStb{\kakko{\Rrnum{900}}}\KKStb{\kakko{\Rrnum{1000}}}\KKStb{\kakko{\Rrnum{1888}}}\KKStb{\kakko{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash seihou} --- auto}
+{\large{\kksrefauto%
+\KKStb{\seihou{\Rrnum{4}}}\KKStb{\seihou{\Rrnum{9}}}\KKStb{\seihou{\Rrnum{40}}}\KKStb{\seihou{\Rrnum{49}}}\KKStb{\seihou{\Rrnum{90}}}\KKStb{\seihou{\Rrnum{400}}}\KKStb{\seihou{\Rrnum{900}}}\KKStb{\seihou{\Rrnum{1000}}}\KKStb{\seihou{\Rrnum{1888}}}\KKStb{\seihou{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash seihou} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\seihou{\Rrnum{4}}}\KKStb{\seihou{\Rrnum{9}}}\KKStb{\seihou{\Rrnum{40}}}\KKStb{\seihou{\Rrnum{49}}}\KKStb{\seihou{\Rrnum{90}}}\KKStb{\seihou{\Rrnum{400}}}\KKStb{\seihou{\Rrnum{900}}}\KKStb{\seihou{\Rrnum{1000}}}\KKStb{\seihou{\Rrnum{1888}}}\KKStb{\seihou{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash hishi} --- auto}
+{\large{\kksrefauto%
+\KKStb{\hishi{\Rrnum{4}}}\KKStb{\hishi{\Rrnum{9}}}\KKStb{\hishi{\Rrnum{40}}}\KKStb{\hishi{\Rrnum{49}}}\KKStb{\hishi{\Rrnum{90}}}\KKStb{\hishi{\Rrnum{400}}}\KKStb{\hishi{\Rrnum{900}}}\KKStb{\hishi{\Rrnum{1000}}}\KKStb{\hishi{\Rrnum{1888}}}\KKStb{\hishi{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash hishi} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\hishi{\Rrnum{4}}}\KKStb{\hishi{\Rrnum{9}}}\KKStb{\hishi{\Rrnum{40}}}\KKStb{\hishi{\Rrnum{49}}}\KKStb{\hishi{\Rrnum{90}}}\KKStb{\hishi{\Rrnum{400}}}\KKStb{\hishi{\Rrnum{900}}}\KKStb{\hishi{\Rrnum{1000}}}\KKStb{\hishi{\Rrnum{1888}}}\KKStb{\hishi{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash jegg} --- auto}
+{\large{\kksrefauto%
+\KKStb{\jegg{\Rrnum{4}}}\KKStb{\jegg{\Rrnum{9}}}\KKStb{\jegg{\Rrnum{40}}}\KKStb{\jegg{\Rrnum{49}}}\KKStb{\jegg{\Rrnum{90}}}\KKStb{\jegg{\Rrnum{400}}}\KKStb{\jegg{\Rrnum{900}}}\KKStb{\jegg{\Rrnum{1000}}}\KKStb{\jegg{\Rrnum{1888}}}\KKStb{\jegg{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash jegg} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\jegg{\Rrnum{4}}}\KKStb{\jegg{\Rrnum{9}}}\KKStb{\jegg{\Rrnum{40}}}\KKStb{\jegg{\Rrnum{49}}}\KKStb{\jegg{\Rrnum{90}}}\KKStb{\jegg{\Rrnum{400}}}\KKStb{\jegg{\Rrnum{900}}}\KKStb{\jegg{\Rrnum{1000}}}\KKStb{\jegg{\Rrnum{1888}}}\KKStb{\jegg{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash ichimoji} --- auto}
+{\large{\kksrefauto%
+\KKStb{\ichimoji{\Rrnum{4}}}\KKStb{\ichimoji{\Rrnum{9}}}\KKStb{\ichimoji{\Rrnum{40}}}\KKStb{\ichimoji{\Rrnum{49}}}\KKStb{\ichimoji{\Rrnum{90}}}\KKStb{\ichimoji{\Rrnum{400}}}\KKStb{\ichimoji{\Rrnum{900}}}\KKStb{\ichimoji{\Rrnum{1000}}}\KKStb{\ichimoji{\Rrnum{1888}}}\KKStb{\ichimoji{\Rrnum{3888}}}}\par
+}\KKStlab{\texttt{\textbackslash ichimoji} --- \texttt{\textbackslash kksref\{\textbackslash Rrnum\{6\}\}}}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\ichimoji{\Rrnum{4}}}\KKStb{\ichimoji{\Rrnum{9}}}\KKStb{\ichimoji{\Rrnum{40}}}\KKStb{\ichimoji{\Rrnum{49}}}\KKStb{\ichimoji{\Rrnum{90}}}\KKStb{\ichimoji{\Rrnum{400}}}\KKStb{\ichimoji{\Rrnum{900}}}\KKStb{\ichimoji{\Rrnum{1000}}}\KKStb{\ichimoji{\Rrnum{1888}}}\KKStb{\ichimoji{\Rrnum{3888}}}}\par
+}\medskip
+
+\subsubsection*{C3. With an explicit star / 明示スターとの併用}
+\noindent 同じ内容を、スターなし／明示スターの両方で。スターでも基準は効きますが、
+全体が一段小さくなります。\par
+\noindent The same material with and without an explicit star. The reference still
+applies under the star, but the whole sequence becomes one step smaller.
+\par\medskip
+\KKStlab{\texttt{\textbackslash maru} --- auto, no star}
+{\large{\kksrefauto%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash maru} --- auto, star}
+{\large{\kksrefauto%
+\KKStb{\maru*{\Rrnum{1}}}\KKStb{\maru*{\Rrnum{2}}}\KKStb{\maru*{\Rrnum{3}}}\KKStb{\maru*{\Rrnum{4}}}\KKStb{\maru*{\Rrnum{5}}}\KKStb{\maru*{\Rrnum{6}}}\KKStb{\maru*{\Rrnum{7}}}\KKStb{\maru*{\Rrnum{8}}}\KKStb{\maru*{\Rrnum{9}}}\KKStb{\maru*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash maru} --- \texttt{\textbackslash kksref}, no star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash maru} --- \texttt{\textbackslash kksref}, star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\maru*{\Rrnum{1}}}\KKStb{\maru*{\Rrnum{2}}}\KKStb{\maru*{\Rrnum{3}}}\KKStb{\maru*{\Rrnum{4}}}\KKStb{\maru*{\Rrnum{5}}}\KKStb{\maru*{\Rrnum{6}}}\KKStb{\maru*{\Rrnum{7}}}\KKStb{\maru*{\Rrnum{8}}}\KKStb{\maru*{\Rrnum{9}}}\KKStb{\maru*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash kakko} --- auto, no star}
+{\large{\kksrefauto%
+\KKStb{\kakko{\Rrnum{1}}}\KKStb{\kakko{\Rrnum{2}}}\KKStb{\kakko{\Rrnum{3}}}\KKStb{\kakko{\Rrnum{4}}}\KKStb{\kakko{\Rrnum{5}}}\KKStb{\kakko{\Rrnum{6}}}\KKStb{\kakko{\Rrnum{7}}}\KKStb{\kakko{\Rrnum{8}}}\KKStb{\kakko{\Rrnum{9}}}\KKStb{\kakko{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash kakko} --- auto, star}
+{\large{\kksrefauto%
+\KKStb{\kakko*{\Rrnum{1}}}\KKStb{\kakko*{\Rrnum{2}}}\KKStb{\kakko*{\Rrnum{3}}}\KKStb{\kakko*{\Rrnum{4}}}\KKStb{\kakko*{\Rrnum{5}}}\KKStb{\kakko*{\Rrnum{6}}}\KKStb{\kakko*{\Rrnum{7}}}\KKStb{\kakko*{\Rrnum{8}}}\KKStb{\kakko*{\Rrnum{9}}}\KKStb{\kakko*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash kakko} --- \texttt{\textbackslash kksref}, no star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\kakko{\Rrnum{1}}}\KKStb{\kakko{\Rrnum{2}}}\KKStb{\kakko{\Rrnum{3}}}\KKStb{\kakko{\Rrnum{4}}}\KKStb{\kakko{\Rrnum{5}}}\KKStb{\kakko{\Rrnum{6}}}\KKStb{\kakko{\Rrnum{7}}}\KKStb{\kakko{\Rrnum{8}}}\KKStb{\kakko{\Rrnum{9}}}\KKStb{\kakko{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash kakko} --- \texttt{\textbackslash kksref}, star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\kakko*{\Rrnum{1}}}\KKStb{\kakko*{\Rrnum{2}}}\KKStb{\kakko*{\Rrnum{3}}}\KKStb{\kakko*{\Rrnum{4}}}\KKStb{\kakko*{\Rrnum{5}}}\KKStb{\kakko*{\Rrnum{6}}}\KKStb{\kakko*{\Rrnum{7}}}\KKStb{\kakko*{\Rrnum{8}}}\KKStb{\kakko*{\Rrnum{9}}}\KKStb{\kakko*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash seihou} --- auto, no star}
+{\large{\kksrefauto%
+\KKStb{\seihou{\Rrnum{1}}}\KKStb{\seihou{\Rrnum{2}}}\KKStb{\seihou{\Rrnum{3}}}\KKStb{\seihou{\Rrnum{4}}}\KKStb{\seihou{\Rrnum{5}}}\KKStb{\seihou{\Rrnum{6}}}\KKStb{\seihou{\Rrnum{7}}}\KKStb{\seihou{\Rrnum{8}}}\KKStb{\seihou{\Rrnum{9}}}\KKStb{\seihou{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash seihou} --- auto, star}
+{\large{\kksrefauto%
+\KKStb{\seihou*{\Rrnum{1}}}\KKStb{\seihou*{\Rrnum{2}}}\KKStb{\seihou*{\Rrnum{3}}}\KKStb{\seihou*{\Rrnum{4}}}\KKStb{\seihou*{\Rrnum{5}}}\KKStb{\seihou*{\Rrnum{6}}}\KKStb{\seihou*{\Rrnum{7}}}\KKStb{\seihou*{\Rrnum{8}}}\KKStb{\seihou*{\Rrnum{9}}}\KKStb{\seihou*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash seihou} --- \texttt{\textbackslash kksref}, no star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\seihou{\Rrnum{1}}}\KKStb{\seihou{\Rrnum{2}}}\KKStb{\seihou{\Rrnum{3}}}\KKStb{\seihou{\Rrnum{4}}}\KKStb{\seihou{\Rrnum{5}}}\KKStb{\seihou{\Rrnum{6}}}\KKStb{\seihou{\Rrnum{7}}}\KKStb{\seihou{\Rrnum{8}}}\KKStb{\seihou{\Rrnum{9}}}\KKStb{\seihou{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash seihou} --- \texttt{\textbackslash kksref}, star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\seihou*{\Rrnum{1}}}\KKStb{\seihou*{\Rrnum{2}}}\KKStb{\seihou*{\Rrnum{3}}}\KKStb{\seihou*{\Rrnum{4}}}\KKStb{\seihou*{\Rrnum{5}}}\KKStb{\seihou*{\Rrnum{6}}}\KKStb{\seihou*{\Rrnum{7}}}\KKStb{\seihou*{\Rrnum{8}}}\KKStb{\seihou*{\Rrnum{9}}}\KKStb{\seihou*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash hishi} --- auto, no star}
+{\large{\kksrefauto%
+\KKStb{\hishi{\Rrnum{1}}}\KKStb{\hishi{\Rrnum{2}}}\KKStb{\hishi{\Rrnum{3}}}\KKStb{\hishi{\Rrnum{4}}}\KKStb{\hishi{\Rrnum{5}}}\KKStb{\hishi{\Rrnum{6}}}\KKStb{\hishi{\Rrnum{7}}}\KKStb{\hishi{\Rrnum{8}}}\KKStb{\hishi{\Rrnum{9}}}\KKStb{\hishi{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash hishi} --- auto, star}
+{\large{\kksrefauto%
+\KKStb{\hishi*{\Rrnum{1}}}\KKStb{\hishi*{\Rrnum{2}}}\KKStb{\hishi*{\Rrnum{3}}}\KKStb{\hishi*{\Rrnum{4}}}\KKStb{\hishi*{\Rrnum{5}}}\KKStb{\hishi*{\Rrnum{6}}}\KKStb{\hishi*{\Rrnum{7}}}\KKStb{\hishi*{\Rrnum{8}}}\KKStb{\hishi*{\Rrnum{9}}}\KKStb{\hishi*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash hishi} --- \texttt{\textbackslash kksref}, no star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\hishi{\Rrnum{1}}}\KKStb{\hishi{\Rrnum{2}}}\KKStb{\hishi{\Rrnum{3}}}\KKStb{\hishi{\Rrnum{4}}}\KKStb{\hishi{\Rrnum{5}}}\KKStb{\hishi{\Rrnum{6}}}\KKStb{\hishi{\Rrnum{7}}}\KKStb{\hishi{\Rrnum{8}}}\KKStb{\hishi{\Rrnum{9}}}\KKStb{\hishi{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash hishi} --- \texttt{\textbackslash kksref}, star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\hishi*{\Rrnum{1}}}\KKStb{\hishi*{\Rrnum{2}}}\KKStb{\hishi*{\Rrnum{3}}}\KKStb{\hishi*{\Rrnum{4}}}\KKStb{\hishi*{\Rrnum{5}}}\KKStb{\hishi*{\Rrnum{6}}}\KKStb{\hishi*{\Rrnum{7}}}\KKStb{\hishi*{\Rrnum{8}}}\KKStb{\hishi*{\Rrnum{9}}}\KKStb{\hishi*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash jegg} --- auto, no star}
+{\large{\kksrefauto%
+\KKStb{\jegg{\Rrnum{1}}}\KKStb{\jegg{\Rrnum{2}}}\KKStb{\jegg{\Rrnum{3}}}\KKStb{\jegg{\Rrnum{4}}}\KKStb{\jegg{\Rrnum{5}}}\KKStb{\jegg{\Rrnum{6}}}\KKStb{\jegg{\Rrnum{7}}}\KKStb{\jegg{\Rrnum{8}}}\KKStb{\jegg{\Rrnum{9}}}\KKStb{\jegg{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash jegg} --- auto, star}
+{\large{\kksrefauto%
+\KKStb{\jegg*{\Rrnum{1}}}\KKStb{\jegg*{\Rrnum{2}}}\KKStb{\jegg*{\Rrnum{3}}}\KKStb{\jegg*{\Rrnum{4}}}\KKStb{\jegg*{\Rrnum{5}}}\KKStb{\jegg*{\Rrnum{6}}}\KKStb{\jegg*{\Rrnum{7}}}\KKStb{\jegg*{\Rrnum{8}}}\KKStb{\jegg*{\Rrnum{9}}}\KKStb{\jegg*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash jegg} --- \texttt{\textbackslash kksref}, no star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\jegg{\Rrnum{1}}}\KKStb{\jegg{\Rrnum{2}}}\KKStb{\jegg{\Rrnum{3}}}\KKStb{\jegg{\Rrnum{4}}}\KKStb{\jegg{\Rrnum{5}}}\KKStb{\jegg{\Rrnum{6}}}\KKStb{\jegg{\Rrnum{7}}}\KKStb{\jegg{\Rrnum{8}}}\KKStb{\jegg{\Rrnum{9}}}\KKStb{\jegg{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash jegg} --- \texttt{\textbackslash kksref}, star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\jegg*{\Rrnum{1}}}\KKStb{\jegg*{\Rrnum{2}}}\KKStb{\jegg*{\Rrnum{3}}}\KKStb{\jegg*{\Rrnum{4}}}\KKStb{\jegg*{\Rrnum{5}}}\KKStb{\jegg*{\Rrnum{6}}}\KKStb{\jegg*{\Rrnum{7}}}\KKStb{\jegg*{\Rrnum{8}}}\KKStb{\jegg*{\Rrnum{9}}}\KKStb{\jegg*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash ichimoji} --- auto, no star}
+{\large{\kksrefauto%
+\KKStb{\ichimoji{\Rrnum{1}}}\KKStb{\ichimoji{\Rrnum{2}}}\KKStb{\ichimoji{\Rrnum{3}}}\KKStb{\ichimoji{\Rrnum{4}}}\KKStb{\ichimoji{\Rrnum{5}}}\KKStb{\ichimoji{\Rrnum{6}}}\KKStb{\ichimoji{\Rrnum{7}}}\KKStb{\ichimoji{\Rrnum{8}}}\KKStb{\ichimoji{\Rrnum{9}}}\KKStb{\ichimoji{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash ichimoji} --- auto, star}
+{\large{\kksrefauto%
+\KKStb{\ichimoji*{\Rrnum{1}}}\KKStb{\ichimoji*{\Rrnum{2}}}\KKStb{\ichimoji*{\Rrnum{3}}}\KKStb{\ichimoji*{\Rrnum{4}}}\KKStb{\ichimoji*{\Rrnum{5}}}\KKStb{\ichimoji*{\Rrnum{6}}}\KKStb{\ichimoji*{\Rrnum{7}}}\KKStb{\ichimoji*{\Rrnum{8}}}\KKStb{\ichimoji*{\Rrnum{9}}}\KKStb{\ichimoji*{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash ichimoji} --- \texttt{\textbackslash kksref}, no star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\ichimoji{\Rrnum{1}}}\KKStb{\ichimoji{\Rrnum{2}}}\KKStb{\ichimoji{\Rrnum{3}}}\KKStb{\ichimoji{\Rrnum{4}}}\KKStb{\ichimoji{\Rrnum{5}}}\KKStb{\ichimoji{\Rrnum{6}}}\KKStb{\ichimoji{\Rrnum{7}}}\KKStb{\ichimoji{\Rrnum{8}}}\KKStb{\ichimoji{\Rrnum{9}}}\KKStb{\ichimoji{\Rrnum{10}}}}\par
+}\KKStlab{\texttt{\textbackslash ichimoji} --- \texttt{\textbackslash kksref}, star}
+{\large{\kksref{\Rrnum{6}}%
+\KKStb{\ichimoji*{\Rrnum{1}}}\KKStb{\ichimoji*{\Rrnum{2}}}\KKStb{\ichimoji*{\Rrnum{3}}}\KKStb{\ichimoji*{\Rrnum{4}}}\KKStb{\ichimoji*{\Rrnum{5}}}\KKStb{\ichimoji*{\Rrnum{6}}}\KKStb{\ichimoji*{\Rrnum{7}}}\KKStb{\ichimoji*{\Rrnum{8}}}\KKStb{\ichimoji*{\Rrnum{9}}}\KKStb{\ichimoji*{\Rrnum{10}}}}\par
+}
+\subsubsection*{C4. Scope / スコープ}
+\noindent 左＝グループ前（既定）、中＝グループ内、右＝グループ後。
+\KKverb|\kksref| の効果はグループを出ると元に戻ります。\par
+\noindent Before the group, inside it, and after it. The effect of
+\KKverb|\kksref| reverts on leaving the group.
+\par\medskip
+{\large
+\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{10}}}\qquad
+{\kksref{\Rrnum{6}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{10}}}}\qquad
+\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{10}}}}
+\par\medskip
+\noindent 実測（\KKverb|\Rrnum{5}| の基準高さ）／measured reference height of
+\KKverb|\Rrnum{5}|:\quad
+before \KKStprobe{}{\Rrnum{5}} \quad inside \KKStprobe{\kksref{\Rrnum{6}}}{\Rrnum{5}}
+\quad after \KKStprobe{}{\Rrnum{5}}
+\par\medskip
+\noindent \KKverb|\kksrefoff| のあと \KKverb|\kksrefauto| で復帰:\quad
+default \KKStprobe{}{\Rrnum{5}} \quad off \KKStprobe{\kksrefoff}{\Rrnum{5}}
+\quad auto \KKStprobe{\kksrefauto}{\Rrnum{5}}
+
+\subsubsection*{C5. Typeface / 書体}
+\KKStlab{upright}
+{\large\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par
+\KKStlab{bold}
+{\large\bfseries\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par
+\KKStlab{italic}
+{\large\itshape\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par
+\KKStlab{gothic}
+{\large\gtfamily\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par
+
+\subsubsection*{C6. Vertical writing / 縦組み}
+\noindent 縦組みでも同じように効きます。左から、auto、\KKverb|\kksref|、
+\KKverb|\RotTate[0]| 併用の auto、\KKverb|\RotTate[0]| 併用の \KKverb|\kksref|。\par
+\noindent The hook works in vertical mode as well. From the right-hand side:
+auto, \KKverb|\kksref|, then the same two with \KKverb|\RotTate[0]|.
+\par\medskip
+\noindent
+\parbox<t>{11\zw}{%
+{\kksrefauto\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par
+{\kksref{\Rrnum{6}}\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par
+{\RotTate[0]\kksrefauto\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par
+{\RotTate[0]\kksref{\Rrnum{6}}\KKStb{\maru{\Rrnum{1}}}\KKStb{\maru{\Rrnum{2}}}\KKStb{\maru{\Rrnum{3}}}\KKStb{\maru{\Rrnum{4}}}\KKStb{\maru{\Rrnum{5}}}\KKStb{\maru{\Rrnum{6}}}\KKStb{\maru{\Rrnum{7}}}\KKStb{\maru{\Rrnum{8}}}\KKStb{\maru{\Rrnum{9}}}\KKStb{\maru{\Rrnum{10}}}}\par
+\KKStprobestore{Va}{}{\Rrnum{5}}%
+\KKStprobestore{Vb}{\kksref{\Rrnum{6}}}{\Rrnum{5}}%
+\KKStprobestore{Vc}{}{\Rrnum{6}}%
+}
+\par\medskip
+\noindent{\footnotesize 縦組みの中で実測した基準高さ／reference heights measured
+inside the vertical box above: \KKverb|\Rrnum{5}| default \KKStval{Va}, with
+\KKverb|\kksref{\Rrnum{6}}| \KKStval{Vb}; \KKverb|\Rrnum{6}| default \KKStval{Vc}.
+指定後の \KKverb|\Rrnum{5}| が \KKverb|\Rrnum{6}| の値に一致します。}
+\par\bigskip
+
+\subsubsection*{C7. Material taller than the reference / 基準より背の高い内容}
+\noindent 漢字・かな・欧文大文字は基準より背が高く、\KKverb|\kksref{\Rrnum{6}}| を
+掛けても出力は変わりません。数字と大文字ローマ数字については、このフォントでは
+\verb|i| のドットが大文字の高さをごくわずかに上回るため、基準高さが 0.06\,pt 程度
+上がることがあります（下の実測を参照）。紙面上は判別できない差ですが、ローマ数字用に
+\KKverb|\kksref| を掛けたグループへ他の内容を混ぜる場合は、この点だけ意識してください。\par
+\noindent Kanji, kana and uppercase Latin letters are taller than the reference, so
+\KKverb|\kksref{\Rrnum{6}}| leaves their output unchanged. For digits and uppercase
+roman numerals the reference height can rise by about 0.06\,pt, because in this font
+the dot of \verb|i| sits marginally above cap height; see the measurements below. The
+difference is not visible on the page, but it is worth knowing if you mix other
+material into a group whose \KKverb|\kksref| was set for roman numerals.
+\par\medskip
+\KKStlab{uppercase --- auto}
+{\large\kksrefauto%
+\KKStb{\maru{\Rrnum*{1}}}\KKStb{\maru{\Rrnum*{2}}}\KKStb{\maru{\Rrnum*{3}}}\KKStb{\maru{\Rrnum*{4}}}\KKStb{\maru{\Rrnum*{5}}}\KKStb{\maru{\Rrnum*{6}}}\KKStb{\maru{\Rrnum*{7}}}\KKStb{\maru{\Rrnum*{8}}}\KKStb{\maru{\Rrnum*{9}}}\KKStb{\maru{\Rrnum*{10}}}}\par
+\KKStlab{uppercase --- \texttt{\textbackslash kksref}}
+{\large\kksref{\Rrnum{6}}%
+\KKStb{\maru{\Rrnum*{1}}}\KKStb{\maru{\Rrnum*{2}}}\KKStb{\maru{\Rrnum*{3}}}\KKStb{\maru{\Rrnum*{4}}}\KKStb{\maru{\Rrnum*{5}}}\KKStb{\maru{\Rrnum*{6}}}\KKStb{\maru{\Rrnum*{7}}}\KKStb{\maru{\Rrnum*{8}}}\KKStb{\maru{\Rrnum*{9}}}\KKStb{\maru{\Rrnum*{10}}}}\par
+\KKStlab{kana, kanji, digits, latin --- auto}
+{\large\kksrefauto%
+\KKStb{\maru{あ}}\KKStb{\maru{漢}}\KKStb{\maru{1}}\KKStb{\maru{12}}\KKStb{\maru{A}}\KKStb{\maru{a}}}\par
+\KKStlab{kana, kanji, digits, latin --- \texttt{\textbackslash kksref}}
+{\large\kksref{\Rrnum{6}}%
+\KKStb{\maru{あ}}\KKStb{\maru{漢}}\KKStb{\maru{1}}\KKStb{\maru{12}}\KKStb{\maru{A}}\KKStb{\maru{a}}}\par
+\par\medskip
+\noindent 実測／measured:\quad
+\KKverb|\Rrnum*{8}| auto \KKStprobe{\kksrefauto}{\Rrnum*{8}},
+kksref \KKStprobe{\kksref{\Rrnum{6}}}{\Rrnum*{8}} \quad
+あ auto \KKStprobe{\kksrefauto}{あ}, kksref \KKStprobe{\kksref{\Rrnum{6}}}{あ} \quad
+1 auto \KKStprobe{\kksrefauto}{1}, kksref \KKStprobe{\kksref{\Rrnum{6}}}{1} \quad
+A auto \KKStprobe{\kksrefauto}{A}, kksref \KKStprobe{\kksref{\Rrnum{6}}}{A}
+
+\subsubsection*{C8. Package options / パッケージオプション}
+\paragraph{Japanese}
+パッケージオプションは読み込み時に決まるため、この一枚では切り替えられません。
+次の三点は、オプションを変えた別のビルドで確認した結果です。
+
+\begin{description}
+  \item[\KKverb|tsumesuji|] ローマ数字には無関係です。このオプションは 2 桁以上の
+  数字列だけを対象とするため、\KKverb|tsumesuji=0| と \KKverb|tsumesuji=1| で
+  本節の出力は完全に一致します。
+  \item[\KKverb|autolowercase|] \KKverb|autolowercase=1|（既定）では、展開結果が
+  1 字になる i, v, x, l, c, d, m が小文字経路に入り、ii や viii などは通常経路のまま
+  になります。\KKverb|\kksref| はどちらの経路にも効きますが、最も揃うのは
+  \KKverb|autolowercase=1| ＋ 非スター ＋ 一括 phantom の組み合わせです。
+  \item[\KKverb|linewidth| 系] 枠線を太くしても内容は内側に収まります。
+  基準の効き方は線幅によって変わりません。
+\end{description}
+
+\paragraph{English}
+Package options are fixed when the package is loaded, so they cannot be switched
+inside this sheet. The following three points were checked with separate builds.
+
+\begin{description}
+  \item[\KKverb|tsumesuji|] Unrelated to roman numerals. The option applies only to
+  digit strings of two or more digits, so the output of this section is identical
+  under \KKverb|tsumesuji=0| and \KKverb|tsumesuji=1|.
+  \item[\KKverb|autolowercase|] With \KKverb|autolowercase=1| (the default), the
+  one-letter results i, v, x, l, c, d and m take the lowercase path while ii,
+  viii and the like keep the normal one. \KKverb|\kksref| applies to both paths,
+  but the most uniform combination is \KKverb|autolowercase=1| with the
+  non-starred commands and a group-wide phantom.
+  \item[\KKverb|linewidth| keys] A heavier outline still keeps the material
+  inside, and the reference behaves the same at any line width.
+\end{description}
 
 \section{Automatic alignment (reference box)}
 \paragraph{Japanese}
 v2.2.0 以降、各囲みコマンドは既定で「現在フォントの参照高さ」、具体的には x-height 相当を基準として中身のサイズと中央位置を決めます。これは短い文字や深さのない文字を、引数自身のバウンディングボックスだけで処理したときのばらつきを抑えるためです。
 
-ただし、既定の自動基準は \KKverb|\vphantom{\Rrnum{6}}| と同一ではありません。したがって、小文字ローマ数字を \KKverb|\Rrnum{6}| の高さ・深さで揃えたい場合は、前節のように \KKverb|\kksref{\Rrnum{6}}| を明示してください。
+ただし、既定の自動基準は \KKverb|\vphantom{\Rrnum{6}}| と同一ではありません。小文字ローマ数字については自動基準が実質的に働かないため、前節の推奨のとおり、非スター版のコマンドに \KKverb|\kksref{\Rrnum{6}}| をグループ内で一括指定してください。
 
 漢字・かな・大文字・数字など、既定基準より背の高い内容は、引数自身の寸法が優先されます。このため、通常の文書では既存の出力が大きく変わらないようになっています。
 
 \paragraph{English}
 Since v2.2.0, each enclosure command uses the current font's reference height, roughly its x-height, as the default reference for sizing and vertical centering. This reduces variation when short glyphs or glyphs with no depth would otherwise be measured only by their own bounding boxes.
 
-However, the automatic reference is not identical to \KKverb|\vphantom{\Rrnum{6}}|. If lowercase roman numerals should be aligned against the height and depth of \KKverb|\Rrnum{6}|, explicitly use \KKverb|\kksref{\Rrnum{6}}| as shown in the previous section.
+However, the automatic reference is not identical to \KKverb|\vphantom{\Rrnum{6}}|. For lowercase roman numerals it has essentially no effect, so follow the recommendation of the previous section: use the non-starred commands with one group-wide \KKverb|\kksref{\Rrnum{6}}|.
 
 For content taller than the default reference, such as kanji, kana, uppercase letters, or digits, the argument's own metrics still dominate. This keeps ordinary documents close to their existing appearance.
 
@@ -757,6 +1337,9 @@ With \KKverb|autolowercase=1| (the default), single lowercase ASCII-letter argum
 detected automatically, so \verb|\seihou{m}| uses the lowercase-safe sizing
 path. The explicit \verb|\seihou*{m}| form remains available; with
 \KKverb|autolowercase=0| it is required for the legacy manual behavior.
+Explicit stars may also contain multiple characters; every seihou and hishi
+variant then uses one uniform scale factor to fit both width and total
+height/depth inside its actual outline and configured line width.
 
 \bigskip{%
 \centering
@@ -817,6 +1400,9 @@ With \KKverb|autolowercase=1| (the default), single lowercase ASCII-letter argum
 detected automatically, so \verb|\kakko{m}| uses the lowercase-safe sizing
 path. The explicit \verb|\kakko*{m}| form remains available; with
 \KKverb|autolowercase=0| it is required for the legacy manual behavior.
+Explicit stars may contain multiple characters and keep their aspect ratio
+while fitting the bracket's reserved interior. The same rule applies to the
+other bracket commands and to \KKverb|\ichimoji|.
 \KKverb|\zenkakuhabafixer| does not take a star and is not affected by this
 option.
 
@@ -885,7 +1471,6 @@ Released under the MIT License.
 \section{Version History}
 
 \begin{itemize}
-  \item \textbf{Unreleased} --- Added automatic lowercase sizing, configurable frame line widths, and the compatibility fixes described above. Version and release date are intentionally left undecided pending release confirmation.
   \item \textbf{v1.0.0 (2025/10/03)} --- Initial public release.
   \item \textbf{v1.0.1--1.0.4} --- Added \verb|\ichimoji|; fixed various bugs.
   \item \textbf{v1.1.0 (2025/10/28)} --- Unified all commands to \textit{zenkaku} (full-width).
@@ -905,6 +1490,11 @@ Released under the MIT License.
   \item \textbf{v2.2.0 (2026/06/21)} --- Automatic vertical alignment was introduced. By default, the content of each enclosure is sized and centered against the current font's reference height (x-height) instead of relying only on the glyph's own metrics. The new commands \KKverb|\kksref|, \KKverb|\kksrefoff|, and \KKverb|\kksrefauto| (alias \KKverb|\kksrefreset|) control this behavior. For strict lowercase roman-numeral alignment, use \KKverb|\kksref{\Rrnum{6}}| explicitly.
   \item \textbf{v2.2.1 (2026/06/21)} --- Bug fix: font-size commands inside arguments no longer cause an infinite loop in the internal one-digit/\KKverb|tsumesuji| check. The visible output size is unaffected.
   \item \textbf{v2.2.2 (2026/06/26)} --- Documentation update. The documentation now describes uppercase \KKverb|\Rrnum*{n}| and lowercase \KKverb|\Rrnum{n}| usage, clarifies when \KKverb|\kksref{\Rrnum{6}}| is needed, and adds a Japanese/English comparison with \texttt{luatexja-otf}.
+  \item \textbf{v2.3.0 (2026/08/20)} --- Added automatic lowercase sizing (\KKverb|autolowercase|), configurable frame line widths (\KKverb|linewidth| and the per-command keys such as \KKverb|marulinewidth|), and the compatibility fixes described above, including the corrected \KKverb|\maruhishi| wiring.
+
+  The safe-sizing route of the circle enclosures (\KKverb|\maru|, \KKverb|\kuromaru|, \KKverb|\nmaru|) keeps the historical rule that the material's total height stays within the square inscribed in the circle. Fitting the material's box to the circle itself, which the rewritten routine did at first, is geometrically correct but leaves a tall narrow letter such as \verb|j| with no clearance where its ink actually reaches: the dot and the descender sit at the horizontal centre, that is at the circle's poles, while the box touches the outline at its corners. A second historical rule is kept as well: material wider than the inner box settles for a slightly smaller base, which is what keeps a wide letter such as \verb|m| or \verb|w| clear of the frame at the sides. Material of a single glyph is judged there on its widest and tallest points rather than at its box corners, since a lone glyph's ink does not reach the corners of its own box; this is the same test the package's ink guard applies. A string of glyphs, whose width nothing bounds, keeps the corner test. Every rule here is an upper bound, so each can only make a fit smaller than the geometry already allows, and a heavier \KKverb|linewidth| tightens all of them in step with the outline. The result is that in the circle enclosures every single lowercase letter renders at exactly the size it had in v2.2.2, while multi-character material keeps the containment the rewritten routine introduced.
+
+  Specification change (documentation): the recommended way to typeset lowercase roman numerals is now the \emph{non-starred} enclosure commands combined with a single group-wide \KKverb|\kksref{\Rrnum{6}}|. Until this version the documentation presented \KKverb|\kksref{\Rrnum{6}}| as an optional measure for strict alignment, and left the automatic reference as the ordinary route. Measurement shows that the automatic reference is the x-height of the current font and therefore has essentially no effect on lowercase roman numerals, leaving a 2.23\,pt spread at 10\,pt, and that an explicit star only makes the whole sequence smaller without aligning it. The \KKverb|\kksref{\Rrnum{6}}| route brings the spread to 0 at every font size. The ``Roman numerals'' section now carries a ``Recommended usage'' subsection and a ``Corner-case test sheet'' whose figures this document measures at compile time, including the note that \KKverb|\kksref{\Rrnum{50}}| is needed when the range includes numerals containing \verb|l| or \verb|d|. No package code was changed by this item.
 \end{itemize}
 
 \end{document}

@@ -1,0 +1,180 @@
+% Shared assertions for \jegg's dedicated lowercase scaler under configurable
+% frame line widths.  A fixture defines
+%
+%   \newcommand{\KKSeggexpectedlw}{<dimension>}
+%
+% with the width its package options must give the egg outline, inputs this
+% file in the preamble, and then calls \KKSeggsuite (or \KKSeggbasesuite when
+% the stroke is thick enough to swallow the ellipse) in the document body.
+%
+% The reference half-axes are measured from a rendered ellipse instead of being
+% copied from the package.  PGF adds the stroke to a picture's bounding box, so
+% drawing the same node twice, once with `draw' and once with `draw=none',
+% yields both the ellipse path's own axes and the line width that was really
+% used.  Everything else is then checked against that measurement, so a scaler
+% that keeps hard-coded half-axes cannot pass together with a wrong package.
+\makeatletter
+\newsavebox{\KKSprobepath}
+\newsavebox{\KKSprobedraw}
+\newsavebox{\KKSeggbox}
+\newlength{\KKSreflw}
+\newlength{\KKSrefhradius}
+\newlength{\KKSrefvradius}
+\newlength{\KKSeggw}
+\newlength{\KKSeggh}
+\newlength{\KKSeggnw}
+\newlength{\KKSeggnh}
+\newlength{\KKSeggtmp}
+\newlength{\KKSeggexp}
+\newlength{\KKSeggres}
+\newlength{\KKSeggdiff}
+\newcommand{\KKSeggfail}[2]{\PackageError{\jobname}{Egg lowercase `#1': #2}{}}
+
+% The same ellipse \jegg@new draws, with the line width the fixture expects.
+\newcommand{\KKSprobenode}[1]{%
+  \tikz{\node[
+    shape=ellipse,
+    line width=\KKSeggexpectedlw,
+    minimum height=.9\maru@boxwidth@new,
+    minimum width=.7\maru@boxwidth@new,
+    #1,
+    inner sep=0\maru@boxwidth@new
+  ] (probe) {};}}
+
+% Rounding to scaled points happens in both the option and the rendered path,
+% so dimensions are compared with a tolerance well below a visible difference.
+\newcommand{\KKSeggnear}[3]{%
+  \setlength{\KKSeggdiff}{\dimexpr#2-#3\relax}%
+  \ifdim\KKSeggdiff<\z@ \setlength{\KKSeggdiff}{-\KKSeggdiff}\fi
+  \ifdim\KKSeggdiff>.05pt
+    \KKSeggfail{setup}{#1: \the#2\space is not \the#3}%
+  \fi}
+
+\newcommand{\KKSeggmeasure}{%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \setlength{\KKSeggexp}{\KKSeggexpectedlw}%
+  % The option value has to reach the egg through the documented precedence
+  % chain first; otherwise every geometric check below would use a stroke the
+  % package never draws.
+  \setlength{\KKSeggres}{%
+    \kks@linewidth{\kksymbols@jegglinewidth}{\kksymbols@linewidth}%
+      {.04\maru@boxwidth@new}}%
+  \KKSeggnear{the resolved line width}{\KKSeggres}{\KKSeggexp}%
+  \sbox{\KKSprobepath}{\KKSprobenode{draw=none}}%
+  \sbox{\KKSprobedraw}{\KKSprobenode{draw}}%
+  \setlength{\KKSreflw}{\dimexpr\wd\KKSprobedraw-\wd\KKSprobepath\relax}%
+  \setlength{\KKSrefhradius}{\dimexpr.5\wd\KKSprobepath-.5\KKSreflw\relax}%
+  \setlength{\KKSrefvradius}{%
+    \dimexpr.5\ht\KKSprobepath+.5\dp\KKSprobepath-.5\KKSreflw\relax}%
+  \KKSeggnear{the stroke the ellipse is drawn with}{\KKSreflw}{\KKSeggres}%
+  \typeout{KKS-EGG-REF:lw=\the\KKSreflw,a=\the\KKSrefhradius,%
+    b=\the\KKSrefvradius}%
+}
+
+% The scaler must aim at the interior the outline actually leaves free.
+\newcommand{\KKSeggradii}{%
+  \kks@jegg@lower@setup
+  \KKSeggnear{the horizontal half-axis it scales against}%
+    {\kks@jegg@lower@hradius}{\KKSrefhradius}%
+  \KKSeggnear{the vertical half-axis it scales against}%
+    {\kks@jegg@lower@vradius}{\KKSrefvradius}%
+}
+
+% Reproduce \jegg@new's own measurements and call the scaler through the very
+% hook the lowercase route replaces, then record natural and scaled sizes.
+\newcommand{\KKSeggscaled}[1]{%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+  \pgfmathsetlength{\jegg@boxwidth@inner@cal}{0.77 * \maru@boxwidth@inner}%
+  \settowidth{\maru@var@yokohaba}{#1}%
+  \kks@jegg@lower@setup
+  \settowidth{\KKSeggnw}{\kks@withref{#1}}%
+  \settoheight{\KKSeggnh}{\kks@withref{#1}}%
+  \settodepth{\KKSeggtmp}{\kks@withref{#1}}%
+  \addtolength{\KKSeggnh}{\KKSeggtmp}%
+  \sbox{\KKSeggbox}{%
+    \shukushou@adj@new
+      {\maru@var@yokohaba}{\jegg@boxwidth@inner@cal}{\kks@withref{#1}}}%
+  \setlength{\KKSeggw}{\wd\KKSeggbox}%
+  \setlength{\KKSeggh}{\dimexpr\ht\KKSeggbox+\dp\KKSeggbox\relax}%
+}
+
+\newcommand{\KKSeggaspectcheck}[1]{%
+  \pgfmathsetmacro{\KKSeggaspect}{%
+    abs((\KKSeggw / \KKSeggh) - (\KKSeggnw / \KKSeggnh))
+      / (\KKSeggnw / \KKSeggnh)}%
+  \ifdim\KKSeggaspect pt>0.01pt
+    \KKSeggfail{#1}{aspect ratio changed by \KKSeggaspect}%
+  \fi}
+
+% A box centred on an ellipse with half-axes a and b touches it when
+% (w/2a)^2 + (h/2b)^2 = 1, i.e. when the reach below is 2.  Measuring the
+% height with the depth included covers ascenders and descenders.
+\newcommand{\KKSeggfit}[1]{%
+  \KKSeggscaled{#1}%
+  \pgfmathsetmacro{\KKSeggreach}{%
+    sqrt((\KKSeggw / \KKSrefhradius)^2 + (\KKSeggh / \KKSrefvradius)^2)}%
+  \ifdim\KKSeggreach pt>1.9pt
+    \KKSeggfail{#1}{reach \KKSeggreach\space against the drawn ellipse leaves
+      no padding (2 touches the outline)}%
+  \fi
+  \ifdim\KKSeggreach pt<0.1pt
+    \KKSeggfail{#1}{scaled away to nothing}%
+  \fi
+  \KKSeggaspectcheck{#1}%
+}
+
+% With no interior left there is nothing to fit into, so the scaler must fall
+% back to the plain lowercase size (.69 of the natural box) instead of dividing
+% by a non-positive half-axis.
+\newcommand{\KKSeggbase}[1]{%
+  \KKSeggscaled{#1}%
+  \pgfmathsetmacro{\KKSeggratio}{\KKSeggw / \KKSeggnw}%
+  \ifdim\KKSeggratio pt<0.68pt
+    \KKSeggfail{#1}{fell back to \KKSeggratio\space of its natural width}%
+  \fi
+  \ifdim\KKSeggratio pt>0.70pt
+    \KKSeggfail{#1}{fell back to \KKSeggratio\space of its natural width}%
+  \fi
+  \KKSeggaspectcheck{#1}%
+}
+
+\newcommand{\KKSeggletters}[1]{%
+  #1{a}#1{b}#1{c}#1{d}#1{e}#1{f}#1{g}#1{h}#1{i}#1{j}#1{k}#1{l}#1{m}%
+  #1{n}#1{o}#1{p}#1{q}#1{r}#1{s}#1{t}#1{u}#1{v}#1{w}#1{x}#1{y}#1{z}}
+
+% Wide letters and the tallest ascender/descender pairs are the cases a stroke
+% that eats into the ellipse breaks first, so they are checked twice.
+\newcommand{\KKSeggsuite}{%
+  \begingroup
+    \KKSeggmeasure
+    \KKSeggradii
+    \KKSeggletters{\KKSeggfit}%
+    \KKSeggfit{m}\KKSeggfit{w}\KKSeggfit{f}\KKSeggfit{j}\KKSeggfit{g}%
+    \typeout{KKS-EGG-LINEWIDTH:OK}%
+  \endgroup}
+
+\newcommand{\KKSeggbasesuite}{%
+  \begingroup
+    \KKSeggmeasure
+    \KKSeggradii
+    \KKSeggletters{\KKSeggbase}%
+    \typeout{KKS-EGG-LINEWIDTH-GUARD:OK}%
+  \endgroup}
+
+% Visual counterpart of the assertions above.
+\newcommand{\KKSeggshowcase}{%
+  \noindent White eggs, \texttt{a}--\texttt{z}:\par
+  \KKSeggletters{\KKSeggfbox}\par
+  \medskip
+  \noindent Gray eggs (the star still selects only the background):\par
+  \KKSeggletters{\KKSeggfboxstar}\par
+  \medskip
+  \noindent Lowercase against uppercase, and wide letters:\par
+  \fbox{\jegg{c}}\fbox{\jegg{C}}\fbox{\jegg*{c}}\fbox{\jegg*{C}}\quad
+  \fbox{\jegg{m}}\fbox{\jegg{M}}\fbox{\jegg*{m}}\fbox{\jegg*{M}}\quad
+  \fbox{\jegg{w}}\fbox{\jegg{W}}\fbox{\jegg*{w}}\fbox{\jegg*{W}}\quad
+  \fbox{\jegg{1}}\fbox{\jegg{12}}\fbox{\jegg{A}}\par}
+\newcommand{\KKSeggfbox}[1]{\fbox{\jegg{#1}}}
+\newcommand{\KKSeggfboxstar}[1]{\fbox{\jegg*{#1}}}
+\makeatother

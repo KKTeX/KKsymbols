@@ -1,0 +1,62 @@
+% Regression test for the star (safe-sizing) routes at the default frame
+% widths.  Compile with: latexmk -r .latexmkrc test-star-fit.tex
+%
+% Explicit-star material is arbitrary, so every star route that selects the
+% safe-sizing path must scale it uniformly until it fits the enclosure that is
+% really drawn.  The assertions live in star-fit-checks.tex; they drive the
+% public commands and measure a rendered outline rather than trusting any
+% constant in the package.
+\documentclass{jlreq}
+\usepackage[autolowercase=1]{KKsymbols}
+\usepackage{lltjext}
+\input{star-fit-checks}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\section*{Uniform star fit --- default frame widths}
+
+\KKSfitsuite
+
+\noindent Every enclosure below encloses the same three letters.  Nothing may
+touch or cross an outline, and each row must keep the letters' proportions.
+The frames are \verb|\fbox|es of the em box, not part of the symbol.\par
+\medskip
+\KKSfitshowrow{abc}\par
+\KKSfitshowrow{mmmm}\par
+\KKSfitshowrow{Qjgy}\par
+\KKSfitshowrow{Wgabcdef}\par
+\KKSfitshowrow{漢}
+
+\medskip
+\noindent Enlarged, for inspection:\par
+{\LARGE\KKSfitshowrow{abc}\par\KKSfitshowrow{Qjgy}}
+
+\medskip
+\noindent A single lowercase letter takes the same route automatically, so
+the automatic and the explicit-star form must stay the same size:\par
+\fbox{\maru{m}}\fbox{\maru*{m}}\quad
+\fbox{\seihou{m}}\fbox{\seihou*{m}}\quad
+\fbox{\seimaru{w}}\fbox{\seimaru*{w}}\quad
+\fbox{\hishi{m}}\fbox{\hishi*{m}}\quad
+\fbox{\maruhishi{w}}\fbox{\maruhishi*{w}}\quad
+\fbox{\kakko{m}}\fbox{\kakko*{m}}\quad
+\fbox{\ichimoji{m}}\fbox{\ichimoji*{m}}
+
+\medskip
+\noindent \verb|\jegg|'s star keeps its own meaning --- a gray background,
+not a size --- and its lowercase sizing is unchanged:\par
+\fbox{\jegg{m}}\fbox{\jegg*{m}}\quad\fbox{\jegg{c}}\fbox{\jegg{C}}\quad
+\fbox{\jegg{abc}}\fbox{\jegg*{abc}}
+
+\medskip
+\noindent Unstarred routes are untouched:\par
+\fbox{\maru{A}}\fbox{\maru{1}}\fbox{\maru{12}}\fbox{\maru{\char"6F22}}%
+\fbox{\seihou{A}}\fbox{\hishi{A}}\fbox{\kakko{A}}\fbox{\ichimoji{A}}
+
+\medskip
+\noindent Nesting and vertical writing:\par
+\fbox{\maru{\kakko{a}}}\fbox{\seihou*{\kakko*{m}}}\quad
+\parbox<t>{6\zw}{甲\maru*{abc}\seihou*{abc}\hishi*{abc}\kakko*{abc}乙}
+\end{document}

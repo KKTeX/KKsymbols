@@ -1,0 +1,36 @@
+% Regression test for the star (safe-sizing) routes with Harano Aji supplying
+% the Latin glyphs as well as the Japanese ones.  Compile with:
+%   latexmk -r .latexmkrc test-star-fit-haranoaji.tex
+%
+% The other star fixtures run with the class defaults, where the Latin glyphs
+% come from Latin Modern.  The star routes size arbitrary material against the
+% outline that is really drawn, so a font whose lowercase letters have other
+% proportions -- notably a wider `m' and a taller `j' -- exercises different
+% branches of the fit: `luatexja-preset' with `match' is the setting a document
+% uses when it wants one family throughout, and it is what TeX Live ships, so
+% it is the configuration most readers will actually see.
+\documentclass{jlreq}
+\usepackage[autolowercase=1]{KKsymbols}
+\usepackage{lltjext}
+\RequirePackage[no-math]{fontspec}
+\RequirePackage[no-math,match,scale=1]{luatexja-fontspec}
+\RequirePackage[haranoaji,deluxe]{luatexja-preset}
+% Harano Aji for the Latin glyphs too, which is the strictest case: its
+% lowercase has other proportions than Latin Modern's, so the fit lands
+% on different branches.
+\setmainfont{HaranoAjiMincho-Regular}
+\input{star-fit-checks}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\section*{Uniform star fit --- Harano Aji throughout}
+
+\KKSfitsuite
+
+\noindent The same assertions as \texttt{test-star-fit.tex}, with Harano Aji
+supplying the Latin glyphs.  Nothing may touch or cross an outline.\par
+\medskip
+{\Huge\KKSfitshowcolumn{abc}}
+\end{document}

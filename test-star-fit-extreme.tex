@@ -1,0 +1,22 @@
+% A frame so heavy that it swallows the interior it is supposed to enclose.
+% There is then nothing to fit into, and the star routes must fall back to
+% their plain base size rather than divide by a non-positive limit.
+% Compile with: latexmk -r .latexmkrc test-star-fit-extreme.tex
+\documentclass{jlreq}
+\usepackage[autolowercase=1,linewidth=12pt]{KKsymbols}
+\input{star-fit-checks}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\section*{Uniform star fit --- a frame with no interior left}
+
+\KKSfitbasesuite
+
+\noindent The symbols below are unreadable by construction; the test is that
+they still typeset, keep their proportions, and do not error.\par
+\medskip
+\KKSfitshowrow{abc}\par
+\KKSfitshowrow{m}
+\end{document}

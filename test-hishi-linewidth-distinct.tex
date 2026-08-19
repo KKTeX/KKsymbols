@@ -1,0 +1,80 @@
+% Regression test for the four diamond enclosures' line-width keys and corner
+% models.  Compile with: latexmk -r .latexmkrc test-hishi-linewidth-distinct.tex
+%
+% \hishi, \kurohishi, \maruhishi and \kuromaruhishi each have their own
+% `...linewidth' key and their own corner model -- \hishi and \kurohishi are
+% drawn with sharp tips, \maruhishi and \kuromaruhishi with rounded ones -- and
+% the safe-sizing route of each has to size its material against its own
+% command's stroke and its own command's tips.  Two of those wrappers reading
+% each other's key, or describing each other's corners, is invisible on the
+% page whenever the four keys agree, which they do at the default widths and
+% in every other fixture here.
+%
+% So this fixture gives all four keys deliberately different values, far
+% enough apart that a swap moves the interior by much more than any tolerance,
+% and then runs the shared suite: it measures each public shape as it is
+% really drawn, and requires each command's own computed limit to match its
+% own outline exactly -- from both sides, so that a wrapper which reads the
+% narrower of two keys fails just as surely as one which reads the wider.
+%
+% The four widths are also all well under twice the .06\zw radius the rounded
+% pair's tips are drawn on.  That is what makes the corner models tell apart
+% at all: a pen wider than twice the radius squares the tip off by itself, and
+% then the rounded and the sharp model are the same shape and no assertion
+% could separate them.  \KKSfitcorneractive below refuses to let that go
+% unnoticed if these widths are ever raised.
+\documentclass{jlreq}
+\usepackage[autolowercase=1,%
+  hishilinewidth=0.2pt,%
+  kurohishilinewidth=0.4pt,%
+  maruhishilinewidth=0.6pt,%
+  kuromaruhishilinewidth=0.8pt]{KKsymbols}
+\input{star-fit-checks}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\section*{Diamond line-width keys and corner models}
+
+% The premise first: the four outlines really are distinguishable.  Without
+% this the assertions below could pass on a fixture that had quietly stopped
+% distinguishing anything.
+\KKSfitshapes
+\KKSfitdistinct{hishi}{kurohishi}%
+\KKSfitdistinct{hishi}{maruhishi}%
+\KKSfitdistinct{hishi}{kuromaruhishi}%
+\KKSfitdistinct{kurohishi}{maruhishi}%
+\KKSfitdistinct{kurohishi}{kuromaruhishi}%
+\KKSfitdistinct{maruhishi}{kuromaruhishi}%
+\KKSfitcorneractive{hishi}{.06\zw}%
+\KKSfitcorneractive{kurohishi}{.06\zw}%
+\KKSfitcorneractive{maruhishi}{.06\zw}%
+\KKSfitcorneractive{kuromaruhishi}{.06\zw}%
+\typeout{KKS-HISHI-DISTINCT:OK}
+
+\KKSfitsuite
+
+\noindent The four diamonds below carry four different strokes, thinnest
+first, and the right-hand pair has rounded tips.  Nothing may touch or cross
+an outline, and no diamond may hold material sized for a neighbour's stroke.
+\par
+\medskip
+\fbox{\hishi*{abc}}\fbox{\kurohishi*{abc}}%
+\fbox{\maruhishi*{abc}}\fbox{\kuromaruhishi*{abc}}\quad
+\fbox{\hishi*{cmj}}\fbox{\kurohishi*{cmj}}%
+\fbox{\maruhishi*{cmj}}\fbox{\kuromaruhishi*{cmj}}\quad
+\fbox{\hishi*{m}}\fbox{\kurohishi*{m}}%
+\fbox{\maruhishi*{m}}\fbox{\kuromaruhishi*{m}}
+
+\medskip
+\noindent Enlarged, for inspection:\par
+{\LARGE\fbox{\hishi*{abc}}\fbox{\kurohishi*{abc}}%
+\fbox{\maruhishi*{abc}}\fbox{\kuromaruhishi*{abc}}\par
+\fbox{\hishi*{j}}\fbox{\kurohishi*{j}}%
+\fbox{\maruhishi*{j}}\fbox{\kuromaruhishi*{j}}}
+
+\medskip
+\noindent The unstarred routes are untouched by all of this:\par
+\fbox{\hishi{A}}\fbox{\kurohishi{A}}\fbox{\maruhishi{A}}\fbox{\kuromaruhishi{A}}
+\end{document}

@@ -1,0 +1,18 @@
+% Regression test: the egg's lowercase scaler must follow the global
+% linewidth option as well, not only jegglinewidth.  Compile with:
+%   latexmk -r .latexmkrc test-jegg-linewidth-global.tex
+\documentclass{jlreq}
+\usepackage[linewidth=1.5pt]{KKsymbols}
+
+\newcommand{\KKSeggexpectedlw}{1.5pt}
+\input{egg-linewidth-checks}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\section*{Egg lowercase sizing (global \texttt{linewidth=1.5pt})}
+
+\KKSeggsuite
+\KKSeggshowcase
+\end{document}

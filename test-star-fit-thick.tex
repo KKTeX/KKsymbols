@@ -1,0 +1,28 @@
+% The same star-route assertions with a frame thick enough that the outline,
+% not the enclosure's inner box, is what limits the interior.  This is the
+% case a fit that only knows the inner box gets wrong.
+% Compile with: latexmk -r .latexmkrc test-star-fit-thick.tex
+\documentclass{jlreq}
+\usepackage[autolowercase=1,linewidth=2.4pt,hishilinewidth=3pt,%
+  seimarulinewidth=1.2pt]{KKsymbols}
+\input{star-fit-checks}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\section*{Uniform star fit --- thick frames}
+
+\KKSfitsuite
+
+\noindent A stroke this heavy eats into every interior, so the material has
+to shrink further than the inner box alone would ask.  Nothing may touch or
+cross an outline.\par
+\medskip
+\KKSfitshowrow{abc}\par
+\KKSfitshowrow{Qjgy}\par
+\KKSfitshowrow{m}\par
+\KKSfitshowrow{漢}\par
+\medskip
+{\LARGE\KKSfitshowrow{abc}}
+\end{document}

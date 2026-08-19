@@ -25,7 +25,7 @@
 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{KKsymbols}[2026/06/26, Version 2.2.2]
+\ProvidesPackage{KKsymbols}[2026/08/20, Version 2.3.0]
 \RequirePackage{luatexja-adjust, luacode, kvoptions}
 \RequirePackage{calc}
 \RequirePackage{tikz}
@@ -98,7 +98,7 @@
 % Parse every explicit line-width value once at package load time.  The value
 % itself is not stored, so relative dimensions such as .04\zw remain dynamic
 % when a symbol is used at another font size or in another direction.
-\cs_new_protected:Npn \kks_linewidth_validate:nn #1#2
+\cs_new_protected:Npn \kks@linewidth@validate:nn #1#2
   {
     \str_if_eq:eeF { #2 } { auto }
       {
@@ -109,21 +109,21 @@
         \group_end:
       }
   }
-\kks_linewidth_validate:nn { linewidth } { \kksymbols@linewidth }
-\kks_linewidth_validate:nn { marulinewidth } { \kksymbols@marulinewidth }
-\kks_linewidth_validate:nn { kuromarulinewidth } { \kksymbols@kuromarulinewidth }
-\kks_linewidth_validate:nn { nmarulinewidth } { \kksymbols@nmarulinewidth }
-\kks_linewidth_validate:nn { jegglinewidth } { \kksymbols@jegglinewidth }
-\kks_linewidth_validate:nn { seihoulinewidth } { \kksymbols@seihoulinewidth }
-\kks_linewidth_validate:nn { kuroseihoulinewidth } { \kksymbols@kuroseihoulinewidth }
-\kks_linewidth_validate:nn { seimarulinewidth } { \kksymbols@seimarulinewidth }
-\kks_linewidth_validate:nn { kuroseimarulinewidth } { \kksymbols@kuroseimarulinewidth }
-\kks_linewidth_validate:nn { hishilinewidth } { \kksymbols@hishilinewidth }
-\kks_linewidth_validate:nn { kurohishilinewidth } { \kksymbols@kurohishilinewidth }
-\kks_linewidth_validate:nn { maruhishilinewidth } { \kksymbols@maruhishilinewidth }
-\kks_linewidth_validate:nn { kuromaruhishilinewidth } { \kksymbols@kuromaruhishilinewidth }
+\kks@linewidth@validate:nn { linewidth } { \kksymbols@linewidth }
+\kks@linewidth@validate:nn { marulinewidth } { \kksymbols@marulinewidth }
+\kks@linewidth@validate:nn { kuromarulinewidth } { \kksymbols@kuromarulinewidth }
+\kks@linewidth@validate:nn { nmarulinewidth } { \kksymbols@nmarulinewidth }
+\kks@linewidth@validate:nn { jegglinewidth } { \kksymbols@jegglinewidth }
+\kks@linewidth@validate:nn { seihoulinewidth } { \kksymbols@seihoulinewidth }
+\kks@linewidth@validate:nn { kuroseihoulinewidth } { \kksymbols@kuroseihoulinewidth }
+\kks@linewidth@validate:nn { seimarulinewidth } { \kksymbols@seimarulinewidth }
+\kks@linewidth@validate:nn { kuroseimarulinewidth } { \kksymbols@kuroseimarulinewidth }
+\kks@linewidth@validate:nn { hishilinewidth } { \kksymbols@hishilinewidth }
+\kks@linewidth@validate:nn { kurohishilinewidth } { \kksymbols@kurohishilinewidth }
+\kks@linewidth@validate:nn { maruhishilinewidth } { \kksymbols@maruhishilinewidth }
+\kks@linewidth@validate:nn { kuromaruhishilinewidth } { \kksymbols@kuromaruhishilinewidth }
 
-\prg_new_protected_conditional:Npnn \kks_if_lowercase:n #1 { T, F, TF }
+\prg_new_protected_conditional:Npnn \kks@if@lowercase:n #1 { T, F, TF }
   {
     % KKran's public commands are protected.  Replace them only inside this
     % classification group, if present, so either package load order works and
@@ -132,9 +132,9 @@
     \@ifpackageloaded { KKran }
       {
         \cs_if_exist:NT \Rrnum
-          { \cs_set_eq:NN \Rrnum \kks_Rrnum_expand: }
+          { \cs_set_eq:NN \Rrnum \kks@Rrnum@expand: }
         \cs_if_exist:NT \alphabetarray
-          { \cs_set_eq:NN \alphabetarray \kks_alphabetarray_expand: }
+          { \cs_set_eq:NN \alphabetarray \kks@alphabetarray@expand: }
       }
       { }
     \str_set:Nx \kks@tmp@str { \text_expand:n { #1 } }
@@ -153,18 +153,18 @@
       { \group_end: \prg_return_false: }
   }
 
-\cs_new_protected:Npn \kks_autolowercase_select:nnn #1#2#3
+\cs_new_protected:Npn \kks@autolowercase@select:nnn #1#2#3
   {
     \bool_if:NTF \kks@autolowercase@bool
-      { \kks_if_lowercase:nTF { #3 } { #1 { #3 } } { #2 { #3 } } }
+      { \kks@if@lowercase:nTF { #3 } { #1 { #3 } } { #2 { #3 } } }
       { #2 { #3 } }
   }
-\cs_new_eq:NN \kks@autolowercase@select \kks_autolowercase_select:nnn
+\cs_new_eq:NN \kks@autolowercase@select \kks@autolowercase@select:nnn
 
 % Resolve a command-specific line width, then the global line width, then the
 % command's historical default.  Keep this expandable so TikZ receives the
 % final dimension directly and nested enclosure commands cannot leak state.
-\cs_new:Npn \kks_linewidth_resolve:nnn #1#2#3
+\cs_new:Npn \kks@linewidth@resolve:nnn #1#2#3
   {
     \str_if_eq:eeTF { #1 } { auto }
       {
@@ -174,18 +174,18 @@
       }
       { #1 }
   }
-\cs_new_eq:NN \kks@linewidth \kks_linewidth_resolve:nnn
+\cs_new_eq:NN \kks@linewidth \kks@linewidth@resolve:nnn
 
 % Expandable, classification-only equivalents for KKran's protected commands.
-% They are installed locally by \kks_if_lowercase:n only when the corresponding
+% They are installed locally by \kks@if@lowercase:n only when the corresponding
 % public command exists; neither KKran command is redefined globally.
-\NewExpandableDocumentCommand \kks_Rrnum_expand: { s m }
+\NewExpandableDocumentCommand \kks@Rrnum@expand: { s m }
   {
     \IfBooleanTF { #1 }
       { \uppercase \expandafter { \romannumeral #2 } }
       { \romannumeral #2 }
   }
-\NewExpandableDocumentCommand \kks_alphabetarray_expand: { s m }
+\NewExpandableDocumentCommand \kks@alphabetarray@expand: { s m }
   {
     \IfBooleanTF { #1 }
       { \seq_item:Nn \g_alphabet_upper_seq { #2 } }
@@ -559,10 +559,6 @@
 \newlength{\maru@boxwidth@new}
 \newlength{\maru@boxwidth@inner}
 \newlength{\maru@var@yokohaba}
-\newlength{\maru@var@yokohaba@cal}
-\newlength{\maru@var@tate}
-\newlength{\maru@var@fuka}
-\newlength{\maru@var@zenkou}
 
 \ExplSyntaxOn
 \newcommand{\kks@chech@maru@onedigit}[1]{
@@ -586,16 +582,317 @@
   \resizebox*{!}{#2}{#3}%
 }
 
-\NewDocumentCommand{\shukushou@adj@new@no@maru}{ m m m m }{%
-  \ifdim #1 < #2%
-    \ifdim #3 > #2%
-      \resizebox*{#3}{!}{#4}%
-    \else%
-      \scalebox{.9}{#4}%
-    \fi%
-  \else%
-    \resizebox*{!}{#2}{#4}%
-  \fi%
+% ---- Uniform fit for the star (safe-sizing) routes ------------------------
+% A star route has to size arbitrary material, not just one lowercase letter,
+% so it may only ever apply a single uniform scale, and that scale has to keep
+% the material's whole box -- width and height plus depth -- inside the shape
+% that is actually drawn.  Two limits are combined:
+%
+%   * the inner box each command hands TikZ.  It is the design's own padding
+%     and is what gives lowercase letters their familiar size and the visible
+%     gap to the frame, so it stays the primary limit;
+%   * the interior of the drawn outline, i.e. the TikZ path taken in by half
+%     the stroke.  The stroke width is a package option (`linewidth' and the
+%     per-command keys), so a thick enough frame eats into the interior; the
+%     limits below are therefore derived from the very expressions the drawing
+%     nodes hand to TikZ.
+%
+% Each limit is expressed in the shape's own metric -- a radius for the circle,
+% half-extents for the rectangles, half-diagonals for the diamond -- so that
+% flat material may use the shape's full chord instead of being squeezed into
+% the inscribed square, and so that the diamond's slanted edges are honoured
+% rather than approximated by an outer rectangle.
+%
+% A shape may add a third limit, the band: the total height it allots to the
+% material whatever its width.  Only the circle sets one.  A box touches a
+% circle at its corners, and for tall narrow material those corners are where
+% the ink is not: the ink extremes of a letter such as `j' -- the dot and the
+% descender -- sit at the horizontal centre, that is at the circle's poles,
+% where a corner fit leaves no clearance at all and the letter reads as
+% crowding the stroke even though its box is inside the path.  The circle's
+% band is therefore the side of the square inscribed in the usable circle,
+% which at the default stroke is exactly the inner box the command hands TikZ
+% and reproduces the historical sizing of a lowercase letter.  The band can
+% only lower a limit that already proves containment, and it never binds for
+% material at least as wide as it is tall, so flat and multi-character
+% material keeps the shape's full chord.
+\newbox\kks@fit@box
+\newlength{\kks@fit@wd}
+\newlength{\kks@fit@ht}
+\newlength{\kks@fit@lw}   % the line width the drawing node is given
+\newlength{\kks@fit@path} % half-extent of the drawn path itself
+\newlength{\kks@fit@a}    % usable half-width, radius, or half-diagonal
+\newlength{\kks@fit@b}    % usable half-height (equal to \kks@fit@a for every
+                          % enclosure here, kept separate for readability)
+\newlength{\kks@fit@rc}   % radius of the drawn corner arc (0 = sharp corner)
+\newlength{\kks@fit@cx}   % centre of that arc, measured from the shape centre
+\newlength{\kks@fit@cy}
+\newlength{\kks@fit@band} % total height the shape allots to the material,
+                          % whatever its width (0pt = the shape sets no band)
+\newlength{\kks@fit@wide} % width above which the design settles for the wide
+                          % base below (0pt = the shape has no such width)
+% Material wider than the shape's own inner box has never been given the full
+% base size: the historical routes stepped down to this factor instead, which
+% is what keeps a wide letter such as `m' or `w' clear of the frame at the
+% sides.  It applies as one more upper bound, so it can only ever make a fit
+% smaller than the geometry already allows.
+\newcommand{\kks@fit@widebase}{.85}
+% Whether this enclosure lets a single glyph take that wide base outright.
+% Only the two routes that also run the ink guard do: a lone glyph's width is
+% bounded by the em and its ink stops short of its own box corners, so the box
+% corner crossing the stroke does not put ink there -- which is exactly how the
+% historical routes sized `m' and `w'.  A string has no such bound, so it keeps
+% the geometric limit.  0 = off, 1 = on; every setup clears it.
+\newcommand{\kks@fit@widefree}{0}
+% 1 when that allowance was actually taken, for the fixtures to read.
+\newcommand{\kks@fit@widetaken}{0}
+% The size lowercase material keeps whenever it already fits; this is the
+% factor the star routes have always applied to a letter that needs no
+% shrinking, and it is what keeps \maru*{m} the same size as \maru{m}.
+\newcommand{\kks@fit@base}{.9}
+
+% A vanishing dimension carries no constraint of its own.  The floor keeps the
+% divisions below finite without changing any measurement that exists.
+\newcommand{\kks@fit@measure}[1]{%
+  \setbox\kks@fit@box=\hbox{#1}%
+  \setlength{\kks@fit@wd}{\wd\kks@fit@box}%
+  \setlength{\kks@fit@ht}{\dimexpr\ht\kks@fit@box+\dp\kks@fit@box\relax}%
+  \ifdim\kks@fit@wd<.01pt\setlength{\kks@fit@wd}{.01pt}\fi
+  \ifdim\kks@fit@ht<.01pt\setlength{\kks@fit@ht}{.01pt}\fi
+}
+% #1 is the largest scale the shape allows, or 0 when the enclosure has no
+% interior left to fit into (a stroke thick enough to swallow it).  In that
+% case there is nothing to compute from and the plain lowercase size is used,
+% exactly as \jegg's own scaler does.
+\newcommand{\kks@fit@emit}[2]{%
+  \ifdim #1pt>\z@
+    \pgfmathsetmacro{\kks@fit@scale}{min(#2,#1)}%
+  \else
+    \def\kks@fit@scale{#2}%
+  \fi
+  \scalebox{\kks@fit@scale}{\copy\kks@fit@box}%
+}
+
+% Largest uniform scale that keeps the measured box inside a rounded rectangle
+% with half-extents a and b whose corner arcs have radius rc about (cx,cy).
+% A sharp rectangle is the case rc = 0, and a circle of radius r the case
+% a = b = rc = r with the arc centred on the shape centre.  The material is
+% centred on the shape, so one corner decides everything: the ray from the
+% centre through that corner leaves the rectangle through a straight side
+% unless the exit point lies beyond both arc centres, and only then does the
+% arc itself become the limit.  Solving on the ray normalised by its longer
+% component keeps every quantity in the quadratic within pgfmath's range.
+\NewDocumentCommand{\kks@fit@into@box}{ m m }{%
+  \begingroup
+    % Read the limits before the material is typeset: a nested enclosure would
+    % otherwise overwrite them while it sizes its own contents.
+    \edef\kks@fit@aa{\the\kks@fit@a}%
+    \edef\kks@fit@bb{\the\kks@fit@b}%
+    \edef\kks@fit@rr{\the\kks@fit@rc}%
+    \edef\kks@fit@ccx{\the\kks@fit@cx}%
+    \edef\kks@fit@ccy{\the\kks@fit@cy}%
+    \edef\kks@fit@bband{\the\kks@fit@band}%
+    \edef\kks@fit@wwide{\the\kks@fit@wide}%
+    \gdef\kks@fit@widetaken{0}%
+    \kks@fit@measure{#2}%
+    \def\kks@fit@limit{0}%
+    \ifdim\kks@fit@aa>\z@
+      \ifdim\kks@fit@bb>\z@
+        \pgfmathsetmacro{\kks@fit@limit}{%
+          min(2*\kks@fit@aa/\kks@fit@wd, 2*\kks@fit@bb/\kks@fit@ht)}%
+        % The same limit read on the axes rather than at the corner: how far
+        % the material may go before its widest and tallest points leave the
+        % shape.  The corner solution below overwrites the limit, so keep it.
+        \let\kks@fit@side\kks@fit@limit
+        \pgfmathsetmacro{\kks@fit@px}{.5*\kks@fit@limit*\kks@fit@wd}%
+        \pgfmathsetmacro{\kks@fit@py}{.5*\kks@fit@limit*\kks@fit@ht}%
+        \ifdim\kks@fit@px pt>\kks@fit@ccx
+          \ifdim\kks@fit@py pt>\kks@fit@ccy
+            % The exit point lies past both arc centres, so the arc is what
+            % the material actually meets.  Solve on the ray, normalised by
+            % its longer component, and take the larger root: the ray starts
+            % outside the arc's circle and leaves it there.
+            \pgfmathsetmacro{\kks@fit@qn}{max(\kks@fit@wd,\kks@fit@ht)}%
+            \pgfmathsetmacro{\kks@fit@qx}{\kks@fit@wd/\kks@fit@qn}%
+            \pgfmathsetmacro{\kks@fit@qy}{\kks@fit@ht/\kks@fit@qn}%
+            \pgfmathsetmacro{\kks@fit@qa}{%
+              \kks@fit@qx*\kks@fit@qx + \kks@fit@qy*\kks@fit@qy}%
+            \pgfmathsetmacro{\kks@fit@qb}{%
+              \kks@fit@qx*\kks@fit@ccx + \kks@fit@qy*\kks@fit@ccy}%
+            \pgfmathsetmacro{\kks@fit@qc}{%
+              \kks@fit@ccx*\kks@fit@ccx + \kks@fit@ccy*\kks@fit@ccy
+                - \kks@fit@rr*\kks@fit@rr}%
+            \pgfmathsetmacro{\kks@fit@limit}{%
+              2 * (\kks@fit@qb
+                   + sqrt(max(0, \kks@fit@qb*\kks@fit@qb
+                                   - \kks@fit@qa*\kks@fit@qc)))
+                / (\kks@fit@qa * \kks@fit@qn)}%
+          \fi
+        \fi
+        % Wide material settles for the wide base, as it always has.  Where
+        % the enclosure allows it, a single glyph takes that base outright
+        % rather than the corner limit, which is what the historical routes
+        % did and what keeps `m' and `w' their familiar size.
+        \ifdim\kks@fit@wwide>\z@
+          \ifdim\kks@fit@widebase\kks@fit@wd>\kks@fit@wwide\relax
+            \def\kks@fit@single{0}%
+            \ifnum\kks@fit@widefree=1
+              \edef\kks@fit@single{%
+                \directlua{tex.sprint(KKsymbols.glyph_count(%
+                  \number\kks@fit@box))}}%
+            \fi
+            \ifnum\kks@fit@single=1
+              % A lone glyph is judged on the axes, the way the ink guard
+              % judges it: its ink does not reach its own box corners, so the
+              % corner solution understates what fits, while the widest and
+              % tallest points of the box are what must stay inside the shape.
+              % This still tightens with the stroke, so a heavy frame shrinks
+              % such a glyph exactly as it shrinks everything else.
+              \gdef\kks@fit@widetaken{1}%
+              \pgfmathsetmacro{\kks@fit@limit}{%
+                min(\kks@fit@widebase, \kks@fit@side)}%
+            \else
+              \pgfmathsetmacro{\kks@fit@limit}{%
+                min(\kks@fit@limit, \kks@fit@widebase)}%
+            \fi
+          \fi
+        \fi
+        % The band, where the shape sets one.  It comes last so that it also
+        % holds the wide allowance above: it can only lower whatever limit
+        % has been reached, so containment stays proved by that limit.
+        \ifdim\kks@fit@bband>\z@
+          \pgfmathsetmacro{\kks@fit@limit}{%
+            min(\kks@fit@limit, \kks@fit@bband/\kks@fit@ht)}%
+        \fi
+      \fi
+    \fi
+    \kks@fit@emit{\kks@fit@limit}{#1}%
+  \endgroup
+}
+
+% Largest uniform scale that keeps the measured box inside a diamond with
+% half-diagonals a and b.  A box of width w and total height h centred on such
+% a diamond touches its edges exactly when w/2a + h/2b = 1, which is the true
+% inscribed fit; treating the diamond as its bounding rectangle would waste
+% most of the room a wide, flat string needs.
+\NewDocumentCommand{\kks@fit@into@diamond}{ m m }{%
+  \begingroup
+    \edef\kks@fit@aa{\the\kks@fit@a}%
+    \edef\kks@fit@bb{\the\kks@fit@b}%
+    \edef\kks@fit@bband{\the\kks@fit@band}%
+    \edef\kks@fit@wwide{\the\kks@fit@wide}%
+    \gdef\kks@fit@widetaken{0}%
+    \kks@fit@measure{#2}%
+    \def\kks@fit@limit{0}%
+    \ifdim\kks@fit@aa>\z@
+      \ifdim\kks@fit@bb>\z@
+        \pgfmathsetmacro{\kks@fit@limit}{%
+          1 / (.5*\kks@fit@wd/\kks@fit@aa + .5*\kks@fit@ht/\kks@fit@bb)}%
+        % Wide material settles for the wide base, as it always has.  No
+        % diamond sets a wide width, so this is inert; it is kept so that both
+        % fit routines state the same rule.
+        \ifdim\kks@fit@wwide>\z@
+          \ifdim\kks@fit@widebase\kks@fit@wd>\kks@fit@wwide\relax
+            \pgfmathsetmacro{\kks@fit@limit}{%
+              min(\kks@fit@limit, \kks@fit@widebase)}%
+          \fi
+        \fi
+        % No diamond sets a band -- its slanted edges already leave the top
+        % and bottom clear -- but the capture and this guard keep the rule
+        % identical in both fit routines, including when a banded enclosure
+        % is nested inside diamond material.
+        \ifdim\kks@fit@bband>\z@
+          \pgfmathsetmacro{\kks@fit@limit}{%
+            min(\kks@fit@limit, \kks@fit@bband/\kks@fit@ht)}%
+        \fi
+      \fi
+    \fi
+    \kks@fit@emit{\kks@fit@limit}{#1}%
+  \endgroup
+}
+
+% The setup commands run in the enclosure's own context, never inside the TikZ
+% node, because \zw there need not be the enclosure's Japanese em.  Each takes
+% the inner box, the inner separation, the minimum size and the corner radius
+% exactly as its drawing node states them, and \kks@fit@lw must already hold
+% the line width that node is given.
+%
+% pgf gives a circle node the radius sqrt(xa^2+ya^2) of its text box plus the
+% inner separation, raised to half the minimum size, and strokes that path
+% centred.  The inner box is square, hence the sqrt(2).  Its circumscribed
+% circle is the historical limit.  #1 inner box, #2 inner sep, #3 minimum
+% size, #4 how far the stroke reaches inwards.
+\newcommand{\kks@fit@setup@circle}[4]{%
+  \pgfmathsetlength{\kks@fit@a}{%
+    min(0.5*sqrt(2)*(#1),
+        max(0.5*(#3), sqrt(2)*(0.5*(#1)+(#2))) - (#4))}%
+  \setlength{\kks@fit@b}{\kks@fit@a}%
+  \setlength{\kks@fit@rc}{\kks@fit@a}%
+  \setlength{\kks@fit@cx}{\z@}%
+  \setlength{\kks@fit@cy}{\z@}%
+  % The side of the square inscribed in the usable circle.  At the default
+  % stroke the usable radius is the inner box over sqrt(2), so the band is the
+  % inner box itself; a heavier stroke tightens it in step with the outline.
+  \pgfmathsetlength{\kks@fit@band}{1.4142136*\kks@fit@a}%
+  % Wider than that same inner box is what `wide' has always meant here.
+  \setlength{\kks@fit@wide}{\kks@fit@band}%
+  \def\kks@fit@widefree{0}%
+}
+% A rectangle node is as wide as its text box plus twice the inner separation,
+% raised to the minimum size, and `rounded corners' bends its corners on arcs
+% of the given radius.  Taking the stroke in by half its width leaves those
+% arcs concentric, so only their radius shrinks.  #5 is the corner radius.
+\newcommand{\kks@fit@setup@rect}[5]{%
+  \pgfmathsetlength{\kks@fit@path}{0.5*max((#3), (#1)+2*(#2))}%
+  \pgfmathsetlength{\kks@fit@a}{min(0.5*(#1), \kks@fit@path - (#4))}%
+  \setlength{\kks@fit@b}{\kks@fit@a}%
+  \pgfmathsetlength{\kks@fit@rc}{max(0, (#5) - (#4))}%
+  \pgfmathsetlength{\kks@fit@cx}{\kks@fit@path - (#5)}%
+  \setlength{\kks@fit@cy}{\kks@fit@cx}%
+  % A rectangle's own half-height already is the band.
+  \setlength{\kks@fit@band}{\z@}%
+  \setlength{\kks@fit@wide}{\z@}%
+  \def\kks@fit@widefree{0}%
+}
+% An opening with nothing drawn around it: the material simply has to stay
+% inside the box the enclosure reserves for it.
+\newcommand{\kks@fit@setup@plain}[2]{%
+  \setlength{\kks@fit@a}{.5#1}%
+  \setlength{\kks@fit@b}{.5#2}%
+  \setlength{\kks@fit@rc}{\z@}%
+  \setlength{\kks@fit@cx}{\kks@fit@a}%
+  \setlength{\kks@fit@cy}{\kks@fit@b}%
+  \setlength{\kks@fit@band}{\z@}%
+  \setlength{\kks@fit@wide}{\z@}%
+  \def\kks@fit@widefree{0}%
+}
+% With the default aspect a diamond node's half-diagonal is the sum of the two
+% half-extents of its text box plus the inner separation, raised to half the
+% minimum size, and its background path then pulls the tips in by .414 of the
+% outer separation, which pgf initialises to half the line width.  Taking that
+% path in by half the stroke moves each slanted edge .707 of a line width along
+% the diagonal, and a rounded tip costs a further .414 of the arc radius the
+% inner edge is left with.  A square inner box of side s is inscribed exactly
+% in a diamond of half-diagonal s, which is the historical limit.  #4 is the
+% line width itself here, since the diamond needs it in more than one place.
+\newcommand{\kks@fit@setup@diamond}[5]{%
+  \pgfmathsetlength{\kks@fit@path}{%
+    max(0.5*(#3), 2*(0.5*(#1)+(#2))) - 0.4142136*0.5*(#4)}%
+  \pgfmathsetlength{\kks@fit@a}{%
+    min((#1),
+        \kks@fit@path - 0.7071068*(#4)
+          - 0.4142136*max(0, (#5) - 0.5*(#4)))}%
+  \setlength{\kks@fit@b}{\kks@fit@a}%
+  % The slanted edges already keep the top and bottom of a tall box clear.
+  \setlength{\kks@fit@band}{\z@}%
+  \setlength{\kks@fit@wide}{\z@}%
+  \def\kks@fit@widefree{0}%
+}
+% A negative line width is already reported when the package loads; ignore its
+% sign here so that a stroke can never widen an interior.
+\newcommand{\kks@fit@linewidth}[1]{%
+  \setlength{\kks@fit@lw}{#1}%
+  \ifdim\kks@fit@lw<\z@\setlength{\kks@fit@lw}{\z@}\fi
 }
 
 % Shrink-only visual overflow guard.  The raw material and the exact legacy
@@ -709,12 +1006,14 @@
 \DeclareRobustCommand{\maru@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
-  \settowidth{\maru@var@yokohaba}{#1}%
-  \settoheight{\maru@var@tate}{\kks@withref{#1}}%
-  \settodepth{\maru@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
-  \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
   \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@marulinewidth}{\kksymbols@linewidth}%
+    {.04\maru@boxwidth@new}}%
+  \kks@fit@setup@circle{\maru@boxwidth@inner}{.02\maru@boxwidth@new}
+    {.9\maru@boxwidth@new}{.5\kks@fit@lw}%
+  % This route runs the ink guard below, so a single wide glyph may take the
+  % historical wide size; anything the ink really oversteps is caught there.
+  \def\kks@fit@widefree{1}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \maru@boxwidth@new{%
@@ -739,7 +1038,7 @@
           \kks@visual@guard@circle
             {\maru@boxwidth@inner}{.02\maru@boxwidth@new}{.9\maru@boxwidth@new}
             {-\kks@linewidth{\kksymbols@marulinewidth}{\kksymbols@linewidth}{.04\maru@boxwidth@new}}
-            {\shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{\kks@visual@material}}
+            {\kks@fit@into@box{\kks@fit@base}{\kks@visual@material}}
             {\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
@@ -807,12 +1106,14 @@
 \DeclareRobustCommand{\kuromaru@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
-  \settowidth{\maru@var@yokohaba}{#1}%
-  \settoheight{\maru@var@tate}{\kks@withref{#1}}%
-  \settodepth{\maru@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
-  \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
   \pgfmathsetlength{\maru@boxwidth@inner}{0.87 * \maru@boxwidth@new / sqrt(2)}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@kuromarulinewidth}{\kksymbols@linewidth}%
+    {.04\maru@boxwidth@new}}%
+  \kks@fit@setup@circle{\maru@boxwidth@inner}{.02\maru@boxwidth@new}
+    {.9\maru@boxwidth@new}{.5\kks@fit@lw}%
+  % This route runs the ink guard below, so a single wide glyph may take the
+  % historical wide size; anything the ink really oversteps is caught there.
+  \def\kks@fit@widefree{1}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \maru@boxwidth@new{%
@@ -838,7 +1139,7 @@
           \kks@visual@guard@circle
             {\maru@boxwidth@inner}{.02\maru@boxwidth@new}{.9\maru@boxwidth@new}
             {\kks@linewidth{\kksymbols@kuromarulinewidth}{\kksymbols@linewidth}{.04\maru@boxwidth@new}}
-            {\shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{\kks@visual@material}}
+            {\kks@fit@into@box{\kks@fit@base}{\kks@visual@material}}
             {\textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
@@ -906,12 +1207,15 @@
 \DeclareRobustCommand{\nmaru@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\maru@boxwidth@new}{\zw}%
-  \settowidth{\maru@var@yokohaba}{#1}%
-  \settoheight{\maru@var@tate}{\kks@withref{#1}}%
-  \settodepth{\maru@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
-  \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
   \pgfmathsetlength{\maru@boxwidth@inner}{0.82 * \maru@boxwidth@new / sqrt(2)}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@nmarulinewidth}{\kksymbols@linewidth}%
+    {.03\maru@boxwidth@new}}%
+  % The doubled outline strokes a band of twice the line width plus the double
+  % distance, and pgf transforms the path but not the stroke, so `scale' leaves
+  % that band measured in the node's own, unscaled units.
+  \kks@fit@setup@circle{\maru@boxwidth@inner}{.06\maru@boxwidth@new}
+    {.88\maru@boxwidth@new}{(\kks@fit@lw + .015\maru@boxwidth@new) / 0.9}%
+  \def\kks@fit@widefree{1}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \maru@boxwidth@new{%
@@ -934,7 +1238,7 @@
         \vss%
         \hbox to \maru@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@maru{\maru@var@zenkou}{\maru@boxwidth@inner}{\maru@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
+          \kks@fit@into@box{\kks@fit@base}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1054,31 +1358,102 @@
 % sizing path needs private wrappers instead of another user-visible star.
 % The wrappers locally replace only the generic scaler used by \jegg; the
 % drawing code and the starred background remain exactly the same.
+%
+% The egg also needs a scaler of its own.  Every other enclosure fits its
+% material to a shape the \kks@fit@ helpers can describe, but \jegg's inner box
+% (\jegg@boxwidth@inner@cal) is only the width limit of a much taller ellipse.
+% Sizing lowercase from that single length made `c' as tall as the enclosed
+% `C' and left wide `m'/`w' at a natural width that ran straight through the
+% outline.  Scale uniformly instead: start from the size
+% the circle enclosures give lowercase (.9 of the natural size), taken down by
+% the .77 ratio between the egg's and the circle's inner boxes so that `c'
+% keeps its familiar x-height-to-cap-height look next to \jegg{C}, and shrink
+% further only when the glyph box does not fit inside the drawn ellipse.
+%
+% Both `minimum' keys win over the node contents and `inner sep' is 0, so the
+% ellipse path is always .7\zw wide and .9\zw high, and TikZ centres the stroke
+% on that path.  The usable half-axes are therefore .35\zw and .45\zw less half
+% of the drawn line width.  That width is not always the historical .04\zw any
+% more: `jegglinewidth' and `linewidth' can make the egg's stroke arbitrarily
+% thicker, which eats into the interior, so the half-axes are derived from the
+% very expression both drawing nodes hand to TikZ.  A box of width w and total
+% height h centred on that ellipse fits exactly when (w/2a)^2 + (h/2b)^2 <= 1,
+% so the square root below (call it the reach) must stay under 2; dividing the
+% padding factor by it yields the largest aspect-preserving scale in one step.
+\newbox\kks@jegg@lower@box
+\newlength{\kks@jegg@lower@width}
+\newlength{\kks@jegg@lower@height}
+\newlength{\kks@jegg@lower@linewidth}
+\newlength{\kks@jegg@lower@hradius}
+\newlength{\kks@jegg@lower@vradius}
+% Half of the ellipse path itself, before the stroke is taken into account.
+\newcommand{\kks@jegg@lower@hradius@ratio}{.35}% .7\zw wide
+\newcommand{\kks@jegg@lower@vradius@ratio}{.45}% .9\zw high
+\newcommand{\kks@jegg@lower@base}{.69}% .9 (circle lowercase) * .77 (inner box)
+\newcommand{\kks@jegg@lower@pad}{.92}% visual gap between glyph and outline
+% #1 (natural width) and #2 (the inner box) only complete \shukushou@adj@new's
+% signature; the egg takes its limits from the ellipse the wrapper measured.
 \NewDocumentCommand{\kks@jegg@lowercase@scale}{ m m m }{%
-  \shukushou@adj@new@no@maru
-    {\maru@var@zenkou}{#2}{\maru@var@yokohaba@cal}{#3}%
+  \begingroup
+    \setbox\kks@jegg@lower@box=\hbox{#3}%
+    \setlength{\kks@jegg@lower@width}{\wd\kks@jegg@lower@box}%
+    \setlength{\kks@jegg@lower@height}{%
+      \dimexpr\ht\kks@jegg@lower@box+\dp\kks@jegg@lower@box\relax}%
+    % A stroke thick enough to swallow the ellipse leaves no interior to fit
+    % into, and an empty argument has nothing to fit; in both cases there is no
+    % reach to divide by, so fall back to the plain lowercase size.
+    \ifdim\kks@jegg@lower@hradius>\z@
+      \ifdim\kks@jegg@lower@vradius>\z@
+        \pgfmathsetmacro{\kks@jegg@lower@reach}{%
+          sqrt((\kks@jegg@lower@width / \kks@jegg@lower@hradius)^2
+             + (\kks@jegg@lower@height / \kks@jegg@lower@vradius)^2)}%
+      \else
+        \def\kks@jegg@lower@reach{0}%
+      \fi
+    \else
+      \def\kks@jegg@lower@reach{0}%
+    \fi
+    \ifdim\kks@jegg@lower@reach pt>\z@
+      \pgfmathsetmacro{\kks@jegg@lower@scale}{%
+        min(\kks@jegg@lower@base,
+            2 * \kks@jegg@lower@pad / \kks@jegg@lower@reach)}%
+    \else
+      \let\kks@jegg@lower@scale\kks@jegg@lower@base
+    \fi
+    \scalebox{\kks@jegg@lower@scale}{\copy\kks@jegg@lower@box}%
+  \endgroup
+}
+% The half-axes are measured here, in the surrounding text context, because the
+% scaler itself runs inside the TikZ node where \zw need not be the enclosure's
+% own Japanese em.  \maru@boxwidth@new is set exactly as \jegg@new sets it, so a
+% relative line width resolves against the same em the outline is drawn with.
+\newcommand{\kks@jegg@lower@setup}{%
+  \setlength{\maru@boxwidth@new}{\zw}%
+  \setlength{\kks@jegg@lower@linewidth}{%
+    \kks@linewidth{\kksymbols@jegglinewidth}{\kksymbols@linewidth}%
+      {.04\maru@boxwidth@new}}%
+  % A negative option value is already reported when the package loads; ignore
+  % its sign here so a stroke can never widen the interior past the path.
+  \ifdim\kks@jegg@lower@linewidth<\z@
+    \setlength{\kks@jegg@lower@linewidth}{\z@}%
+  \fi
+  \setlength{\kks@jegg@lower@hradius}{\kks@jegg@lower@hradius@ratio\zw}%
+  \addtolength{\kks@jegg@lower@hradius}{-.5\kks@jegg@lower@linewidth}%
+  \setlength{\kks@jegg@lower@vradius}{\kks@jegg@lower@vradius@ratio\zw}%
+  \addtolength{\kks@jegg@lower@vradius}{-.5\kks@jegg@lower@linewidth}%
+  \let\shukushou@adj@new\kks@jegg@lowercase@scale
 }
 \DeclareRobustCommand{\jegg@new@no}[1]{%
   \leavevmode
   \begingroup
-    \settoheight{\maru@var@tate}{\kks@withref{#1}}%
-    \settodepth{\maru@var@fuka}{\kks@withref{#1}}%
-    \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
-    \settowidth{\maru@var@yokohaba}{#1}%
-    \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
-    \let\shukushou@adj@new\kks@jegg@lowercase@scale
+    \kks@jegg@lower@setup
     \jegg@new{#1}%
   \endgroup
 }
 \DeclareRobustCommand{\jegg@new@black@no}[1]{%
   \leavevmode
   \begingroup
-    \settoheight{\maru@var@tate}{\kks@withref{#1}}%
-    \settodepth{\maru@var@fuka}{\kks@withref{#1}}%
-    \pgfmathsetlength{\maru@var@zenkou}{\maru@var@tate + \maru@var@fuka}%
-    \settowidth{\maru@var@yokohaba}{#1}%
-    \pgfmathsetlength{\maru@var@yokohaba@cal}{0.85 * \maru@var@yokohaba}%
-    \let\shukushou@adj@new\kks@jegg@lowercase@scale
+    \kks@jegg@lower@setup
     \jegg@new@black{#1}%
   \endgroup
 }
@@ -1095,42 +1470,7 @@
 }
 \newlength{\seihou@boxwidth@new}
 \newlength{\seihou@boxwidth@inner}
-\newlength{\seihou@var@yokohaba@cal}
 \newlength{\seihou@var@yokohaba}
-\newlength{\seihou@var@tate}
-\newlength{\seihou@var@fuka}
-\newlength{\seihou@var@zenkou}
-
-\NewDocumentCommand{\shukushou@adj@new@no@seihou}{ m m m m }{%
-  \ifdim #1 < #2%
-    \ifdim #3 > #2%
-      \resizebox*{#3}{!}{#4}%
-    \else%
-      \scalebox{.9}{#4}%
-    \fi%
-  \else%
-    \resizebox*{!}{#2}{#4}%
-  \fi%
-}
-
-% The diamond's usable square is much narrower than the square/circle inner
-% boxes.  Preserve the lowercase glyph's aspect ratio while constraining both
-% its natural width (#3) and total height (#1) to that square (#2).
-\NewDocumentCommand{\shukushou@adj@new@no@hishi}{ m m m m }{%
-  \ifdim #3 > #2%
-    \ifdim #1 > #3%
-      \resizebox*{!}{#2}{#4}%
-    \else%
-      \resizebox*{#2}{!}{#4}%
-    \fi%
-  \else%
-    \ifdim #1 > #2%
-      \resizebox*{!}{#2}{#4}%
-    \else%
-      \scalebox{.9}{#4}%
-    \fi%
-  \fi%
-}
 
 \DeclareRobustCommand{\seihou@new}[1]{%
   \kks@chech@maru@onedigit{#1}%
@@ -1180,12 +1520,11 @@
 \DeclareRobustCommand{\seihou@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
-  \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
-  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
-  \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@seihoulinewidth}{\kksymbols@linewidth}%
+    {.04\seihou@boxwidth@new}}%
+  \kks@fit@setup@rect{\seihou@boxwidth@inner}{.1\seihou@boxwidth@new}
+    {.85\seihou@boxwidth@new}{.5\kks@fit@lw}{0pt}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1206,7 +1545,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
+          \kks@fit@into@box{\kks@fit@base}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1272,12 +1611,11 @@
 \DeclareRobustCommand{\kuroseihou@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
-  \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
-  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
-  \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@kuroseihoulinewidth}{\kksymbols@linewidth}%
+    {.04\seihou@boxwidth@new}}%
+  \kks@fit@setup@rect{\seihou@boxwidth@inner}{.1\seihou@boxwidth@new}
+    {.85\seihou@boxwidth@new}{.5\kks@fit@lw}{0pt}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1299,7 +1637,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{%
+          \kks@fit@into@box{\kks@fit@base}{%
             \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
@@ -1366,12 +1704,11 @@
 \DeclareRobustCommand{\seimaru@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
-  \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
-  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
-  \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@seimarulinewidth}{\kksymbols@linewidth}%
+    {.04\seihou@boxwidth@new}}%
+  \kks@fit@setup@rect{\seihou@boxwidth@inner}{.1\seihou@boxwidth@new}
+    {.85\seihou@boxwidth@new}{.5\kks@fit@lw}{.13\seihou@boxwidth@new}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1393,7 +1730,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
+          \kks@fit@into@box{\kks@fit@base}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1460,12 +1797,11 @@
 \DeclareRobustCommand{\kuroseimaru@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
-  \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
-  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
-  \pgfmathsetlength{\seihou@var@yokohaba@cal}{0.85 * \seihou@var@yokohaba}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.68 * \seihou@boxwidth@new}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@kuroseimarulinewidth}{\kksymbols@linewidth}%
+    {.04\seihou@boxwidth@new}}%
+  \kks@fit@setup@rect{\seihou@boxwidth@inner}{.1\seihou@boxwidth@new}
+    {.85\seihou@boxwidth@new}{.5\kks@fit@lw}{.13\seihou@boxwidth@new}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1488,7 +1824,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@seihou{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba@cal}{%
+          \kks@fit@into@box{\kks@fit@base}{%
             \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
@@ -1550,11 +1886,11 @@
 \DeclareRobustCommand{\hishi@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
-  \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
-  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@hishilinewidth}{\kksymbols@linewidth}%
+    {.04\seihou@boxwidth@new}}%
+  \kks@fit@setup@diamond{\seihou@boxwidth@inner}{.03\seihou@boxwidth@new}
+    {.5\seihou@boxwidth@new}{\kks@fit@lw}{0pt}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1576,7 +1912,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@hishi{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
+          \kks@fit@into@diamond{\kks@fit@base}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1638,11 +1974,11 @@
 \DeclareRobustCommand{\maruhishi@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
-  \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
-  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@maruhishilinewidth}{\kksymbols@linewidth}%
+    {.04\seihou@boxwidth@new}}%
+  \kks@fit@setup@diamond{\seihou@boxwidth@inner}{.03\seihou@boxwidth@new}
+    {.5\seihou@boxwidth@new}{\kks@fit@lw}{.06\seihou@boxwidth@new}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1665,7 +2001,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@hishi{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
+          \kks@fit@into@diamond{\kks@fit@base}{\kks@withref{\kks@ShrinkedNumber{#1}}}%
         \hss%
         }%
         \vss%
@@ -1728,11 +2064,11 @@
 \DeclareRobustCommand{\kurohishi@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
-  \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
-  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@kurohishilinewidth}{\kksymbols@linewidth}%
+    {.04\seihou@boxwidth@new}}%
+  \kks@fit@setup@diamond{\seihou@boxwidth@inner}{.03\seihou@boxwidth@new}
+    {.5\seihou@boxwidth@new}{\kks@fit@lw}{0pt}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1755,7 +2091,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@hishi{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba}{%
+          \kks@fit@into@diamond{\kks@fit@base}{%
             \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
@@ -1820,11 +2156,11 @@
 \DeclareRobustCommand{\kuromaruhishi@new@no}[1]{%
   \rot@or@not@kksym%
   \setlength{\seihou@boxwidth@new}{\zw}%
-  \settowidth{\seihou@var@yokohaba}{#1}%
-  \settoheight{\seihou@var@tate}{\kks@withref{#1}}%
-  \settodepth{\seihou@var@fuka}{\kks@withref{#1}}%
-  \pgfmathsetlength{\seihou@var@zenkou}{\seihou@var@tate + \seihou@var@fuka}%
   \pgfmathsetlength{\seihou@boxwidth@inner}{0.85 * \seihou@boxwidth@new / 2}%
+  \kks@fit@linewidth{\kks@linewidth{\kksymbols@kuromaruhishilinewidth}{\kksymbols@linewidth}%
+    {.04\seihou@boxwidth@new}}%
+  \kks@fit@setup@diamond{\seihou@boxwidth@inner}{.03\seihou@boxwidth@new}
+    {.5\seihou@boxwidth@new}{\kks@fit@lw}{.06\seihou@boxwidth@new}%
   \leavevmode%
   \ltjghostbeforejachar%
   \hbox to \seihou@boxwidth@new{%
@@ -1848,7 +2184,7 @@
         \vss%
         \hbox to \seihou@boxwidth@inner{%
         \hss%
-          \shukushou@adj@new@no@hishi{\seihou@var@zenkou}{\seihou@boxwidth@inner}{\seihou@var@yokohaba}{%
+          \kks@fit@into@diamond{\kks@fit@base}{%
             \textcolor{white}{\kks@withref{\kks@ShrinkedNumber{#1}}}}%
         \hss%
         }%
@@ -1871,22 +2207,6 @@
 \newlength{\kakko@boxwidth@new}
 \newlength{\kakko@boxwidth@inner}
 \newlength{\kakko@var@yokohaba}
-\newlength{\kakko@var@yokohaba@cal}
-\newlength{\kakko@var@tate}
-\newlength{\kakko@var@fuka}
-\newlength{\kakko@var@zenkou}
-
-\NewDocumentCommand{\shukushou@adj@new@no@kakko}{ m m m m }{%
-  \ifdim #1 < #2%
-    \ifdim #3 > #2%
-      \resizebox*{#3}{!}{#4}%
-    \else%
-      \scalebox{.9}{#4}%
-    \fi%
-  \else%
-    \resizebox*{!}{#2}{#4}%
-  \fi%
-}
 
 \DeclareRobustCommand{\kakko@byouga@internal}[3]{% 横の方
   \rot@or@not@kksym%
@@ -1916,12 +2236,8 @@
 \DeclareRobustCommand{\kakko@byouga@internal@no}[3]{% 横の方
   \rot@or@not@kksym%
   \setlength{\kakko@boxwidth@new}{\zw}%
-  \settowidth{\kakko@var@yokohaba}{#3}%
-  \settoheight{\kakko@var@tate}{\kks@withref{#3}}%
-  \settodepth{\kakko@var@fuka}{\kks@withref{#3}}%
-  \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
-  \pgfmathsetlength{\kakko@var@yokohaba@cal}{0.9 * \kakko@var@yokohaba}%
   \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+  \kks@fit@setup@plain{\kakko@boxwidth@inner}{\kakko@boxwidth@inner}%
   \leavevmode%
   \ltjghostbeforejachar%
     \hbox to \zw{\hss%
@@ -1933,7 +2249,7 @@
           \hss%
             \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
               \kks@visual@guard@bracket{#1}{#2}{\kakko@boxwidth@inner}{\rot@kksym@tateyoko}{%
-                \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{\kks@visual@material}}{%
+                \kks@fit@into@box{\kks@fit@base}{\kks@visual@material}}{%
                 \kks@withref{\kks@ShrinkedNumber{#3}}}}%
           \hss%
           }%
@@ -1984,12 +2300,8 @@
   \rot@or@not@kksym%
   \ifnum\ltjgetparameter{direction}=3\pgfmathsetmacro{\rot@kksym@tateyoko}{\rot@kksym@tateyoko - 90}\fi%
   \setlength{\kakko@boxwidth@new}{\zw}%
-  \settowidth{\kakko@var@yokohaba}{#3}%
-  \settoheight{\kakko@var@tate}{\kks@withref{#3}}%
-  \settodepth{\kakko@var@fuka}{\kks@withref{#3}}%
-  \pgfmathsetlength{\kakko@var@zenkou}{\kakko@var@tate + \kakko@var@fuka}%
-  \pgfmathsetlength{\kakko@var@yokohaba@cal}{0.9 * \kakko@var@yokohaba}%
   \pgfmathsetlength{\kakko@boxwidth@inner}{0.8 * \kakko@boxwidth@new}%
+  \kks@fit@setup@plain{\kakko@boxwidth@inner}{\kakko@boxwidth@inner}%
   \leavevmode%
   \ltjghostbeforejachar%
     \raisebox{-.5\zw}{%
@@ -2009,7 +2321,7 @@
             \hss%
             \rotatebox[origin=c]{\rot@kksym@tateyoko}{%
               \kks@visual@guard@bracket{#1}{#2}{\kakko@boxwidth@inner}{\rot@kksym@tateyoko}{%
-                \shukushou@adj@new@no@kakko{\kakko@var@zenkou}{\kakko@boxwidth@inner}{\kakko@var@yokohaba@cal}{\kks@visual@material}}{%
+                \kks@fit@into@box{\kks@fit@base}{\kks@visual@material}}{%
                 \kks@withref{\kks@ShrinkedNumber{#3}}}%
             }\hss}\vss}%
           }%
@@ -2029,17 +2341,13 @@
 
 
 % \ichimoji
-\newlength{\ichimoji@yk@new}
-\newlength{\ichimoji@ht@new}
-\newlength{\ichimoji@dp@new}
-\newlength{\ichimoji@zenkou@new}
+% \ichimoji draws no frame, but its star route still has to keep arbitrary
+% material inside the one em it reserves.  It used to squeeze the width alone,
+% which distorted anything wider than an em; scale uniformly instead, and, as
+% before, leave material that already fits at its natural size.
 \DeclareRobustCommand{\ichimoji@scaling}[1]{%
-  \ifdim\ichimoji@yk@new > \zw%
-    \pgfmathsetmacro{\ratio@ichimoji@yk}{\strip@pt\zw/\strip@pt\ichimoji@yk@new}%
-    \scalebox{\ratio@ichimoji@yk}[1]{#1}%
-  \else%
-    #1%
-  \fi%
+  \kks@fit@setup@plain{\zw}{\zw}%
+  \kks@fit@into@box{1}{#1}%
 }
 \DeclareRobustCommand{\ichimoji@new}[1]{%
   \ifnum\ltjgetparameter{direction}=3%
@@ -2071,10 +2379,6 @@
   \fi%
 }
 \DeclareRobustCommand{\ichimoji@new@no}[1]{%
-  \settowidth{\ichimoji@yk@new}{#1}%
-  \settoheight{\ichimoji@ht@new}{\kks@withref{#1}}%
-  \settodepth{\ichimoji@dp@new}{\kks@withref{#1}}%
-  \pgfmathsetlength{\ichimoji@zenkou@new}{\ichimoji@ht@new + \ichimoji@dp@new}%
   \ifnum\ltjgetparameter{direction}=3%
     \leavevmode%
     \ltjghostbeforejachar%

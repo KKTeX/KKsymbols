@@ -1,7 +1,7 @@
 luatexbase.provides_module{
   name     = 'KKsymbols',
-  date     = '2026/06/26',
-  version  = '2.2.2',
+  date     = '2026/08/20',
+  version  = '2.3.0',
 }
 
 KKS = KKS or {}
@@ -430,6 +430,39 @@ local function box_ink_bounds(box_number)
   bounds.height = box.height or 0
   bounds.depth = box.depth or 0
   return bounds
+end
+
+-- How many glyphs the measured material really contains.  The star routes ask
+-- this to tell a single letter, whose width the em bounds and whose ink never
+-- reaches its own box corners, from a string, whose width nothing bounds.  It
+-- counts what was actually typeset, so it is unaffected by expansion, by the
+-- font's ligatures, and by any grouping in the argument.
+local function count_glyphs(head)
+  local total = 0
+  local item = head
+  while item do
+    if item.id == glyph_id then
+      total = total + 1
+    elseif item.id == hlist_id or item.id == vlist_id then
+      total = total + count_glyphs(item.list)
+    end
+    item = item.next
+  end
+  return total
+end
+
+function KKS.glyph_count(box_number)
+  local ok, total = pcall(function()
+    local box = tex.getbox(box_number)
+    if not box then
+      return 0
+    end
+    return count_glyphs(box.list)
+  end)
+  if not ok or not total then
+    return 0
+  end
+  return total
 end
 
 -- Return an empty string for the byte-identical pass/fail-open path.  Otherwise

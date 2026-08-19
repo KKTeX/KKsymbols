@@ -15,6 +15,10 @@
 \kks@autolowercase@select{\KKSsmall}{\KKSnormal}{\Rrnum{8}}%
 \kks@autolowercase@select{\KKSsmall}{\KKSnormal}{\alphabetarray{2}}%
 \kks@autolowercase@select{\KKSsmall}{\KKSnormal}{abc}%
+% With the switch off nothing may reach \jegg's lowercase scaler, so make the
+% scaler itself the assertion for the eggs typeset below.
+\RenewDocumentCommand{\kks@jegg@lowercase@scale}{ m m m }{%
+  \PackageError{test-autolowercase-off}{Unexpected egg lowercase scaler}{}}
 \makeatother
 
 \begin{document}

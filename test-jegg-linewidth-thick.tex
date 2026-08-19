@@ -1,0 +1,24 @@
+% Regression test: a thick command-specific egg outline eats into the ellipse,
+% so the lowercase scaler must shrink wide letters further than the historical
+% .33/.43 half-axes would.  Compile with:
+%   latexmk -r .latexmkrc test-jegg-linewidth-thick.tex
+\documentclass{jlreq}
+\usepackage[jegglinewidth=1.2pt]{KKsymbols}
+\usepackage{lltjext}
+
+\newcommand{\KKSeggexpectedlw}{1.2pt}
+\input{egg-linewidth-checks}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\section*{Egg lowercase sizing (\texttt{jegglinewidth=1.2pt})}
+
+\KKSeggsuite
+\KKSeggshowcase
+
+\medskip
+\noindent Vertical-writing smoke test:\par
+\parbox<t>{6\zw}{甲\jegg{m}\jegg{w}\jegg*{g}乙}
+\end{document}

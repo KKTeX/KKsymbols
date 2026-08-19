@@ -1,0 +1,29 @@
+% Regression test: a font-relative egg outline must shrink the interior at
+% every font size, so the lowercase scaler has to recompute its half-axes
+% rather than cache them.  Compile with:
+%   latexmk -r .latexmkrc test-jegg-linewidth-relative.tex
+\documentclass{jlreq}
+\usepackage[jegglinewidth=.1\zw]{KKsymbols}
+
+\newcommand{\KKSeggexpectedlw}{.1\zw}
+\input{egg-linewidth-checks}
+
+\fboxsep=0pt
+\fboxrule=.1pt
+
+\begin{document}
+\section*{Egg lowercase sizing (\texttt{jegglinewidth=.1\textbackslash zw})}
+
+\KKSeggsuite
+{\small\KKSeggsuite}%
+{\Large\KKSeggsuite}%
+{\Huge\KKSeggsuite}%
+
+\KKSeggshowcase
+
+\medskip
+\noindent The same letters at other sizes:\par
+{\small\fbox{\jegg{c}}\fbox{\jegg{m}}\fbox{\jegg{w}}\fbox{\jegg*{g}}}\quad
+{\Large\fbox{\jegg{c}}\fbox{\jegg{m}}\fbox{\jegg{w}}\fbox{\jegg*{g}}}\quad
+{\Huge\fbox{\jegg{c}}\fbox{\jegg{m}}\fbox{\jegg{w}}\fbox{\jegg*{g}}}
+\end{document}
